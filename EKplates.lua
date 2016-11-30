@@ -32,7 +32,7 @@ local BlackList = {
 
 local Config = {
 
-	numberstyle = true, --數字樣式/infinity plates's number style
+	numberstyle = false, --數字樣式/infinity plates's number style
 	
 	CVAR = true,  -- do a cvar setting to turn nameplate work like WOD, can also slove fps drop.
 	
@@ -64,7 +64,7 @@ local Config = {
 	classresource = "player", --"player", "target"  
 	plateaura = false, 
 	
-	Guarm_mod = true,  --Mythic Guarm mod/傳奇模式加爾姆提示模塊
+	Guarm_mod = false,  --Mythic Guarm mod/傳奇模式加爾姆提示模塊
 }
 --[[ 為特定目標自定義姓名板顏色/custom colored plates ]]--
 local Customcoloredplates = {
