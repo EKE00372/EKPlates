@@ -999,6 +999,7 @@ end
 
 local function HideBlizzard()
 	NamePlateDriverFrame:UnregisterAllEvents()
+	NamePlateDriverFrame.SetupClassNameplateBars = function() end
 	ClassNameplateManaBarFrame:Hide()
   
 	hooksecurefunc(NamePlateDriverFrame, "SetupClassNameplateBar", function()  
@@ -1270,6 +1271,7 @@ end
 local function OnNamePlateRemoved(unit)
 	local namePlate = C_NamePlate.GetNamePlateForUnit(unit)
 	SetUnit(namePlate.UnitFrame, nil)
+	CastingBarFrame_SetUnit(namePlate.UnitFrame.castBar, nil, false, true)
 end
 
 --加一段cvar代碼
