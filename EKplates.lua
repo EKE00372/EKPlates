@@ -32,7 +32,7 @@ local BlackList = {
 
 local Config = {
 
-	numberstyle = false, --數字樣式/infinity plates's number style
+	numberstyle = true, --數字樣式/infinity plates's number style
 	
 	CVAR = true,  -- do a cvar setting to turn nameplate work like WOD, can also slove fps drop.
 	
@@ -510,7 +510,7 @@ if Config.classresource_show then
 	  
 	Resourcebar:SetScript("OnEvent", function(self, event, unit, powerType)  
 		if event == "PLAYER_TALENT_UPDATE" then  
-			if multicheck(myClass, "WARLOCK", "PALADIN", "MONK", "MAGE", "ROGUE", "DRUID") and not RequireSpec or RequireSpec == GetSpecialization() then -- 啟用  
+			if multicheck(myClass, "WARLOCK", "PALADIN", "MONK", "MAGE", "ROGUE", "DRUID", "DEATHKNIGHT") and not RequireSpec or RequireSpec == GetSpecialization() then -- 啟用  
 				self:RegisterEvent("UNIT_POWER_FREQUENT")  
 				self:RegisterEvent("PLAYER_ENTERING_WORLD")  
 				self:RegisterEvent("NAME_PLATE_UNIT_ADDED")  
