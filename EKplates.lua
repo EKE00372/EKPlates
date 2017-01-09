@@ -16,18 +16,50 @@ local WhiteList = {
 	--[11426]  = true, --寒冰護體(測試用魔法)
 	--[196741] = true, --連珠狂拳(測試用)
 	--[147732] = true, --冰封攻擊(測試用)	
+	
 	--BUFF
+	--[209859] = true, -- 挑戰激勵
+	
 	--DEBUFF
-	--武僧
-	[119381] = true, --掃葉腿
-	[115078] = true, --點穴
 	[25046]  = true, --奧流之術
+	
+	[118] = true, -- 變形術
+	[51514] = true, -- 妖術
+	[217832] = true, -- 禁錮
+	[605] = true, -- 心控
+	[710] = true, -- 放逐
+	[2094] = true, -- 致盲
+	[6770] = true, -- 悶棍
+	[9484] = true, -- 束縛不死生物
+	[20066] = true, -- 懺悔
+	[115078] = true, --點穴
+	
+	[339] = true, -- 小d綁
+	[102359] = true, -- 群纏
+	[3355] = true, -- 冰凍陷阱
+	[64695] = true, -- 地縛圖騰
+	
+	[5211] = true, -- 蠻力猛擊
+	[853] = true, -- 制裁(聖騎)
+	[221562] = true, -- 窒息(dk)
+	
+	[118905] = true, -- 電容(薩滿)
+	[132168] = true, -- 震懾波(戰士)
+	[179057] = true, -- 混沌新星(dh)
+	[30283] = true, -- 暗影之怒(術士)
+ 	[207171] = true, -- 凜冬將至(dk)
+	[117405] = true, -- 束縛射擊(獵人)
+	[119381] = true, -- 掃葉腿(武僧)
+	[127797] = true, -- 厄索克之旋(小德)
+	[205369] = true, --  精神炸彈 
+	[81261] = true, -- 日光(小德)
 }
 
 local BlackList = {
 	--[11426]  = true, --寒冰護體(測試用魔法)
 	--[196741] = true, --連珠狂拳(測試用)	
 	[166646] = true, --御風而行
+	[15407] = true, -- 精神鞭笞
 }
 
 local Config = {
@@ -286,11 +318,11 @@ local function AuraFilter(caster, spellid, unit)
 	if Config.Guarm_mod then
 		if spellid == 228818 or spellid == 228810 or spellid == 228744 then
 			return true
-		elseif spellid == 228769 and UnitDebuffID("player", 228818) then -- 黑色
+		elseif spellid == 228769 and UnitDebuffID("player", 228818) then -- 紫色
 			return true
-		elseif spellid == 228768 and UnitDebuffID("player", 228810) then -- 蓝色
+		elseif spellid == 228768 and UnitDebuffID("player", 228810) then -- 藍色
 			return true
-		elseif spellid == 228758 and UnitDebuffID("player", 228744) then -- 红色
+		elseif spellid == 228758 and UnitDebuffID("player", 228744) then -- 紅色
 			return true
 		end
 	end
