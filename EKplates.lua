@@ -1,114 +1,7 @@
-local iconcastbar = "Interface\\AddOns\\EKplates\\media\\dM3"
-local raidicon = "Interface\\AddOns\\EKplates\\media\\raidicons"
-local redarrow = "Interface\\AddOns\\EKplates\\media\\NeonRedArrow"
-local numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"
-local numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf" --number font/名字字體
-local norFont = STANDARD_TEXT_FONT  --name font/數字字體/GameFontHighlight:GetFont()
-local ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
-local fontsize = 16  --name font size/名字字體大小(normal font*1.75=number font)
-local fontflag = "OUTLINE"  --"OUTLINE" or none
-local blank = "Interface\\Buttons\\WHITE8x8"
-local glow = "Interface\\AddOns\\EKplates\\media\\glow"
-local myClass = select(2, UnitClass("player"))
+local T, C, L, G = unpack(select(2, ...))
 
---[[ Config ]]-- 
-local WhiteList = {
-	--[11426]  = true, --寒冰護體(測試用魔法)
-	--[196741] = true, --連珠狂拳(測試用)
-	--[147732] = true, --冰封攻擊(測試用)	
-	
-	--BUFF
-	--[209859] = true, -- 挑戰激勵
-	
-	--DEBUFF
-	[25046]  = true, --奧流之術
-	
-	[118] = true, -- 變形術
-	[51514] = true, -- 妖術
-	[217832] = true, -- 禁錮
-	[605] = true, -- 心控
-	[710] = true, -- 放逐
-	[2094] = true, -- 致盲
-	[6770] = true, -- 悶棍
-	[9484] = true, -- 束縛不死生物
-	[20066] = true, -- 懺悔
-	[115078] = true, --點穴
-	
-	[339] = true, -- 小d綁
-	[102359] = true, -- 群纏
-	[3355] = true, -- 冰凍陷阱
-	[64695] = true, -- 地縛圖騰
-	
-	[5211] = true, -- 蠻力猛擊
-	[853] = true, -- 制裁(聖騎)
-	[221562] = true, -- 窒息(dk)
-	
-	[118905] = true, -- 電容(薩滿)
-	[132168] = true, -- 震懾波(戰士)
-	[179057] = true, -- 混沌新星(dh)
-	[30283] = true, -- 暗影之怒(術士)
- 	[207171] = true, -- 凜冬將至(dk)
-	[117405] = true, -- 束縛射擊(獵人)
-	[119381] = true, -- 掃葉腿(武僧)
-	[127797] = true, -- 厄索克之旋(小德)
-	[205369] = true, --  精神炸彈 
-	[81261] = true, -- 日光(小德)
-}
+--[[ config從beta7版本起獨立 ]]--
 
-local BlackList = {
-	--[11426]  = true, --寒冰護體(測試用魔法)
-	--[196741] = true, --連珠狂拳(測試用)	
-	[166646] = true, --御風而行
-	[15407] = true, -- 精神鞭笞
-}
-
-local Config = {
-
-	numberstyle = true, --數字樣式/infinity plates's number style
-	
-	CVAR = true,  -- do a cvar setting to turn nameplate work like WOD, can also slove fps drop.
-	
-	--blizzard default setting will scale nameplate to 0.8 when it's 10 yards outside,
-	--but scale nameplate by range will get fps drop if both range scale and outline working, 
-	--so if you get fps drop, should enable CVAR or disable font flag (font flag can be change at line 9),
-	--I suggest to use this config, outline is goodlook for nameplates.
-	--暴雪預設姓名板在10碼外會自動縮放，但這個功能和姓名板字體描邊同時存在時會引起fps drop
-	--描邊提供了姓名板美觀與易讀性，所以如果碰到了這個問題，建議啟用cvar設定來解決
-	
-	auranum = 5,
-	auraiconsize = 25,
-	friendlyCR = true, --友方職業顏色/friendly class color
-	enemyCR = true, --敵方職業顏色/enemy class color
-	threatcolor = true, --名字仇恨染色/change name color by threat(note at line 686)
-	cbtext = false,  --施法條法術名稱/show castbar text(number style only)
-	cbshield = false,  --施法條不可打斷圖示/show castbar un-interrupt shield icon
-	--threattext = true,  --">"mark when ur on threat(not yet)
-	level = false, --show level
-	
-	myfiltertype = "blacklist", --自身施放/show aura cast by player
-	otherfiltertype = "whitelist",  --他人施放/show aura cast by other
-	--"whitelist": show only list/白名單：只顯示列表中
-	--"blacklist": show only unlist/黑名單：只顯示列表外
-	--"none": do not show anything/不顯示任何光環
-	
-	playerplate = false,  
-	classresource_show = false,  
-	classresource = "player", --"player", "target"  
-	plateaura = false, 
-	
-	Guarm_mod = false,  --Mythic Guarm mod/傳奇模式加爾姆提示模塊
-}
---[[ 為特定目標自定義姓名板顏色/custom colored plates ]]--
-local Customcoloredplates = {
-	[1] = {
-		name = "ekk",
-		color = {r = 1, g = 1, b = 1},
-	},
-	[2] = {
-		name = "ek",
-		color = {r = 1, g = 0, b = 1},
-	},
-}
 
 --[[ Functions ]]-- 
 colorspower = {}
@@ -127,22 +20,22 @@ end
 
 local createnumber = function(f, layer, fontsize, flag, justifyh)
 	local text = f:CreateFontString(nil, layer)
-	text:SetFont(numFont, fontsize, flag)
+	text:SetFont(G.numFont, fontsize, flag)
 	text:SetJustifyH(justifyh)
 	return text
 end
 
 local createtext = function(f, layer, fontsize, flag, justifyh)
 	local text = f:CreateFontString(nil, layer)
-	text:SetFont(norFont, fontsize, flag)
+	text:SetFont(G.norFont, fontsize, flag)
 	text:SetJustifyH(justifyh)
 	return text
 end
 
 local CreateBD = function(f, a)
 	f:SetBackdrop({
-		bgFile = blank,
-		edgeFile = blank,
+		bgFile = G.blank,
+		edgeFile = G.blank,
 		edgeSize = 1,
 	})
 	f:SetBackdropColor(0, 0, 0, a or 1)
@@ -154,8 +47,8 @@ local CreateThinSD = function(parent, size, r, g, b, alpha, offset)
 	sd.size = size or 1
 	sd.offset = offset or 0
 	sd:SetBackdrop({
-		bgFile = blank,
-		edgeFile = blank,
+		bgFile = G.blank,
+		edgeFile = G.blank,
 		edgeSize = sd.size,
 	})
 	sd:SetPoint("TOPLEFT", parent, -sd.size - 1 - sd.offset, sd.size + 1 + sd.offset)
@@ -193,15 +86,15 @@ local CreateBG = function(frame)
 	local bg = f:CreateTexture(nil, "BACKGROUND")
 	bg:SetPoint("TOPLEFT", frame, -1, 1)
 	bg:SetPoint("BOTTOMRIGHT", frame, 1, -1)
-	bg:SetTexture(blank)
+	bg:SetTexture(G.blank)
 	bg:SetVertexColor(0, 0, 0)
 
 	return bg
 end
 
 local frameBD = {
-    edgeFile = glow, edgeSize = 3,
-    bgFile = blank,
+    edgeFile = G.glow, edgeSize = 3,
+    bgFile = G.blank,
     insets = {left = 3, right = 3, top = 3, bottom = 3}
 }
 
@@ -240,7 +133,7 @@ end
 
 local function CreateAuraIcon(parent)
 	local button = CreateFrame("Frame",nil,parent)
-	button:SetSize(Config.auraiconsize, Config.auraiconsize)
+	button:SetSize(C.auraiconsize, C.auraiconsize)
 	
 	button.icon = button:CreateTexture(nil, "OVERLAY", nil, 3)
 	button.icon:SetPoint("TOPLEFT",button,"TOPLEFT", 1, -1)
@@ -257,11 +150,11 @@ local function CreateAuraIcon(parent)
 	button.bd:SetPoint("TOPLEFT",button,"TOPLEFT", -1, 1)
 	button.bd:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT", 1, -1)
 	
-	button.text = createnumber(button, "OVERLAY", Config.auraiconsize-11, fontflag, "CENTER")
+	button.text = createnumber(button, "OVERLAY", C.auraiconsize-11, G.fontflag, "CENTER")
     button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
 	button.text:SetTextColor(1, 1, 0)
 	
-	button.count = createnumber(button, "OVERLAY", Config.auraiconsize-13, fontflag, "RIGHT")
+	button.count = createnumber(button, "OVERLAY", C.auraiconsize-13, G.fontflag, "RIGHT")
 	button.count:SetPoint("TOPRIGHT", button, "TOPRIGHT", -1, 2)
 	button.count:SetTextColor(.4, .95, 1)
 	
@@ -314,35 +207,45 @@ local function UnitDebuffID(unit, spell_id)
 	end
 end
 
+local function UnitBuffID(unit, spell_id)
+	local buff_name = GetSpellInfo(spell_id)
+	if UnitBuff(unit, buff_name) then
+		local id = select(11, UnitBuff(unit, buff_name))
+		if id == spell_id then	
+			return true
+		end
+	end
+end
+
 local function AuraFilter(caster, spellid, unit)
-	if Config.Guarm_mod then
-		if spellid == 228818 or spellid == 228810 or spellid == 228744 then
-			return true
-		elseif spellid == 228769 and UnitDebuffID("player", 228818) then -- 紫色
-			return true
-		elseif spellid == 228768 and UnitDebuffID("player", 228810) then -- 藍色
-			return true
-		elseif spellid == 228758 and UnitDebuffID("player", 228744) then -- 紅色
-			return true
+	if C.boss_mod then
+		if C.ImportantAuras[spellid] then
+			if C.ImportantAuras[spellid] == "none" then
+				return true
+			elseif UnitDebuffID("player", C.ImportantAuras[spellid]) then
+				return true
+			elseif UnitBuffID("player", C.ImportantAuras[spellid]) then
+				return true
+			end
 		end
 	end
 	
 	if caster == "player" then
-		if Config["myfiltertype"] == "none" then
+		if C["myfiltertype"] == "none" then
 			return false
-		elseif Config.Guarm_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
 			return false
-		elseif Config["myfiltertype"] == "whitelist" and WhiteList[spellid] then
+		elseif C["myfiltertype"] == "whitelist" and C.WhiteList[spellid] then
 			return true
-		elseif Config["myfiltertype"] == "blacklist" and not BlackList[spellid] then
+		elseif C["myfiltertype"] == "blacklist" and not C.BlackList[spellid] then
 			return true
 		end
 	else
-		if Config["otherfiltertype"] == "none" then
+		if C["otherfiltertype"] == "none" then
 			return false
-		elseif Config.Guarm_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
 			return false
-		elseif Config["otherfiltertype"] == "whitelist" and WhiteList[spellid] then
+		elseif C["otherfiltertype"] == "whitelist" and C.WhiteList[spellid] then
 			return true
 		end
 	end
@@ -350,12 +253,12 @@ end
 
 local function UpdateBuffs(unitFrame)
 	if not unitFrame.icons or not unitFrame.displayedUnit then return end
-	if not Config.plateaura and UnitIsUnit(unitFrame.displayedUnit, "player") then return end
+	if not C.plateaura and UnitIsUnit(unitFrame.displayedUnit, "player") then return end
 	local unit = unitFrame.displayedUnit
 	local i = 1
 
 	for index = 1, 15 do
-		if i <= Config.auranum then
+		if i <= C.auranum then
 			local bname, _, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, 'HELPFUL')
 			local matchbuff = AuraFilter(bcaster, bspellid, unit)
 			if bname and matchbuff then
@@ -372,7 +275,7 @@ local function UpdateBuffs(unitFrame)
 	end
 
 	for index = 1, 20 do
-		if i <= Config.auranum then
+		if i <= C.auranum then
 			local dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, 'HARMFUL')
 			local matchdebuff = AuraFilter(dcaster, dspellid, unit)
 			
@@ -392,25 +295,25 @@ local function UpdateBuffs(unitFrame)
 	unitFrame.iconnumber = i - 1
 	
 	if i > 1 then
-		unitFrame.icons[1]:SetPoint("LEFT", unitFrame.icons, "CENTER", -((Config.auraiconsize+4)*(unitFrame.iconnumber)-4)/2,0)
+		unitFrame.icons[1]:SetPoint("LEFT", unitFrame.icons, "CENTER", -((C.auraiconsize+4)*(unitFrame.iconnumber)-4)/2,0)
 	end
 	for index = i, #unitFrame.icons do unitFrame.icons[index]:Hide() end
 end
 
 --[[ Player Power ]]-- 
  
-if Config.playerplate then  
+if C.playerplate then  
 	local PowerFrame = CreateFrame("Frame", "EKNamePlatePowerFrame")  
 	  
 	PowerFrame.powerBar = CreateFrame("StatusBar", nil, PowerFrame)  
 	PowerFrame.powerBar:SetHeight(3)  
-	PowerFrame.powerBar:SetStatusBarTexture(ufbar)  
+	PowerFrame.powerBar:SetStatusBarTexture(G.ufbar)  
 	PowerFrame.powerBar:SetMinMaxValues(0, 1)  
 	  
 	PowerFrame.powerBar.bd = createBackdrop(PowerFrame.powerBar, PowerFrame.powerBar, 1)  
 	  
 	PowerFrame.powerperc = PowerFrame:CreateFontString(nil, "OVERLAY")  
-	PowerFrame.powerperc:SetFont(numberstylefont, fontsize, fontflag)  
+	PowerFrame.powerperc:SetFont(G.numberstylefont, G.fontsize, G.fontflag)  
 	PowerFrame.powerperc:SetShadowColor(0, 0, 0, 0.4)  
 	PowerFrame.powerperc:SetShadowOffset(1, -1)  
 	  
@@ -426,7 +329,7 @@ if Config.playerplate then
 			end  
 			local perc_text = string.format("%d", math.floor(perc*100))  
 			  
-			if not Config.numberstyle then  
+			if not C.numberstyle then  
 				PowerFrame.powerBar:SetValue(perc)  
 			else  
 				if minPower ~= maxPower then  
@@ -439,7 +342,7 @@ if Config.playerplate then
 			local r, g, b = unpack(colorspower[powertype])  
   
 			if ( r ~= PowerFrame.r or g ~= PowerFrame.g or b ~= PowerFrame.b ) then  
-				if not Config.numberstyle then  
+				if not C.numberstyle then  
 					PowerFrame.powerBar:SetStatusBarColor(r, g, b)  
 				else  
 					PowerFrame.powerperc:SetTextColor(r, g, b)  
@@ -451,7 +354,7 @@ if Config.playerplate then
 			if namePlatePlayer then  
 				PowerFrame:Show()  
 				PowerFrame:SetParent(namePlatePlayer)  
-				if not Config.numberstyle then  
+				if not C.numberstyle then  
 					PowerFrame.powerBar:ClearAllPoints()  
 					PowerFrame.powerBar:SetPoint("TOPLEFT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMLEFT", 0, -3)  
 					PowerFrame.powerBar:SetPoint("TOPRIGHT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -3)  
@@ -471,7 +374,7 @@ if Config.playerplate then
 end  
   
 --[[ Class bar stuff ]]--  
-if Config.classresource_show then  
+if C.classresource_show then  
 	local function multicheck(check, ...)  
 		for i=1, select("#", ...) do  
 			if check == select(i, ...) then return true end  
@@ -494,22 +397,22 @@ if Config.classresource_show then
 		{1, 1, 0},  
 	}  
 	  
-	if(myClass == 'MONK') then  
+	if(G.myClass == 'MONK') then  
 		ClassPowerID = SPELL_POWER_CHI  
 		ClassPowerType = "CHI"  
 		RequireSpec = SPEC_MONK_WINDWALKER  
-	elseif(myClass == 'PALADIN') then  
+	elseif(G.myClass == 'PALADIN') then  
 		ClassPowerID = SPELL_POWER_HOLY_POWER  
 		ClassPowerType = "HOLY_POWER"  
 		RequireSpec = SPEC_PALADIN_RETRIBUTION  
-	elseif(myClass == 'MAGE') then  
+	elseif(G.myClass == 'MAGE') then  
 		ClassPowerID = SPELL_POWER_ARCANE_CHARGES  
 		ClassPowerType = "ARCANE_CHARGES"  
 		RequireSpec = SPEC_MAGE_ARCANE  
-	elseif(myClass == 'WARLOCK') then  
+	elseif(G.myClass == 'WARLOCK') then  
 		ClassPowerID = SPELL_POWER_SOUL_SHARDS  
 		ClassPowerType = "SOUL_SHARDS"  
-	elseif(myClass == 'ROGUE' or myClass == 'DRUID') then  
+	elseif(G.myClass == 'ROGUE' or G.myClass == 'DRUID') then  
 		ClassPowerID = SPELL_POWER_COMBO_POINTS  
 		ClassPowerType = "COMBO_POINTS"  
 	end  
@@ -526,8 +429,8 @@ if Config.classresource_show then
 		Resourcebar[i].bd = createBackdrop(Resourcebar[i], Resourcebar[i], 1)  
 		Resourcebar[i].tex = Resourcebar[i]:CreateTexture(nil, "OVERLAY")  
 		Resourcebar[i].tex:SetAllPoints(Resourcebar[i])  
-		if myClass == "DEATHKNIGHT" then  
-			Resourcebar[i].value = createtext(Resourcebar[i], "OVERLAY", fontsize-2, fontflag, "CENTER")  
+		if G.myClass == "DEATHKNIGHT" then  
+			Resourcebar[i].value = createtext(Resourcebar[i], "OVERLAY", G.fontsize-2, G.fontflag, "CENTER")  
 			Resourcebar[i].value:SetPoint("CENTER")  
 			Resourcebar[i].tex:SetColorTexture(.7, .7, 1)  
 		end  
@@ -542,7 +445,7 @@ if Config.classresource_show then
 	  
 	Resourcebar:SetScript("OnEvent", function(self, event, unit, powerType)  
 		if event == "PLAYER_TALENT_UPDATE" then  
-			if multicheck(myClass, "WARLOCK", "PALADIN", "MONK", "MAGE", "ROGUE", "DRUID", "DEATHKNIGHT") and not RequireSpec or RequireSpec == GetSpecialization() then -- 啟用  
+			if multicheck(G.myClass, "WARLOCK", "PALADIN", "MONK", "MAGE", "ROGUE", "DRUID", "DEATHKNIGHT") and not RequireSpec or RequireSpec == GetSpecialization() then -- 啟用  
 				self:RegisterEvent("UNIT_POWER_FREQUENT")  
 				self:RegisterEvent("PLAYER_ENTERING_WORLD")  
 				self:RegisterEvent("NAME_PLATE_UNIT_ADDED")  
@@ -560,13 +463,13 @@ if Config.classresource_show then
 				self:Hide()  
 			end  
 		elseif event == "PLAYER_ENTERING_WORLD" or (event == "UNIT_POWER_FREQUENT" and unit == "player" and powerType == ClassPowerType) then  
-			if multicheck(myClass, "WARLOCK", "PALADIN", "MONK", "MAGE", "ROGUE", "DRUID") then  
+			if multicheck(G.myClass, "WARLOCK", "PALADIN", "MONK", "MAGE", "ROGUE", "DRUID") then  
 				local cur, max, oldMax  
 				  
 				cur = UnitPower('player', ClassPowerID)  
 				max = UnitPowerMax('player', ClassPowerID)  
 				  
-				if multicheck(myClass, "WARLOCK", "PALADIN", "MONK", "MAGE") then  
+				if multicheck(G.myClass, "WARLOCK", "PALADIN", "MONK", "MAGE") then  
 					for i = 1, max do  
 						if(i <= cur) then  
 							self[i]:Show()  
@@ -644,7 +547,7 @@ if Config.classresource_show then
 					end  
 				end  
 			end  
-		elseif myClass == "DEATHKNIGHT" and event == "RUNE_POWER_UPDATE" then  
+		elseif G.myClass == "DEATHKNIGHT" and event == "RUNE_POWER_UPDATE" then  
 			local rid = unit  
 			local start, duration, runeReady = GetRuneCooldown(rid)  
 			if runeReady then  
@@ -666,14 +569,14 @@ if Config.classresource_show then
 					end  
 				end)  
 			end  
-		elseif Config.classresource == "player" then  
+		elseif C.classresource == "player" then  
 			if event == "NAME_PLATE_UNIT_ADDED" and UnitIsUnit(unit, "player") then  
 				local namePlatePlayer = C_NamePlate.GetNamePlateForUnit("player")  
 				if namePlatePlayer then  
 					self:SetParent(namePlatePlayer)  
 					self:ClearAllPoints()  
 					self:Show()  
-					if Config.numberstyle then  
+					if C.numberstyle then  
 						self:SetPoint("TOP", namePlatePlayer.UnitFrame.name, "TOP", 0, 0) -- 玩家數字  
 					else  
 						self:SetPoint("BOTTOM", namePlatePlayer.UnitFrame.healthBar, "TOP", 0, 3) -- 玩家條  
@@ -682,12 +585,12 @@ if Config.classresource_show then
 			elseif event == "NAME_PLATE_UNIT_REMOVED" and UnitIsUnit(unit, "player") then  
 				self:Hide()  
 			end  
-		elseif Config.classresource == "target" and (event == "PLAYER_TARGET_CHANGED" or event == "NAME_PLATE_UNIT_ADDED") then  
+		elseif C.classresource == "target" and (event == "PLAYER_TARGET_CHANGED" or event == "NAME_PLATE_UNIT_ADDED") then  
 			local namePlateTarget = C_NamePlate.GetNamePlateForUnit("target")  
 			if namePlateTarget and UnitCanAttack("player", namePlateTarget.UnitFrame.displayedUnit) then  
 				self:SetParent(namePlateTarget)  
 				self:ClearAllPoints()  
-				if Config.numberstyle then  
+				if C.numberstyle then  
 					self:SetPoint("TOP", namePlateTarget.UnitFrame.name, "BOTTOM", 0, -2) -- 目標數字  
 				else  
 					self:SetPoint("TOP", namePlateTarget.UnitFrame.healthBar, "BOTTOM", 0, -2) -- 目標條
@@ -711,7 +614,7 @@ local function UpdateName(unitFrame)
 		
 	if name then
 	
-	if Config.level then
+	if C.level then
 		if UnitIsUnit(unitFrame.displayedUnit, "player") then  
 			unitFrame.name:SetText("")  
 		else  
@@ -751,7 +654,7 @@ local function UpdateHealth(unitFrame)
 	local perc = minHealth/maxHealth
 	local perc_text = string.format("%d", math.floor(perc*100))
 	
-	if not Config.numberstyle then
+	if not C.numberstyle then
 		unitFrame.healthBar:SetValue(perc)
 		if minHealth ~= maxHealth then 
 			unitFrame.healthBar.value:SetText(perc_text)
@@ -808,7 +711,7 @@ local function UpdateHealthColor(unitFrame)
 		r, g, b = 0.7, 0.7, 0.7
 	else
 		local iscustomed = false
-		for index, info in pairs(Customcoloredplates) do
+		for index, info in pairs(C.Customcoloredplates) do
 			if GetUnitName(unit, false) == info.name then
 				r, g, b= info.color.r, info.color.g, info.color.b
 				iscustomed = true
@@ -819,14 +722,14 @@ local function UpdateHealthColor(unitFrame)
 		if not iscustomed then
 			local _, englishClass = UnitClass(unit)
 			local classColor = Ccolors[englishClass]
-			if UnitIsPlayer(unit) and classColor and Config.friendlyCR and UnitReaction(unit, 'player') >= 5 then
+			if UnitIsPlayer(unit) and classColor and C.friendlyCR and UnitReaction(unit, 'player') >= 5 then
 				r, g, b = classColor.r, classColor.g, classColor.b
-			elseif UnitIsPlayer(unit) and classColor and Config.enemyCR and UnitReaction(unit, 'player') <= 4 then
+			elseif UnitIsPlayer(unit) and classColor and C.enemyCR and UnitReaction(unit, 'player') <= 4 then
 				r, g, b = classColor.r, classColor.g, classColor.b
 			elseif ( IsTapDenied(unitFrame) ) then
 				r, g, b = 0.3, 0.3, 0.3
 			else
-				if Config.threatcolor and IsOnThreatList(unitFrame.displayedUnit) then
+				if C.threatcolor and IsOnThreatList(unitFrame.displayedUnit) then
 					r, g, b = IsOnThreatList(unitFrame.displayedUnit)
 				else
 					r, g, b = UnitSelectionColor(unit, true)
@@ -836,7 +739,7 @@ local function UpdateHealthColor(unitFrame)
 	end
 	
 	if ( r ~= unitFrame.r or g ~= unitFrame.g or b ~= unitFrame.b ) then
-		if not Config.numberstyle then
+		if not C.numberstyle then
 			unitFrame.healthBar:SetStatusBarColor(r, g, b)  
 			unitFrame.healthBar.bd:SetBackdropColor(r/3, g/3, b/3)
 		else
@@ -855,8 +758,8 @@ local function UpdateCastBar(unitFrame)
 	castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
 	CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
 	if UnitIsUnit("player", unitFrame.displayedUnit) then return end
-	if Config.Guarm_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
-	if Config.cbshield then
+	if C.boss_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
+	if C.cbshield then
 		CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, true)
 	else
 		CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, false)
@@ -871,15 +774,15 @@ local function UpdateSelectionHighlight(unitFrame)
 		unitFrame.redarrow:Hide()
 	end
 	
-	if not Config.numberstyle then
+	if not C.numberstyle then
 		if unitFrame.iconnumber and unitFrame.iconnumber > 0 then
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, Config.auraiconsize+3)
+			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
 		else
 			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 		end
 	else
 		if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖標
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, Config.auraiconsize)
+			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, C.auraiconsize)
 		elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
 			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 		else -- 只有名字
@@ -916,11 +819,11 @@ local function UpdateInVehicle(unitFrame)
 	end
 end
 
-local function UpdateforGuarm(unitFrame)
-	if not Config.Guarm_mod then return end
+local function UpdateforBossmod(unitFrame)
+	if not C.boss_mod then return end
 	local unit = unitFrame.displayedUnit
 	if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
-		if Config.numberstyle then
+		if C.numberstyle then
 			unitFrame.healthperc:Hide()
 		else
 			unitFrame.healthBar:Hide()
@@ -928,7 +831,7 @@ local function UpdateforGuarm(unitFrame)
 		unitFrame.name:Hide()
 		unitFrame.castBar:UnregisterAllEvents()
 	else
-		if Config.numberstyle then
+		if C.numberstyle then
 			unitFrame.healthperc:Show()
 		else
 			unitFrame.healthBar:Show()
@@ -947,15 +850,15 @@ local function UpdateAll(unitFrame)
 		UpdateSelectionHighlight(unitFrame)
 		UpdateBuffs(unitFrame)
 		UpdateRaidTarget(unitFrame)
-		UpdateforGuarm(unitFrame)
+		UpdateforBossmod(unitFrame)
 		
 		if UnitIsUnit("player", unitFrame.displayedUnit) then  
 			unitFrame.castBar:UnregisterAllEvents()  
-			if not Config.numberstyle then  
+			if not C.numberstyle then  
 				unitFrame.healthBar.value:Hide()  
 			end  
 		else  
-			if not Config.numberstyle then  
+			if not C.numberstyle then  
 				unitFrame.healthBar.value:Show()  
 			end  
 		end
@@ -980,7 +883,7 @@ local function NamePlate_OnEvent(self, event, ...)
 			UpdateHealthColor(self)
 		elseif ( event == "UNIT_NAME_UPDATE" ) then
 			UpdateName(self)
-			UpdateforGuarm(self)
+			UpdateforBossmod(self)
 		elseif ( event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_PET" ) then
 			UpdateAll(self)
 		end
@@ -1058,7 +961,7 @@ local function OnUnitFactionChanged(unit)
 	if (namePlate) then
 		UpdateName(namePlate.UnitFrame)
 		UpdateHealthColor(namePlate.UnitFrame)
-		UpdateforGuarm(namePlate.UnitFrame)
+		UpdateforBossmod(namePlate.UnitFrame)
 	end
 end
 
@@ -1088,23 +991,23 @@ local function OnNamePlateCreated(namePlate)
 	namePlate.UnitFrame:SetAllPoints(namePlate)
 	namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
 			
-	if Config.numberstyle then -- 數字樣式
+	if C.numberstyle then -- 數字樣式
 		namePlate.UnitFrame.healthperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.healthperc:SetFont(numberstylefont, fontsize*1.75, fontflag)
+		namePlate.UnitFrame.healthperc:SetFont(G.numberstylefont, G.fontsize*1.75, G.fontflag)
 		namePlate.UnitFrame.healthperc:SetPoint("CENTER")
 		namePlate.UnitFrame.healthperc:SetTextColor(1,1,1)
 		namePlate.UnitFrame.healthperc:SetShadowColor(0, 0, 0, 0.4)
 		namePlate.UnitFrame.healthperc:SetShadowOffset(1, -1)
 		namePlate.UnitFrame.healthperc:SetText("92")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "ARTWORK", fontsize, fontflag, "CENTER")
+		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "ARTWORK", G.fontsize, G.fontflag, "CENTER")
 		namePlate.UnitFrame.name:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, -3)
 		namePlate.UnitFrame.name:SetTextColor(1,1,1)
 		namePlate.UnitFrame.name:SetText("Name")
 		
 		-- threattext
 		--[[namePlate.UnitFrame.HLthreat = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.HLthreat:SetFont(numberstylefont, fontsize*1.75, fontflag)
+		namePlate.UnitFrame.HLthreat:SetFont(G.numberstylefont, G.fontsize*1.75, G.fontflag)
 		namePlate.UnitFrame.HLthreat:SetPoint("RIGHT", namePlate.UnitFrame.healthperc, "LEFT", -2, 0)
 		namePlate.UnitFrame.HLthreat:SetShadowOffset(1, -1)]]--
 		
@@ -1112,13 +1015,13 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
 		namePlate.UnitFrame.castBar:SetSize(38,38)
-		if Config.classresource_show and Config.classresource == "target" then  
+		if C.classresource_show and C.classresource == "target" then  
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -7)  
 		else  
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -3)  
 		end 
 
-		namePlate.UnitFrame.castBar:SetStatusBarTexture(iconcastbar)
+		namePlate.UnitFrame.castBar:SetStatusBarTexture(G.iconcastbar)
 		namePlate.UnitFrame.castBar:SetStatusBarColor(0.5, 0.5, 0.5)
 		
 		namePlate.UnitFrame.castBar.border = CreateBDFrame(namePlate.UnitFrame.castBar, 0)
@@ -1135,8 +1038,8 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.iconborder = CreateBG(namePlate.UnitFrame.castBar.Icon)
 		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY",-1)
 		
-		if Config.cbtext then
-		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", fontsize-4, fontflag, "CENTER")
+		if C.cbtext then
+		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
 		namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
 		end
 
@@ -1156,7 +1059,7 @@ local function OnNamePlateCreated(namePlate)
 		
 		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.castBar.Flash:SetAllPoints()
-		namePlate.UnitFrame.castBar.Flash:SetTexture(ufbar)
+		namePlate.UnitFrame.castBar.Flash:SetTexture(G.ufbar)
 		namePlate.UnitFrame.castBar.Flash:SetBlendMode("ADD")
 		
 		CastingBarFrame_OnLoad(namePlate.UnitFrame.castBar, nil, false, true)
@@ -1166,20 +1069,20 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		if Config.Guarm_mod then
+		if C.boss_mod then
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
 		else
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 		end
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(raidicon)
+		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
 		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture(nil, 'OVERLAY')
 		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		namePlate.UnitFrame.redarrow:SetTexture(redarrow)
+		namePlate.UnitFrame.redarrow:SetTexture(G.redarrow)
 		namePlate.UnitFrame.redarrow:Hide()
 		
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
@@ -1192,17 +1095,17 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.healthBar:SetHeight(8)
 		namePlate.UnitFrame.healthBar:SetPoint("LEFT", 0, 0)
 		namePlate.UnitFrame.healthBar:SetPoint("RIGHT", 0, 0)
-		namePlate.UnitFrame.healthBar:SetStatusBarTexture(ufbar)
+		namePlate.UnitFrame.healthBar:SetStatusBarTexture(G.ufbar)
 		namePlate.UnitFrame.healthBar:SetMinMaxValues(0, 1)
 		
 		namePlate.UnitFrame.healthBar.bd = createBackdrop(namePlate.UnitFrame.healthBar, namePlate.UnitFrame.healthBar, 1) 
 		
-		namePlate.UnitFrame.healthBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", fontsize-4, fontflag, "CENTER")
-		namePlate.UnitFrame.healthBar.value:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, -fontsize/3)
+		namePlate.UnitFrame.healthBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
+		namePlate.UnitFrame.healthBar.value:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, -G.fontsize/3)
 		namePlate.UnitFrame.healthBar.value:SetTextColor(1,1,1)
 		namePlate.UnitFrame.healthBar.value:SetText("Value")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", fontsize-4, fontflag, "CENTER")
+		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
 		namePlate.UnitFrame.name:SetPoint("TOPLEFT", namePlate.UnitFrame, "TOPLEFT", 5, -5)
 		namePlate.UnitFrame.name:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "TOPRIGHT", -5, -15)
 		namePlate.UnitFrame.name:SetIndentedWordWrap(false)
@@ -1213,7 +1116,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
 		namePlate.UnitFrame.castBar:SetHeight(8)
-		if Config.classresource_show and Config.classresource == "target" then  
+		if C.classresource_show and C.classresource == "target" then  
 			namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -7)  
 			namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -7)  
 		else  
@@ -1221,11 +1124,11 @@ local function OnNamePlateCreated(namePlate)
 			namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -3)  
 		end  
 
-		namePlate.UnitFrame.castBar:SetStatusBarTexture(ufbar)
+		namePlate.UnitFrame.castBar:SetStatusBarTexture(G.ufbar)
 		namePlate.UnitFrame.castBar:SetStatusBarColor(0.5, 0.5, 0.5)
 		createBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1) 
 			
-		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", fontsize-4, fontflag, "CENTER")
+		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
 		namePlate.UnitFrame.castBar.Text:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -5, 5)
 		namePlate.UnitFrame.castBar.Text:SetPoint("TOPRIGHT", namePlate.UnitFrame.castBar, "BOTTOMRIGHT", 5, -5)
 		namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
@@ -1233,7 +1136,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
 		namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -1)
 		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
-		if Config.classresource_show and Config.classresource == "target" then  
+		if C.classresource_show and C.classresource == "target" then  
 			namePlate.UnitFrame.castBar.Icon:SetSize(25, 25)  
 		else  
 			namePlate.UnitFrame.castBar.Icon:SetSize(21, 21)  
@@ -1255,7 +1158,7 @@ local function OnNamePlateCreated(namePlate)
 		
 		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.castBar.Flash:SetAllPoints()
-		namePlate.UnitFrame.castBar.Flash:SetTexture(ufbar)
+		namePlate.UnitFrame.castBar.Flash:SetTexture(G.ufbar)
 		namePlate.UnitFrame.castBar.Flash:SetBlendMode("ADD")
 		
 		CastingBarFrame_OnLoad(namePlate.UnitFrame.castBar, nil, false, true)
@@ -1266,20 +1169,20 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
 		
-		if Config.Guarm_mod then
+		if C.boss_mod then
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame, "BOTTOM", 0, 30)
 		else
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 		end
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(raidicon)
+		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
 		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", 'OVERLAY')
 		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		namePlate.UnitFrame.redarrow:SetTexture(redarrow)
+		namePlate.UnitFrame.redarrow:SetTexture(G.redarrow)
 		namePlate.UnitFrame.redarrow:SetPoint("CENTER")
 		namePlate.UnitFrame.redarrow:Hide()
 		
@@ -1308,7 +1211,7 @@ end
 
 --加一段cvar代碼
 local function defaultcvar() 
-	if Config.CVAR then	
+	if C.CVAR then	
 		SetCVar("nameplateOtherTopInset", -1)
 		SetCVar("nameplateOtherBottomInset", -1)
 		SetCVar("namePlateMinScale", 1)
@@ -1330,7 +1233,7 @@ local function NamePlates_OnEvent(self, event, ...)
 	end
 	if ( event == "VARIABLES_LOADED" ) then
 		HideBlizzard()
-		if Config.playerplate then  
+		if C.playerplate then  
 			SetCVar("nameplateShowSelf", 1)  
 		else  
 			SetCVar("nameplateShowSelf", 0)  
@@ -1352,7 +1255,7 @@ local function NamePlates_OnEvent(self, event, ...)
 		NamePlates_UpdateNamePlateOptions()
 	elseif ( event == "UNIT_FACTION" ) then
 		OnUnitFactionChanged(...)
-	elseif Config.Guarm_mod and event == "UNIT_AURA" and arg1 == "player" then
+	elseif C.boss_mod and event == "UNIT_AURA" and arg1 == "player" then
 		for _, namePlate in pairs(C_NamePlate.GetNamePlates()) do
 			UpdateBuffs(namePlate.UnitFrame)
 		end

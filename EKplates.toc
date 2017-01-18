@@ -1,8 +1,9 @@
 ﻿## Interface: 70100
 ## Title: |cff00ffffEK|rPlates
-## Version: 7.1.beta6
+## Version: 7.1.beta7
 ## Author: EK(Linodas@Illidan-US)
 ## Credits-to:Paopao, Dawn
 ## Notes: Nameplates
 
+config.lua
 EKplates.lua
