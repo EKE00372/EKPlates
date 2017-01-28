@@ -134,7 +134,7 @@ end
 local function CreateAuraIcon(parent)
 	local button = CreateFrame("Frame",nil,parent)
 	button:SetSize(C.auraiconsize, C.auraiconsize)
-	
+
 	button.icon = button:CreateTexture(nil, "OVERLAY", nil, 3)
 	button.icon:SetPoint("TOPLEFT",button,"TOPLEFT", 1, -1)
 	button.icon:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT",-1, 1)
@@ -773,23 +773,33 @@ local function UpdateSelectionHighlight(unitFrame)
 	else
 		unitFrame.redarrow:Hide()
 	end
-	
-	if not C.numberstyle then
-		if unitFrame.iconnumber and unitFrame.iconnumber > 0 then
+
+	if not C.HorizontalArrow then
+		if not C.numberstyle then
+			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then
 			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
+			else
+			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+			end
 		else
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖標
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, Cauraiconsize)
+			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
+			else -- 只有名字
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+			end
+		end	
+	else	--橫向箭頭
+		if not C.numberstyle then 
+			unitFrame.redarrow:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
+		else
+			unitFrame.redarrow:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
 		end
-	else
-		if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖標
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, C.auraiconsize)
-		elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
-		else -- 只有名字
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
-		end
-	end
+	end	
 end
+
+
 
 local function UpdateRaidTarget(unitFrame)
 	local icon = unitFrame.RaidTargetFrame.RaidTargetIcon
@@ -828,7 +838,7 @@ local function UpdateforBossmod(unitFrame)
 		else
 			unitFrame.healthBar:Hide()
 		end
-		unitFrame.name:Hide()
+		--unitFrame.name:Hide() --隱藏友方名字
 		unitFrame.castBar:UnregisterAllEvents()
 	else
 		if C.numberstyle then
@@ -836,7 +846,7 @@ local function UpdateforBossmod(unitFrame)
 		else
 			unitFrame.healthBar:Show()
 		end
-		unitFrame.name:Show()		
+		--unitFrame.name:Show()	--隱藏友方名字	
 	end
 end
 
@@ -1004,13 +1014,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.name:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, -3)
 		namePlate.UnitFrame.name:SetTextColor(1,1,1)
 		namePlate.UnitFrame.name:SetText("Name")
-		
-		-- threattext
-		--[[namePlate.UnitFrame.HLthreat = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.HLthreat:SetFont(G.numberstylefont, G.fontsize*1.75, G.fontflag)
-		namePlate.UnitFrame.HLthreat:SetPoint("RIGHT", namePlate.UnitFrame.healthperc, "LEFT", -2, 0)
-		namePlate.UnitFrame.HLthreat:SetShadowOffset(1, -1)]]--
-		
+			
 		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
@@ -1069,11 +1073,11 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		if C.boss_mod then
-			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
-		else
+		--if C.boss_mod then --不隱藏名字就不需要移動raid icon的位置
+			--namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
+		--else
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-		end
+		--end
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
@@ -1082,7 +1086,14 @@ local function OnNamePlateCreated(namePlate)
 		
 		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture(nil, 'OVERLAY')
 		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		namePlate.UnitFrame.redarrow:SetTexture(G.redarrow)
+		if C.HideArrow then
+			namePlate.UnitFrame.redarrow:SetAlpha(0)
+		end
+		if C.HorizontalArrow then
+			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
+		else
+			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
+		end
 		namePlate.UnitFrame.redarrow:Hide()
 		
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
@@ -1182,7 +1193,14 @@ local function OnNamePlateCreated(namePlate)
 		
 		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", 'OVERLAY')
 		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		namePlate.UnitFrame.redarrow:SetTexture(G.redarrow)
+		if C.HideArrow then
+			namePlate.UnitFrame.redarrow:SetAlpha(0)
+		end
+		if C.HorizontalArrow then
+			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
+		else
+			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
+		end
 		namePlate.UnitFrame.redarrow:SetPoint("CENTER")
 		namePlate.UnitFrame.redarrow:Hide()
 		
