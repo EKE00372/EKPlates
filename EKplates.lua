@@ -173,7 +173,11 @@ local function UpdateAuraIcon(button, unit, index, filter)
 	button.spellID = spellID
 	
 	local color = DebuffTypeColor[debuffType] or DebuffTypeColor.none
-	button.overlay:SetVertexColor(color.r, color.g, color.b)
+	if C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+		button.overlay:SetVertexColor(0.9, 0.9, 0.9)
+	else
+		button.overlay:SetVertexColor(color.r, color.g, color.b)
+	end
 
 	if count and count > 1 then
 		button.count:SetText(count)
@@ -1302,7 +1306,6 @@ local function defaultcvar()
 	--SetCVar("nameplateMinAlpha", 0.7)
 	--SetCVar("nameplateMaxAlpha", 1)
 	SetCVar("nameplateLargerScale", 1)
-	SetCVar("nameplateMinScale", 1)
 	--SetCVar("nameplateMinAlphaDistance", 60)
 	--SetCVar("nameplateMaxAlphaDistance", 60)
 	SetCVar("nameplateMinAlpha", C.MinAlpha)
