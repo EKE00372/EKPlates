@@ -116,6 +116,7 @@ local createBackdrop = function(parent, anchor, a)
 
     return frame
 end
+
 --[[ Auras ]]-- 
 
 local day, hour, minute = 86400, 3600, 60
@@ -150,11 +151,13 @@ local function CreateAuraIcon(parent)
 	button.bd:SetPoint("TOPLEFT",button,"TOPLEFT", -1, 1)
 	button.bd:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT", 1, -1)
 	
-	button.text = createnumber(button, "OVERLAY", C.auraiconsize-11, G.fontflag, "CENTER")
+	--button.text = createnumber(button, "OVERLAY", C.auraiconsize-11, G.fontflag, "CENTER")
+	button.text = createnumber(button, "OVERLAY", 11, G.fontflag, "CENTER")
     button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
 	button.text:SetTextColor(1, 1, 0)
 	
-	button.count = createnumber(button, "OVERLAY", C.auraiconsize-13, G.fontflag, "RIGHT")
+	--button.count = createnumber(button, "OVERLAY", C.auraiconsize-13, G.fontflag, "RIGHT")
+	button.count = createnumber(button, "OVERLAY", 9, G.fontflag, "RIGHT")
 	button.count:SetPoint("TOPRIGHT", button, "TOPRIGHT", -1, 2)
 	button.count:SetTextColor(.4, .95, 1)
 	
@@ -263,7 +266,7 @@ local function UpdateBuffs(unitFrame)
 			local matchbuff = AuraFilter(bcaster, bspellid, unit)
 			if bname and matchbuff then
 				if not unitFrame.icons[i] then
-					unitFrame.icons[i] = CreateAuraIcon(unitFrame)
+					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
 				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HELPFUL')
 				if i ~= 1 then
@@ -281,7 +284,7 @@ local function UpdateBuffs(unitFrame)
 			
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
-					unitFrame.icons[i] = CreateAuraIcon(unitFrame)
+					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
 				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HARMFUL')
 				if i ~= 1 then
@@ -337,8 +340,7 @@ if C.playerplate then
 				else  
 					PowerFrame.powerperc:SetText("")  
 				end  
-			end  
-		  
+			end  		  
 			local r, g, b = unpack(colorspower[powertype])  
   
 			if ( r ~= PowerFrame.r or g ~= PowerFrame.g or b ~= PowerFrame.b ) then  
@@ -348,7 +350,7 @@ if C.playerplate then
 					PowerFrame.powerperc:SetTextColor(r, g, b)  
 				end  
 				PowerFrame.r, PowerFrame.g, PowerFrame.b = r, g, b  
-			end  
+			end
 		elseif event == "NAME_PLATE_UNIT_ADDED" and UnitIsUnit(unit, "player") then  
 			local namePlatePlayer = C_NamePlate.GetNamePlateForUnit("player")  
 			if namePlatePlayer then  
@@ -686,6 +688,24 @@ local function UpdateHealth(unitFrame)
 	end
 end
 
+local function UpdatePower(unitFrame)
+	local unit = unitFrame.displayedUnit
+
+	local minPower, maxPower = UnitPower(unit), UnitPowerMax(unit)
+	local perc = minPower/maxPower
+	local perc_text = string.format("%d", math.floor(perc*100))
+	
+	unitFrame.power:SetText(perc_text)
+	
+	if perc < .25 then
+		unitFrame.power:SetTextColor(.2, .2, 1)
+	elseif perc < .3 then
+		unitFrame.power:SetTextColor(.4, .4, 1)
+	else
+		unitFrame.power:SetTextColor(.8, .8, 1)
+	end
+end
+
 local function IsOnThreatList(unit)
 	local _, threatStatus = UnitDetailedThreatSituation("player", unit)
 	if threatStatus == 3 then  --穩定仇恨/當前坦克/securely tanking, highest threat
@@ -783,7 +803,7 @@ local function UpdateSelectionHighlight(unitFrame)
 			end
 		else
 			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖標
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, Cauraiconsize)
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.icons, "TOP", 0, 3)
 			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 			else -- 只有名字
@@ -839,14 +859,19 @@ local function UpdateforBossmod(unitFrame)
 			unitFrame.healthBar:Hide()
 		end
 		--unitFrame.name:Hide() --隱藏友方名字
+		--unitFrame:SetAlpha(1)
 		unitFrame.castBar:UnregisterAllEvents()
+		unitFrame.icons:SetScale(C.boss_mod_iconscale)
 	else
 		if C.numberstyle then
 			unitFrame.healthperc:Show()
 		else
 			unitFrame.healthBar:Show()
 		end
-		--unitFrame.name:Show()	--隱藏友方名字	
+		--unitFrame.name:Show()	--隱藏友方名字
+		--unitFrame:SetAlpha(1)
+		unitFrame.icons:SetScale(1)
+		
 	end
 end
 
@@ -872,6 +897,9 @@ local function UpdateAll(unitFrame)
 				unitFrame.healthBar.value:Show()  
 			end  
 		end
+		if C.show_power and C.ShowPower[UnitName(unitFrame.displayedUnit)] then
+			UpdatePower(unitFrame)
+		end
 	end
 end
 
@@ -896,6 +924,10 @@ local function NamePlate_OnEvent(self, event, ...)
 			UpdateforBossmod(self)
 		elseif ( event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_PET" ) then
 			UpdateAll(self)
+		elseif (C.show_power and event == "UNIT_POWER_FREQUENT" ) then
+			if C.ShowPower[UnitName(self.displayedUnit)] then
+				UpdatePower(self)
+			end
 		end
 	end
 end
@@ -910,6 +942,15 @@ local function UpdateNamePlateEvents(unitFrame)
 	unitFrame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_AURA", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
+	if C.show_power then
+		if C.ShowPower[UnitName(unitFrame.displayedUnit)] then
+			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
+			unitFrame.power:Show()
+		else
+			unitFrame:UnregisterEvent("UNIT_POWER_FREQUENT")
+			unitFrame.power:Hide()
+		end
+	end
 end
 
 local function RegisterNamePlateEvents(unitFrame)
@@ -1073,7 +1114,7 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		--if C.boss_mod then --不隱藏名字就不需要移動raid icon的位置
+		--if C.boss_mod then --如果不隱藏名字就不需要移動raid icon的位置
 			--namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
 		--else
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
@@ -1099,8 +1140,16 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.healthperc, "TOP", 0, 0)
 		namePlate.UnitFrame.icons:SetWidth(140)
-		namePlate.UnitFrame.icons:SetHeight(25)
+		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
+		
+		namePlate.UnitFrame.power = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
+		namePlate.UnitFrame.power:SetFont(G.numberstylefont, G.fontsize, "OUTLINE")
+		namePlate.UnitFrame.power:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthperc, "BOTTOMRIGHT", 0, 0)
+		namePlate.UnitFrame.power:SetTextColor(.8,.8,1)
+		namePlate.UnitFrame.power:SetShadowColor(0, 0, 0, 0.4)
+		namePlate.UnitFrame.power:SetShadowOffset(1, -1)
+		namePlate.UnitFrame.power:SetText("55")
 	else -- 條形樣式
 		namePlate.UnitFrame.healthBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.healthBar:SetHeight(8)
@@ -1165,7 +1214,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.Spark:SetSize(30, 25)
 		namePlate.UnitFrame.castBar.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 		namePlate.UnitFrame.castBar.Spark:SetBlendMode("ADD")
-		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, 3)
+		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, -1)
 		
 		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.castBar.Flash:SetAllPoints()
@@ -1207,8 +1256,16 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame, "TOP", 0, 0)
 		namePlate.UnitFrame.icons:SetWidth(140)
-		namePlate.UnitFrame.icons:SetHeight(25)
+		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
+		
+		namePlate.UnitFrame.power = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
+		namePlate.UnitFrame.power:SetFont(G.numberstylefont, G.fontsize, "OUTLINE")
+		namePlate.UnitFrame.power:SetPoint("LEFT", namePlate.UnitFrame.healthBar, "RIGHT", 2, 2)
+		namePlate.UnitFrame.power:SetTextColor(.8,.8,1)
+		namePlate.UnitFrame.power:SetShadowColor(0, 0, 0, 0.4)
+		namePlate.UnitFrame.power:SetShadowOffset(1, -1)
+		namePlate.UnitFrame.power:SetText("55")
 	end
 	
 	namePlate.UnitFrame:EnableMouse(false)
@@ -1242,6 +1299,13 @@ local function defaultcvar()
 		SetCVar("namePlateMaxScale", 1)
 		SetCVar("nameplateMaxDistance", 60)	
 	end
+	--SetCVar("nameplateMinAlpha", 0.7)
+	--SetCVar("nameplateMaxAlpha", 1)
+	SetCVar("nameplateLargerScale", 1)
+	SetCVar("nameplateMinScale", 1)
+	--SetCVar("nameplateMinAlphaDistance", 60)
+	--SetCVar("nameplateMaxAlphaDistance", 60)
+	SetCVar("nameplateMinAlpha", C.MinAlpha)
 end 
 	
 local function NamePlates_OnEvent(self, event, ...)
@@ -1286,6 +1350,7 @@ NamePlatesFrame:RegisterEvent("VARIABLES_LOADED")
 NamePlatesFrame:RegisterEvent("NAME_PLATE_CREATED")
 NamePlatesFrame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 NamePlatesFrame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+NamePlatesFrame:RegisterEvent("CVAR_UPDATE")
 NamePlatesFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
 NamePlatesFrame:RegisterEvent("RAID_TARGET_UPDATE")
 NamePlatesFrame:RegisterEvent("UNIT_FACTION")

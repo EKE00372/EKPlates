@@ -45,7 +45,8 @@ C.cbtext = false  --施法條法術名稱/show castbar text(number style only)
 C.cbshield = false  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false --顯示等級/show level
 C.HorizontalArrow = true --橫向箭頭/horizontal red arrow at right
-C.HideArrow = true  --隱藏箭頭/hide arrow
+C.HideArrow = false  --隱藏箭頭/hide arrow
+C.MinAlpha = 1
 
 --[[ the Player Plate ]]--
 
@@ -128,16 +129,26 @@ C.Customcoloredplates = {
 	},
 }
 
+--[[ Show Power ]]
+
+C.show_power = true
+C.ShowPower = {
+	["清扫器"] = true,
+	["清掃者"] = true,
+}
+
 --[[ Show Important Aura Icon on Friendly Nameplates ]]--
 
 C.boss_mod = true
+C.boss_mod_iconscale = 2
+
 --[[If you enable this function, remember shift+v to enable friendly-nameplates.
 	friendly-nameplates will show only spell icon and raid mark, all other elements will be hided.
 	啟用首領模塊要在遊戲內shift+v開啟友方姓名板，開啟此選項會將友方姓名板除法術和團隊標記外的其他元素隱藏]]--
 
 C.ImportantAuras = {
 	--[225506] = 61295, -- 測試用
-	--[166646] = "none", -- 測試用
+	[166646] = "none", -- 測試用
 	--[57723]  = "none", -- 測試用
 	
 	--[[ TrialofValor ]]--
