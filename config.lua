@@ -27,26 +27,31 @@ G.myClass = select(2, UnitClass("player"))  --dont touch this!/別碰這個！
 
 --[[ Config ]]--
 
-C.numberstyle = true --數字樣式/infinity plates's number style
+C.numberstyle = false --數字樣式/infinity plates's number style
 
 C.CVAR = true  -- do a cvar setting to turn nameplate work like WOD, can also slove fps drop.
 
 --[[blizzard default setting will scale nameplate to 0.8 when it's 10 yards outside,
 	but scale nameplate by range will get fps drop if both range scale and outline working, 
-	so if you get fps drop, should enable CVAR or disable font flag (font flag can be change at line 9),
+	so if you get fps drop, should enable CVAR or disable font flag (font flag can be change at line 21),
 	I suggest to use this config, outline is goodlook for nameplates.
-	暴雪預設姓名板在10碼外會自動縮放，但這個功能和姓名板字體描邊同時存在時會引起fps drop
+	暴雪預設姓名板在10碼外會自動縮放，但這個功能和姓名板字體描邊同時存在時會引起掉幀(fps drop)
 	描邊提供了姓名板美觀與易讀性，所以如果碰到了這個問題，建議啟用cvar設定來解決]]--
 
 C.friendlyCR = true --友方職業顏色/friendly class color
 C.enemyCR = true --敵方職業顏色/enemy class color
-C.threatcolor = true --名字仇恨染色/change name color by threat(note at line 686)
-C.cbtext = false  --施法條法術名稱/show castbar text(number style only)
+C.threatcolor = true --名字仇恨染色/change name color by threat
 C.cbshield = false  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false --顯示等級/show level
-C.HorizontalArrow = true --橫向箭頭/horizontal red arrow at right
+C.HorizontalArrow = false --橫向箭頭/horizontal red arrow at right
 C.HideArrow = false  --隱藏箭頭/hide arrow
-C.MinAlpha = 1
+C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
+
+--number style additional config
+C.cbtext = false --施法條法術名稱/show castbar text
+
+--bar style additional config
+--C.CRname = false --名字也職業染色/class color on name also
 
 --[[ the Player Plate ]]--
 
@@ -141,6 +146,7 @@ C.ShowPower = {
 
 C.boss_mod = true
 C.boss_mod_iconscale = 2
+C.boss_mod_hidename = false
 
 --[[If you enable this function, remember shift+v to enable friendly-nameplates.
 	friendly-nameplates will show only spell icon and raid mark, all other elements will be hided.

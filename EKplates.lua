@@ -617,40 +617,37 @@ local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
 	local hexColor
+	if not C.numberstyle and C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then return end
+	if name then	
+		if C.level then
+			if UnitIsUnit(unitFrame.displayedUnit, "player") then  
+				unitFrame.name:SetText("")  
+			else  	
+				if level >= UnitLevel("player")+5 then
+					hexColor = "ff0000"
+				elseif level >= UnitLevel("player")+3 then
+					hexColor = "ff6600"
+				elseif level <= UnitLevel("player")-3 then
+					hexColor = "00ff00"
+				elseif level <= UnitLevel("player")-5 then
+					hexColor = "808080"
+				else
+					hexColor = "ffff00"
+				end
 		
-	if name then
-	
-	if C.level then
-		if UnitIsUnit(unitFrame.displayedUnit, "player") then  
-			unitFrame.name:SetText("")  
-		else  
-	
-		if level >= UnitLevel("player")+5 then
-			hexColor = "ff0000"
-		elseif level >= UnitLevel("player")+3 then
-			hexColor = "ff6600"
-		elseif level <= UnitLevel("player")-3 then
-			hexColor = "00ff00"
-		elseif level <= UnitLevel("player")-5 then
-			hexColor = "808080"
-		else
-			hexColor = "ffff00"
-		end
-		
-		if level == -1 then 
-		unitFrame.name:SetText("|cffff0000??|r "..name)
-		else
-		unitFrame.name:SetText("|cff"..hexColor..""..level.."|r "..name)
-		end
-
-		end  
-	else	
-		if UnitIsUnit(unitFrame.displayedUnit, "player") then  
-			unitFrame.name:SetText("")  
-		else  
-			unitFrame.name:SetText(name)  
-		end 
-end		
+				if level == -1 then 
+					unitFrame.name:SetText("|cffff0000??|r "..name)
+				else
+					unitFrame.name:SetText("|cff"..hexColor..""..level.."|r "..name)
+				end
+			end  
+		else	
+			if UnitIsUnit(unitFrame.displayedUnit, "player") then  
+				unitFrame.name:SetText("")  
+			else  
+				unitFrame.name:SetText(name)  
+			end 
+		end		
 	end
 end
 
@@ -766,6 +763,9 @@ local function UpdateHealthColor(unitFrame)
 		if not C.numberstyle then
 			unitFrame.healthBar:SetStatusBarColor(r, g, b)  
 			unitFrame.healthBar.bd:SetBackdropColor(r/3, g/3, b/3)
+			--if C.CRname then
+				--unitFrame.name:SetTextColor(r, g, b)
+			--end
 		else
 			unitFrame.name:SetTextColor(r, g, b)
 		end
@@ -801,12 +801,12 @@ local function UpdateSelectionHighlight(unitFrame)
 	if not C.HorizontalArrow then
 		if not C.numberstyle then
 			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
 			else
-			unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		else
-			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖標
+			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖示
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.icons, "TOP", 0, 3)
 			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
@@ -814,7 +814,7 @@ local function UpdateSelectionHighlight(unitFrame)
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		end	
-	else	--橫向箭頭
+	else	--橫向箭頭，在boss mod友方目標隱藏名字的時候會有點蠢
 		if not C.numberstyle then 
 			unitFrame.redarrow:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
@@ -822,8 +822,6 @@ local function UpdateSelectionHighlight(unitFrame)
 		end
 	end	
 end
-
-
 
 local function UpdateRaidTarget(unitFrame)
 	local icon = unitFrame.RaidTargetFrame.RaidTargetIcon
@@ -857,12 +855,18 @@ local function UpdateforBossmod(unitFrame)
 	if not C.boss_mod then return end
 	local unit = unitFrame.displayedUnit
 	if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+		
+		if C.boss_mod_hidename then --隱藏友方名字
+			unitFrame.name:Hide()
+		else
+			unitFrame.name:Show()
+		end		
+		
 		if C.numberstyle then
 			unitFrame.healthperc:Hide()
 		else
 			unitFrame.healthBar:Hide()
 		end
-		--unitFrame.name:Hide() --隱藏友方名字
 		--unitFrame:SetAlpha(1)
 		unitFrame.castBar:UnregisterAllEvents()
 		unitFrame.icons:SetScale(C.boss_mod_iconscale)
@@ -871,11 +875,9 @@ local function UpdateforBossmod(unitFrame)
 			unitFrame.healthperc:Show()
 		else
 			unitFrame.healthBar:Show()
-		end
-		--unitFrame.name:Show()	--隱藏友方名字
+		end		
 		--unitFrame:SetAlpha(1)
 		unitFrame.icons:SetScale(1)
-		
 	end
 end
 
@@ -983,7 +985,6 @@ local function SetUnit(unitFrame, unit)
 		UnregisterNamePlateEvents(unitFrame)
 	end
 end
-
 
 --[[ Driver frame ]]--
 
@@ -1118,11 +1119,11 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		--if C.boss_mod then --如果不隱藏名字就不需要移動raid icon的位置
-			--namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
-		--else
+		if C.boss_mod_hidename then --如果不隱藏名字就不需要移動raid icon的位置
+			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
+		else
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-		--end
+		end
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
@@ -1233,7 +1234,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
 		
-		if C.boss_mod then
+		if C.boss_mod_hidename then
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame, "BOTTOM", 0, 30)
 		else
 			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
@@ -1303,7 +1304,8 @@ local function defaultcvar()
 		SetCVar("namePlateMaxScale", 1)
 		SetCVar("nameplateMaxDistance", 60)	
 	end
-	--SetCVar("nameplateMinAlpha", 0.7)
+	SetCVar("nameplateOverlapH",  0.3)
+	SetCVar("nameplateOverlapV",  0.7)
 	--SetCVar("nameplateMaxAlpha", 1)
 	SetCVar("nameplateLargerScale", 1)
 	--SetCVar("nameplateMinAlphaDistance", 60)
