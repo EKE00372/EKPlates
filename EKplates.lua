@@ -876,7 +876,6 @@ local function UpdateforBossmod(unitFrame)
 		else
 			unitFrame.healthBar:Show()
 		end		
-		--unitFrame:SetAlpha(1)
 		unitFrame.icons:SetScale(1)
 	end
 end
