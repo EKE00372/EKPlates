@@ -43,7 +43,7 @@ C.enemyCR = true --敵方職業顏色/enemy class color
 C.threatcolor = true --名字仇恨染色/change name color by threat
 C.cbshield = false  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false --顯示等級/show level
-C.HorizontalArrow = true --橫向箭頭/horizontal red arrow at right
+C.HorizontalArrow = false --橫向箭頭/horizontal red arrow at right
 C.HideArrow = false  --隱藏箭頭/hide arrow
 C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
 
