@@ -557,19 +557,19 @@ if C.classresource_show then
   
 					oldMax = self.maxbar  
 					if(max ~= oldMax) then  
-						if max == 5 or max == 8 then  
-							self[6]:Hide()  
-							for i = 1, 6 do  
-								self[i]:SetWidth(102/5-2)  
-							end  
-						else  
-							for i = 1, 6 do  
-								self[i]:SetWidth(102/max-2)  
-								if i > max then  
-									self[i]:Hide()  
-								end  
-							end  
-						end  
+						if max <= 6 then
+							for i = 1, 6 do
+								self[i]:SetWidth(102/max-2)
+								if i > max then
+									self[i]:Hide()
+								end
+							end
+						else
+							self[6]:Hide()
+							for i = 1, 6 do
+								self[i]:SetWidth(102/5-2)
+							end
+						end
 						self.maxbar = max  
 					end  
 				end  
