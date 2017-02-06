@@ -800,12 +800,16 @@ end
 
 local function UpdateCastBar(unitFrame)
 	local castBar = unitFrame.castBar
-	castBar.startCastColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.startChannelColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.finishedCastColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
-	castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
-	CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
+	if not castBar.colored then
+		castBar.startCastColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.startChannelColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.finishedCastColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
+		castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
+		CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
+		castBar.colored = true
+	end
+
 	if UnitIsUnit("player", unitFrame.displayedUnit) then return end
 	if C.boss_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
 	if C.cbshield then
