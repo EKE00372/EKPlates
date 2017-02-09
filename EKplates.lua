@@ -906,6 +906,7 @@ local function UpdateforBossmod(unitFrame)
 			unitFrame.healthBar:Show()
 		end		
 		unitFrame.icons:SetScale(1)
+		unitFrame.name:Show()
 	end
 end
 
