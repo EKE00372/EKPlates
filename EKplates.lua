@@ -330,7 +330,7 @@ end
 
 --[[ Player Power ]]-- 
  
-if C.playerplate then  
+if GetCVar("nameplateShowSelf", 1) then  
 	local PowerFrame = CreateFrame("Frame", "EKNamePlatePowerFrame")  
 	  
 	PowerFrame.powerBar = CreateFrame("StatusBar", nil, PowerFrame)  
@@ -658,6 +658,8 @@ local function UpdateName(unitFrame)
 		
 				if level == -1 then 
 					unitFrame.name:SetText("|cffff0000??|r "..name)
+		elseif Level == UnitLevel("player") then  --110
+		unitFrame.name:SetText(name)
 				else
 					unitFrame.name:SetText("|cff"..hexColor..""..level.."|r "..name)
 				end
@@ -1344,12 +1346,6 @@ local function NamePlates_OnEvent(self, event, ...)
 	end
 	if ( event == "VARIABLES_LOADED" ) then
 		HideBlizzard()
-		if C.playerplate then  
-			SetCVar("nameplateShowSelf", 1)  
-		else  
-			SetCVar("nameplateShowSelf", 0)  
-		end  
-
 		NamePlates_UpdateNamePlateOptions()
 	elseif ( event == "NAME_PLATE_CREATED" ) then
 		local namePlate = ...

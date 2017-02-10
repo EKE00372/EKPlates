@@ -52,7 +52,7 @@ C.cbtext = false --施法條法術名稱/show castbar text
 
 --[[ the Player Plate ]]--
 
-C.playerplate = false
+--C.playerplate = false
 C.classresource_show = false
 C.classresource = "player" -- "player", "target"  
 C.plateaura = false
