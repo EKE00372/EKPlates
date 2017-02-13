@@ -557,19 +557,19 @@ if C.classresource_show then
   
 					oldMax = self.maxbar  
 					if(max ~= oldMax) then  
-						if max == 5 or max == 8 then  
-							self[6]:Hide()  
-							for i = 1, 6 do  
-								self[i]:SetWidth(102/5-2)  
-							end  
-						else  
-							for i = 1, 6 do  
-								self[i]:SetWidth(102/max-2)  
-								if i > max then  
-									self[i]:Hide()  
-								end  
-							end  
-						end  
+						if max <= 6 then
+							for i = 1, 6 do
+								self[i]:SetWidth(102/max-2)
+								if i > max then
+									self[i]:Hide()
+								end
+							end
+						else
+							self[6]:Hide()
+							for i = 1, 6 do
+								self[i]:SetWidth(102/5-2)
+							end
+						end
 						self.maxbar = max  
 					end  
 				end  
@@ -800,12 +800,16 @@ end
 
 local function UpdateCastBar(unitFrame)
 	local castBar = unitFrame.castBar
-	castBar.startCastColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.startChannelColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.finishedCastColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
-	castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
-	CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
+	if not castBar.colored then
+		castBar.startCastColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.startChannelColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.finishedCastColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
+		castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
+		CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
+		castBar.colored = true
+	end
+
 	if UnitIsUnit("player", unitFrame.displayedUnit) then return end
 	if C.boss_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
 	if C.cbshield then
@@ -902,6 +906,7 @@ local function UpdateforBossmod(unitFrame)
 			unitFrame.healthBar:Show()
 		end		
 		unitFrame.icons:SetScale(1)
+		unitFrame.name:Show()
 	end
 end
 
