@@ -896,7 +896,6 @@ local function UpdateforBossmod(unitFrame)
 		else
 			unitFrame.healthBar:Hide()
 		end
-		--unitFrame:SetAlpha(1)
 		unitFrame.castBar:UnregisterAllEvents()
 		unitFrame.icons:SetScale(C.boss_mod_iconscale)
 	else
@@ -1322,23 +1321,25 @@ end
 local function defaultcvar() 
 	if C.CVAR then	
 		SetCVar("nameplateOtherTopInset", -1)
-		SetCVar("nameplateOtherBottomInset", -1)
-		SetCVar("namePlateMinScale", 1)
-		SetCVar("namePlateMaxScale", 1)
+		SetCVar("nameplateOtherBottomInset", -1)		
 		SetCVar("nameplateMaxDistance", 45)
 	else
 		SetCVar("nameplateOtherTopInset", 0.08)
 		SetCVar("nameplateOtherBottomInset", 0.1)
-		SetCVar("namePlateMinScale", 0.8)
-		SetCVar("namePlateMaxScale", 1)
 		SetCVar("nameplateMaxDistance", 60)	
 	end
+	--fix fps drop(距離縮放與描邊功能會引起掉幀)
+	SetCVar("namePlateMinScale", 1)  --default is 0.8
+	SetCVar("namePlateMaxScale", 1) 
+	--讓堆疊血條的間距小一點	
 	SetCVar("nameplateOverlapH",  0.3)
 	SetCVar("nameplateOverlapV",  0.7)
-	--SetCVar("nameplateMaxAlpha", 1)
+	--boss nameplate scale
 	SetCVar("nameplateLargerScale", 1)
+	
 	--SetCVar("nameplateMinAlphaDistance", 60)
-	--SetCVar("nameplateMaxAlphaDistance", 60)
+	--SetCVar("nameplateMaxAlphaDistance", 60)	
+	--SetCVar("nameplateMaxAlpha", 1)
 	SetCVar("nameplateMinAlpha", C.MinAlpha)
 end 
 	
