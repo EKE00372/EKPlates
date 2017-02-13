@@ -17,7 +17,7 @@ G.numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf" --數字字體/numb
 G.norFont = STANDARD_TEXT_FONT  --名字字體/name font(or use"GameFontHighlight:GetFont()")
 G.ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
 
-G.fontsize = 14  --名字字體大小/name font size (normal font*1.75 = number font)
+G.fontsize = 14  --名字字體大小/name font size
 G.fontflag = "OUTLINE"  -- "OUTLINE" or none
 
 G.blank = "Interface\\Buttons\\WHITE8x8"
@@ -29,14 +29,7 @@ G.myClass = select(2, UnitClass("player"))  --dont touch this!/別碰這個！
 
 C.numberstyle = true --數字樣式/infinity plates's number style
 
-C.CVAR = true  -- do a cvar setting to turn nameplate work like WOD, can also slove fps drop.
-
---[[blizzard default setting will scale nameplate to 0.8 when it's 10 yards outside,
-	but scale nameplate by range will get fps drop if both range scale and outline working, 
-	so if you get fps drop, should enable CVAR or disable font flag (font flag can be change at line 21),
-	I suggest to use this config, outline is goodlook for nameplates.
-	暴雪預設姓名板在10碼外會自動縮放，但這個功能和姓名板字體描邊同時存在時會引起掉幀(fps drop)
-	描邊提供了姓名板美觀與易讀性，所以如果碰到了這個問題，建議啟用cvar設定來解決]]--
+C.CVAR = true  --舊版姓名板/do a cvar setting to turn nameplate work like WOD
 
 C.friendlyCR = true --友方職業顏色/friendly class color
 C.enemyCR = true --敵方職業顏色/enemy class color
@@ -52,7 +45,7 @@ C.cbtext = false --施法條法術名稱/show castbar text
 
 --[[ the Player Plate ]]--
 
-C.playerplate = false
+C.playerplate = false  --玩家個人資源/player self nameplate
 C.classresource_show = false
 C.classresource = "player" -- "player", "target"  
 C.plateaura = false
@@ -69,7 +62,7 @@ C.otherfiltertype = "whitelist"  --他人施放/show aura cast by other
 -- "none": do not show anything/不顯示任何光環
 
 C.WhiteList = {
-	--[166646] = true, -- 御風而行(測試用)
+	--[166646] = true, -- 御風而行(test)
 	--BUFF
 	--[209859] = true, -- 激勵(mythic+)
 	--[226510] = true, -- 膿血(mythic+)
@@ -112,8 +105,8 @@ C.WhiteList = {
 }
 
 C.BlackList = {
-	--[11426]  = true, -- 寒冰護體(測試用魔法)
-	--[196741] = true, -- 連珠狂拳(測試用)	
+	--[11426]  = true, -- 寒冰護體(test)
+	--[196741] = true, -- 連珠狂拳(test)	
 	[166646] = true, -- 御風而行
 	[15407]  = true, -- 精神鞭笞
 }
@@ -133,10 +126,11 @@ C.Customcoloredplates = {
 
 --[[ Show Power ]]
 
-C.show_power = true
+C.show_power = true  --替定怪(自行編輯清單)顯示特特殊能量/show spacial power
 C.ShowPower = {
 	["清扫器"] = true,
 	["清掃者"] = true,
+	["Scrubber"] = true,
 }
 
 --[[ Show Important Aura Icon on Friendly Nameplates ]]--
@@ -146,23 +140,21 @@ C.boss_mod_iconscale = 2
 C.boss_mod_hidename = false --隱藏玩家名稱/hide player name
 
 --[[If you enable this function, remember shift+v to enable friendly-nameplates.
-	friendly-nameplates will show only spell icon and raid mark, all other elements will be hided.
-	啟用首領模塊要在遊戲內shift+v開啟友方姓名板，開啟此選項會將友方姓名板除法術和團隊標記外的其他元素隱藏]]--
+	friendly-nameplates health will be hided.
+	啟用首領模塊要在遊戲內shift+v開啟友方姓名板，開啟此選項會將友方姓名板的血量隱藏]]--
 
 C.ImportantAuras = {
-	--[225506] = 61295, -- 測試用
-	--[166646] = "none", -- 測試用
-	--[57723]  = "none", -- 測試用
-	--[227723]  = "compare", -- 測試用
+	--[225506] = 61295, --test
+	--[166646] = "none", --test
+	--[57723]  = "none", --test
+	--[227723]  = "compare", --test
 	
 	--[[ TrialofValor ]]--
-	--顯示中了沫液的人
-	-- Show Volatile Foam
+	--顯示中了沫液的人/Show Volatile Foam
 	[228818] = "none", -- 暗影易變沫液
 	[228810] = "none", -- 鹽蝕易變沫液
 	[228744] = "none", -- 火焰易變沫液	
-	--當中了沫液，顯示和沫液同色吐息debuff的人
-	-- show match breath color debuff when you gain Volatile Foam
+	--當中了沫液，顯示和沫液同色吐息debuff的人/show match breath color debuff when you gain Volatile Foam
 	[228769] = 228818, -- 暗黑吐息
 	[228768] = 228810, -- 鹽蝕唾沫
 	[228758] = 228744, -- 熾炎痰液
@@ -174,6 +166,7 @@ C.ImportantAuras = {
 	[212647] = 212587, --冰霜咬噬
 	--植物學家
 	[218342] = "none", --寄生專注
+	[218304] = "none", --寄生束縛
 	--提克迪奧斯
 	[206480] = "none", --腐屍瘟疫
 	--星占師
