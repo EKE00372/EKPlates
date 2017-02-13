@@ -1,6 +1,6 @@
 ﻿## Interface: 70100
 ## Title: |cff00ffffEK|rPlates
-## Version: Release1
+## Version: R1.1
 ## Author: EK(Linodas@Illidan-US)
 ## Credits-to:Paopao, Dawn
 ## Notes: Nameplates
