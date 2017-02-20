@@ -1,5 +1,3 @@
-/label ~Bug
-
 ###上傳一張關於這個BUG的截圖。
 ###Upload a screenshot about this bug.
 
