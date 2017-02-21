@@ -1037,6 +1037,13 @@ local function HideBlizzard()
 		end
 		NamePlates_UpdateNamePlateOptions()
 	end
+	
+	--去你的DBM
+	if DBM and DBM.Nameplate then
+		function DBM.Nameplate:SupportedNPMod()
+			return true
+		end
+	end
 end
 
 local function OnUnitFactionChanged(unit)
