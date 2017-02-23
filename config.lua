@@ -8,28 +8,33 @@ local T, C, L, G = unpack(select(2, ...))
 
 --[[ Global ]]--
 
+C.numberstyle = true --數字樣式/infinity plates's number style
+
+--[[ Textures ]]--
+
 G.iconcastbar = "Interface\\AddOns\\EKplates\\media\\dM3"
 G.raidicon = "Interface\\AddOns\\EKplates\\media\\raidicons"
 G.redarrow1 = "Interface\\AddOns\\EKplates\\media\\NeonRedArrow"
 G.redarrow2 = "Interface\\AddOns\\EKplates\\media\\NeonRedArrowH"
+G.ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
+G.blank = "Interface\\Buttons\\WHITE8x8"
+G.glow = "Interface\\AddOns\\EKplates\\media\\glow"
+G.myClass = select(2, UnitClass("player"))  --dont touch this!/別碰這個！
+
+--[[ Fonts ]]--
+
 G.numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"  --數字樣式的數字字體/number style's number font
 G.numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf" --數字字體/number font
 G.norFont = STANDARD_TEXT_FONT  --名字字體/name font(or use"GameFontHighlight:GetFont()")
-G.ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
-
 G.fontsize = 14  --名字字體大小/name font size
 G.fontflag = "OUTLINE"  -- "OUTLINE" or none
 
-G.blank = "Interface\\Buttons\\WHITE8x8"
-G.glow = "Interface\\AddOns\\EKplates\\media\\glow"
-
-G.myClass = select(2, UnitClass("player"))  --dont touch this!/別碰這個！
-
 --[[ Config ]]--
 
-C.numberstyle = true --數字樣式/infinity plates's number style
-
 C.CVAR = true  --舊版姓名板/do a cvar setting to turn nameplate work like WOD
+C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
+C.FriendlyClickThrough = true --友方姓名板點擊穿透/friendly nameplate click through
+C.EnemyClickThrough = false  --敵方姓名板點擊穿透/enemy nameplate click through
 
 C.friendlyCR = true --友方職業顏色/friendly class color
 C.enemyCR = true --敵方職業顏色/enemy class color
@@ -38,7 +43,6 @@ C.cbshield = false  --施法條不可打斷圖示/show castbar un-interrupt shie
 C.level = false --顯示等級/show level
 C.HorizontalArrow = false --橫向箭頭/horizontal red arrow at right
 C.HideArrow = false  --隱藏箭頭/hide arrow
-C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
 
 --number style additional config
 C.cbtext = false --施法條法術名稱/show castbar text
@@ -124,16 +128,16 @@ C.Customcoloredplates = {
 	},
 }
 
---[[ Show Power ]]
+--[[ Show Power ]]--
 
-C.show_power = true  --替定怪(自行編輯清單)顯示特特殊能量/show spacial power
+C.show_power = true  --替特定怪(自行編輯清單)顯示特特殊能量/show spacial power
 C.ShowPower = {
 	["清扫器"] = true,
 	["清掃者"] = true,
 	["Scrubber"] = true,
 }
 
---[[ Show Important Aura Icon on Friendly Nameplates ]]--
+--[[ BOSS MOD: Show Important Aura Icon on Friendly Nameplates ]]--
 
 C.boss_mod = true
 C.boss_mod_iconscale = 2
@@ -144,6 +148,8 @@ C.boss_mod_hidename = false --隱藏玩家名稱/hide player name
 	啟用首領模塊要在遊戲內shift+v開啟友方姓名板，開啟此選項會將友方姓名板的血量隱藏]]--
 
 C.ImportantAuras = {
+	--[spell id] = check filter
+	--[法術id] = 過濾條件
 	--[225506] = 61295, --test
 	--[166646] = "none", --test
 	--[57723]  = "none", --test
