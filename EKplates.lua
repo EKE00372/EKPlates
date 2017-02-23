@@ -2,14 +2,10 @@ local T, C, L, G = unpack(select(2, ...))
 
 --[[ config從beta7版本起獨立 ]]--
 local Custom_icons = {
-	--237554, -- 黃色笑臉
-	--237553, -- 紅色怒臉
-	--237552, -- 粉色笑臉	
-	--237555, -- 藍色哭臉
-	--135769, -- 藍色加號
-	--135768, -- 紅色減號
-	--132304, -- 藍色雙劍
-	--132096, -- 紅色漩渦	
+	--237554, -- 黃色笑臉/--237553, -- 紅色怒臉
+	--237552, -- 粉色笑臉/--237555, -- 藍色哭臉
+	--135769, -- 藍色加號/--135768, -- 紅色減號
+	--132304, -- 藍色雙劍/--132096, -- 紅色漩渦	
 	236595, -- 綠色箭頭
 	236612, -- 紅色箭頭
 }
@@ -1348,6 +1344,9 @@ local function defaultcvar()
 	--SetCVar("nameplateMaxAlphaDistance", 60)	
 	--SetCVar("nameplateMaxAlpha", 1)
 	SetCVar("nameplateMinAlpha", C.MinAlpha)
+	--禁用點擊
+	C_NamePlate.SetNamePlateFriendlyClickThrough(C.FriendlyClickThrough)
+	C_NamePlate.SetNamePlateEnemyClickThrough(C.EnemyClickThrough)
 end 
 	
 local function NamePlates_OnEvent(self, event, ...)
