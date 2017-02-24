@@ -1351,11 +1351,11 @@ local function defaultcvar()
 	SetCVar("nameplatePersonalShowWithTarget", 1)
 	SetCVar("nameplatePersonalHideDelaySeconds", 3)
 	--敵方顯示條件
-	SetCVar("nameplateShowEnemyGuardians", 0) --守護者
-	SetCVar("nameplateShowEnemyMinions", 0)  --僕從
-	SetCVar("nameplateShowEnemyMinus", 1) --次要
-	SetCVar("nameplateShowEnemyPets", 0)  --寵物
-	SetCVar("nameplateShowEnemyTotems", 1) --圖騰
+	--SetCVar("nameplateShowEnemyGuardians", 0) --守護者
+	--SetCVar("nameplateShowEnemyMinions", 0)  --僕從
+	--SetCVar("nameplateShowEnemyPets", 0)  --寵物
+	--SetCVar("nameplateShowEnemyTotems", 1) --圖騰	
+	--SetCVar("nameplateShowEnemyMinus", 1) --次要	
 	--友方顯示條件
 	SetCVar("nameplateShowFriendlyGuardians", 0) --守護者
 	SetCVar("nameplateShowFriendlyMinions", 0)  --僕從
