@@ -1347,6 +1347,26 @@ local function defaultcvar()
 	--禁用點擊
 	C_NamePlate.SetNamePlateFriendlyClickThrough(C.FriendlyClickThrough)
 	C_NamePlate.SetNamePlateEnemyClickThrough(C.EnemyClickThrough)
+	--個人資源顯示條件
+	SetCVar("nameplatePersonalShowAlways", 0)
+	SetCVar("nameplatePersonalShowInCombat", 1)
+	SetCVar("nameplatePersonalShowWithTarget", 1)
+	SetCVar("nameplatePersonalHideDelaySeconds", 3)
+	--敵方顯示條件
+	SetCVar("nameplateShowEnemyGuardians", 0) --守護者
+	SetCVar("nameplateShowEnemyMinions", 0)  --僕從
+	SetCVar("nameplateShowEnemyMinus", 1) --次要
+	SetCVar("nameplateShowEnemyPets", 0)  --寵物
+	SetCVar("nameplateShowEnemyTotems", 1) --圖騰
+	--友方顯示條件
+	SetCVar("nameplateShowFriendlyGuardians", 0) --守護者
+	SetCVar("nameplateShowFriendlyMinions", 0)  --僕從
+	SetCVar("nameplateShowFriendlyNPCs", 0) --npc
+	SetCVar("nameplateShowFriendlyPets", 0) --寵物
+	SetCVar("nameplateShowFriendlyTotems", 0) --圖騰
+	--當前目標大小
+	SetCVar("nameplateSelectedScale", C.SelectedScale)
+	
 end 
 	
 local function NamePlates_OnEvent(self, event, ...)
