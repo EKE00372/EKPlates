@@ -158,11 +158,11 @@ local function CreateAuraIcon(parent)
 	button.bd:SetPoint("TOPLEFT",button,"TOPLEFT", -1, 1)
 	button.bd:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT", 1, -1)
 	
-	button.text = createnumber(button, "OVERLAY", C.aurafontsize, G.fontflag, "CENTER")
+	button.text = createnumber(button, "OVERLAY", G.aurafontsize, G.fontflag, "CENTER")
 	button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
 	button.text:SetTextColor(1, 1, 0)
 	
-	button.count = createnumber(button, "OVERLAY", C.aurafontsize-2, G.fontflag, "RIGHT")
+	button.count = createnumber(button, "OVERLAY", G.aurafontsize-2, G.fontflag, "RIGHT")
 	button.count:SetPoint("TOPRIGHT", button, "TOPRIGHT", -1, 2)
 	button.count:SetTextColor(.4, .95, 1)
 	
