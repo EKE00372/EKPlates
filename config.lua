@@ -51,10 +51,10 @@ C.cbtext = false --施法條法術名稱/show castbar text
 
 --[[ the Player Plate ]]--
 
-C.playerplate = false  --玩家個人資源/player self nameplate
-C.classresource_show = false
+C.playerplate = false  --玩家姓名板/player self nameplate
+C.classresource_show = false  --玩家資源/resource
 C.classresource = "player" -- "player", "target"  
-C.plateaura = false
+C.plateaura = false  --玩家光環/aura
 
 --[[ Aura Icons on Plates ]]--
 
