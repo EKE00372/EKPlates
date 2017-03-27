@@ -1,4 +1,8 @@
-﻿local addon, ns = ...
+--[[ Read Me / 讀我 ]]--
+-- change true/false to enable/disable function.
+-- 修改true/false來開啟/關閉功能
+
+local addon, ns = ...
 ns[1] = {} -- T, functions, constants, variables
 ns[2] = {} -- C, config
 ns[3] = {} -- L, localization
@@ -34,15 +38,18 @@ G.fontflag = "OUTLINE"  -- "OUTLINE" or none
 
 C.CVAR = true  --舊版姓名板/do a cvar setting to turn nameplate work like WOD
 C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
+C.SelectedScale = 1 --縮放當前目標的姓名板大小/scale select target nameplate
+
 C.FriendlyClickThrough = true --友方姓名板點擊穿透/friendly nameplate click through
 C.EnemyClickThrough = false  --敵方姓名板點擊穿透/enemy nameplate click through
-C.SelectedScale = 1 --縮放當前目標的姓名板大小/scale select target nameplate
 
 C.friendlyCR = true --友方職業顏色/friendly class color
 C.enemyCR = true --敵方職業顏色/enemy class color
 C.threatcolor = true --名字仇恨染色/change name color by threat
+
 C.cbshield = false  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false --顯示等級/show level
+
 C.HorizontalArrow = false --橫向箭頭/horizontal red arrow at right
 C.HideArrow = false  --隱藏箭頭/hide arrow
 
