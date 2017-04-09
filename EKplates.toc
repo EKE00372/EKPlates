@@ -2,10 +2,8 @@
 ## Title: |cff00ffffEK|rPlates
 ## Version: R1.3
 ## Author: EK(Linodas@Illidan-US)
-## Credits-to: Paopao, Dawn
+## Credits-to:Paopao, Dawn
 ## Notes: Nameplates
-## Notes-zhTW: 姓名板
-## Notes-zhCN: 姓名板
 
 config.lua
 EKplates.lua

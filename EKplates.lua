@@ -1,6 +1,6 @@
 local T, C, L, G = unpack(select(2, ...))
 
---[[ config從beta7版本起獨立 ]]--
+--[[ config從beta7版本起獨立，至config.lua編輯設定 ]]--
 local Custom_icons = {
 	--237554, -- 黃色笑臉/--237553, -- 紅色怒臉
 	--237552, -- 粉色笑臉/--237555, -- 藍色哭臉
@@ -169,25 +169,16 @@ local function CreateAuraIcon(parent)
 	return button
 end
 
-local function UpdateAuraIcon(button, unit, index, filter, custom_icon)
+local function UpdateAuraIcon(button, unit, index, filter)
 	local name, _, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
-	
-	if custom_icon then
-		button.icon:SetTexture(Custom_icons[custom_icon])
-	else
-		button.icon:SetTexture(icon)
-	end
-	
+
+	button.icon:SetTexture(icon)
 	button.expirationTime = expirationTime
 	button.duration = duration
 	button.spellID = spellID
 	
 	local color = DebuffTypeColor[debuffType] or DebuffTypeColor.none
-	if C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
-		button.overlay:SetVertexColor(0.9, 0.9, 0.9)
-	else
-		button.overlay:SetVertexColor(color.r, color.g, color.b)
-	end
+	button.overlay:SetVertexColor(color.r, color.g, color.b)
 
 	if count and count > 1 then
 		button.count:SetText(count)
@@ -214,49 +205,9 @@ local function UpdateAuraIcon(button, unit, index, filter, custom_icon)
 	button:Show()
 end
 
-local function UnitDebuffID(unit, spell_id)
-	local debuff_name = GetSpellInfo(spell_id)
-	if UnitDebuff(unit, debuff_name) then
-		local id = select(11, UnitDebuff(unit, debuff_name))
-		if id == spell_id then
-			return true
-		end
-	end
-end
-
-local function UnitBuffID(unit, spell_id)
-	local buff_name = GetSpellInfo(spell_id)
-	if UnitBuff(unit, buff_name) then
-		local id = select(11, UnitBuff(unit, buff_name))
-		if id == spell_id then	
-			return true
-		end
-	end
-end
-
-local function AuraFilter(caster, spellid, unit)
-	if C.boss_mod then
-		if C.ImportantAuras[spellid] then
-			if C.ImportantAuras[spellid] == "none" then
-				return true
-			elseif C.ImportantAuras[spellid] == "compare" then
-				if UnitDebuffID("player", spellid) or UnitBuffID("player", spellid) then
-					return true, 1
-				else
-					return true, 2
-				end
-			elseif UnitDebuffID("player", C.ImportantAuras[spellid]) then
-				return true
-			elseif UnitBuffID("player", C.ImportantAuras[spellid]) then
-				return true
-			end
-		end
-	end
-	
+local function AuraFilter(caster, spellid)
 	if caster == "player" then
 		if C["myfiltertype"] == "none" then
-			return false
-		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
 			return false
 		elseif C["myfiltertype"] == "whitelist" and C.WhiteList[spellid] then
 			return true
@@ -265,8 +216,6 @@ local function AuraFilter(caster, spellid, unit)
 		end
 	else
 		if C["otherfiltertype"] == "none" then
-			return false
-		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
 			return false
 		elseif C["otherfiltertype"] == "whitelist" and C.WhiteList[spellid] then
 			return true
@@ -283,12 +232,12 @@ local function UpdateBuffs(unitFrame)
 	for index = 1, 15 do
 		if i <= C.auranum then
 			local bname, _, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, 'HELPFUL')
-			local matchbuff, custom_icon = AuraFilter(bcaster, bspellid, unit)
+			local matchbuff = AuraFilter(bcaster, bspellid)
 			if bname and matchbuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HELPFUL', custom_icon)
+				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HELPFUL')
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -300,12 +249,12 @@ local function UpdateBuffs(unitFrame)
 	for index = 1, 20 do
 		if i <= C.auranum then
 			local dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, 'HARMFUL')
-			local matchdebuff, custom_icon = AuraFilter(dcaster, dspellid, unit)
+			local matchdebuff = AuraFilter(dcaster, dspellid)
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HARMFUL', custom_icon)
+				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HARMFUL')
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -724,13 +673,13 @@ end
 
 local function IsOnThreatList(unit)
 	local _, threatStatus = UnitDetailedThreatSituation("player", unit)
-	if threatStatus == 3 then  --穩定仇恨/當前坦克/securely tanking, highest threat
+	if threatStatus == 3 then  --穩定仇恨，當前坦克/securely tanking, highest threat
 		return .9, .1, .4  --紅色/red
-	elseif threatStatus == 2 then  --非當前仇恨/當前坦克/insecurely tanking, another unit have higher threat but not tanking.
+	elseif threatStatus == 2 then  --非當前仇恨，當前坦克(已OT或坦克正在丟失仇恨)/insecurely tanking, another unit have higher threat but not tanking.
 		return .9, .1, .9  --粉色/pink
-	elseif threatStatus == 1 then  --當前仇恨/非當前坦克(遠程ot)/not tanking, higher threat than tank.
+	elseif threatStatus == 1 then  --當前仇恨，非當前坦克(非坦克高仇恨或坦克正在獲得仇恨)/not tanking, higher threat than tank.
 		return .4, .1, .9  --紫色/purple
-	elseif threatStatus == 0 then  --低仇恨/安全/not tanking, lower threat than tank.
+	elseif threatStatus == 0 then  --低仇恨，安全/not tanking, lower threat than tank.
 		return .1, .7, .9  --藍色/blue
 	end
 end
@@ -780,7 +729,7 @@ local function UpdateHealthColor(unitFrame)
 		else
 			unitFrame.healthBar:SetStatusBarColor(r, g, b)  
 			unitFrame.healthBar.bd:SetBackdropColor(r/3, g/3, b/3)
-			if C.boss_mod then
+			if C.name_mod then
 				if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
 					unitFrame.name:SetTextColor(r, g, b)
 				else
@@ -805,7 +754,7 @@ local function UpdateCastBar(unitFrame)
 	end
 
 	if UnitIsUnit("player", unitFrame.displayedUnit) then return end
-	if C.boss_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
+	if C.name_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
 	if C.cbshield then
 		CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, true)
 	else
@@ -895,32 +844,22 @@ local function UpdateInVehicle(unitFrame)
 	end
 end
 
-local function UpdateforBossmod(unitFrame)
-	if not C.boss_mod then return end
+local function UpdateforNamemod(unitFrame)
+	if not C.name_mod then return end
 	local unit = unitFrame.displayedUnit
 	if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
-		
-		if C.boss_mod_hidename then --隱藏友方名字
-			unitFrame.name:Hide()
-		else
-			unitFrame.name:Show()
-		end		
-		
 		if C.numberstyle then
 			unitFrame.healthperc:Hide()
 		else
 			unitFrame.healthBar:Hide()
 		end
 		unitFrame.castBar:UnregisterAllEvents()
-		unitFrame.icons:SetScale(C.boss_mod_iconscale)
 	else
 		if C.numberstyle then
 			unitFrame.healthperc:Show()
 		else
 			unitFrame.healthBar:Show()
-		end		
-		unitFrame.icons:SetScale(1)
-		unitFrame.name:Show()
+		end
 	end
 end
 
@@ -934,7 +873,7 @@ local function UpdateAll(unitFrame)
 		UpdateSelectionHighlight(unitFrame)
 		UpdateBuffs(unitFrame)
 		UpdateRaidTarget(unitFrame)
-		UpdateforBossmod(unitFrame)
+		UpdateforNamemod(unitFrame)
 		
 		if UnitIsUnit("player", unitFrame.displayedUnit) then  
 			unitFrame.castBar:UnregisterAllEvents()  
@@ -970,7 +909,6 @@ local function NamePlate_OnEvent(self, event, ...)
 			UpdateHealthColor(self)
 		elseif ( event == "UNIT_NAME_UPDATE" ) then
 			UpdateName(self)
-			UpdateforBossmod(self)
 		elseif ( event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_PET" ) then
 			UpdateAll(self)
 		elseif (C.show_power and event == "UNIT_POWER_FREQUENT" ) then
@@ -1033,11 +971,11 @@ local function HideBlizzard()
 	end
 	
 	--去你的DBM
-	if DBM and DBM.Nameplate then
-		function DBM.Nameplate:SupportedNPMod()
-			return true
-		end
-	end
+	--if DBM and DBM.Nameplate then
+		--function DBM.Nameplate:SupportedNPMod()
+			--return true
+		--end
+	--end
 end
 
 local function OnUnitFactionChanged(unit)
@@ -1046,7 +984,7 @@ local function OnUnitFactionChanged(unit)
 	if (namePlate) then
 		UpdateName(namePlate.UnitFrame)
 		UpdateHealthColor(namePlate.UnitFrame)
-		UpdateforBossmod(namePlate.UnitFrame)
+		UpdateforNamemod(namePlate.UnitFrame)
 	end
 end
 
@@ -1059,7 +997,7 @@ end
 function NamePlates_UpdateNamePlateOptions()
 	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox
 	local baseNamePlateWidth = 100
-	local baseNamePlateHeight = 45
+	local baseNamePlateHeight = 30
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
 	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
 	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
@@ -1148,11 +1086,7 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		if C.boss_mod_hidename then --如果不隱藏名字就不需要移動raid icon的位置
-			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
-		else
-			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-		end
+		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
@@ -1262,12 +1196,7 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		
-		if C.boss_mod_hidename then
-			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame, "BOTTOM", 0, 30)
-		else
-			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-		end
+		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
@@ -1337,10 +1266,7 @@ local function defaultcvar()
 	SetCVar("nameplateOverlapV",  0.7)
 	--boss nameplate scale
 	SetCVar("nameplateLargerScale", 1)
-	
-	--SetCVar("nameplateMinAlphaDistance", 60)
-	--SetCVar("nameplateMaxAlphaDistance", 60)	
-	--SetCVar("nameplateMaxAlpha", 1)
+	--非當前目標透明度
 	SetCVar("nameplateMinAlpha", C.MinAlpha)
 	--禁用點擊
 	C_NamePlate.SetNamePlateFriendlyClickThrough(C.FriendlyClickThrough)
@@ -1352,10 +1278,10 @@ local function defaultcvar()
 	SetCVar("nameplatePersonalHideDelaySeconds", 3)
 	--敵方顯示條件
 	--SetCVar("nameplateShowEnemyGuardians", 0) --守護者
-	--SetCVar("nameplateShowEnemyMinions", 0)  --僕從
+	SetCVar("nameplateShowEnemyMinions", 1)  --僕從
 	--SetCVar("nameplateShowEnemyPets", 0)  --寵物
-	--SetCVar("nameplateShowEnemyTotems", 1) --圖騰	
-	--SetCVar("nameplateShowEnemyMinus", 1) --次要	
+	SetCVar("nameplateShowEnemyTotems", 1) --圖騰	
+	SetCVar("nameplateShowEnemyMinus", 1) --次要	
 	--友方顯示條件
 	SetCVar("nameplateShowFriendlyGuardians", 0) --守護者
 	SetCVar("nameplateShowFriendlyMinions", 0)  --僕從
@@ -1368,7 +1294,6 @@ local function defaultcvar()
 end 
 	
 local function NamePlates_OnEvent(self, event, ...)
-	local arg1 = ...
 	if ( event == "PLAYER_ENTERING_WORLD" ) then
 		defaultcvar()
 	end
@@ -1396,10 +1321,6 @@ local function NamePlates_OnEvent(self, event, ...)
 		NamePlates_UpdateNamePlateOptions()
 	elseif ( event == "UNIT_FACTION" ) then
 		OnUnitFactionChanged(...)
-	elseif C.boss_mod and event == "UNIT_AURA" and arg1 == "player" then
-		for _, namePlate in pairs(C_NamePlate.GetNamePlates()) do
-			UpdateBuffs(namePlate.UnitFrame)
-		end
 	end
 end
 

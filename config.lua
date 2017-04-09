@@ -1,8 +1,4 @@
---[[ Read Me / 讀我 ]]--
--- change true/false to enable/disable function.
--- 修改true/false來開啟/關閉功能
-
-local addon, ns = ...
+﻿local addon, ns = ...
 ns[1] = {} -- T, functions, constants, variables
 ns[2] = {} -- C, config
 ns[3] = {} -- L, localization
@@ -39,11 +35,12 @@ G.fontflag = "OUTLINE"  -- "OUTLINE" or none
 C.CVAR = true  --舊版姓名板/do a cvar setting to turn nameplate work like WOD
 C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
 C.SelectedScale = 1 --縮放當前目標的姓名板大小/scale select target nameplate
-
 C.FriendlyClickThrough = true --友方姓名板點擊穿透/friendly nameplate click through
 C.EnemyClickThrough = false  --敵方姓名板點擊穿透/enemy nameplate click through
 
+C.name_mod = true --友方玩家只顯示名字不顯示血量/show only name on friendy player nameplates
 C.friendlyCR = true --友方職業顏色/friendly class color
+
 C.enemyCR = true --敵方職業顏色/enemy class color
 C.threatcolor = true --名字仇恨染色/change name color by threat
 
@@ -58,7 +55,7 @@ C.cbtext = false --施法條法術名稱/show castbar text
 
 --[[ the Player Plate ]]--
 
-C.playerplate = false  --玩家姓名板/player self nameplate
+C.playerplate = false  --玩家個人資源/player self nameplate
 C.classresource_show = false  --玩家資源/resource
 C.classresource = "player" -- "player", "target"  
 C.plateaura = false  --玩家光環/aura
@@ -121,6 +118,7 @@ C.BlackList = {
 	--[11426]  = true, -- 寒冰護體(test)
 	--[196741] = true, -- 連珠狂拳(test)	
 	[166646] = true, -- 御風而行
+	[227723] = true, -- 上古法力感應石(test)												
 	[15407]  = true, -- 精神鞭笞
 }
 
@@ -135,6 +133,14 @@ C.Customcoloredplates = {
 		name = "寒冰裂片", --法刃的冰塊
 		color = {r = 1, g = 0, b = 1},
 	},
+	[3] = {
+		name = "魔化炸彈", --M+易爆詞綴ZHTW
+		color = {r = 1, g = 1, b = 0},
+	},
+	[4] = {
+		name = "邪能炸弹", --M+易爆詞綴ZHCN
+		color = {r = 1, g = 1, b = 0},
+	},
 }
 
 --[[ Show Power ]]--
@@ -144,57 +150,4 @@ C.ShowPower = {
 	["清扫器"] = true,
 	["清掃者"] = true,
 	["Scrubber"] = true,
-}
-
---[[ BOSS MOD: Show Important Aura Icon on Friendly Nameplates ]]--
-
-C.boss_mod = true
-C.boss_mod_iconscale = 2
-C.boss_mod_hidename = false --隱藏玩家名稱/hide player name
-
---[[If you enable this function, remember shift+v to enable friendly-nameplates.
-	friendly-nameplates health will be hided.
-	啟用首領模塊要在遊戲內shift+v開啟友方姓名板，開啟此選項會將友方姓名板的血量隱藏]]--
-
-C.ImportantAuras = {
-	--[spell id] = check filter
-	--[法術id] = 過濾條件
-	--[225506] = 61295, --test
-	--[166646] = "none", --test
-	--[57723]  = "none", --test
-	--[227723]  = "compare", --test
-	
-	--[[ TrialofValor ]]--
-	--顯示中了沫液的人/Show Volatile Foam
-	[228818] = "none", -- 暗影易變沫液
-	[228810] = "none", -- 鹽蝕易變沫液
-	[228744] = "none", -- 火焰易變沫液	
-	--當中了沫液，顯示和沫液同色吐息debuff的人/show match breath color debuff when you gain Volatile Foam
-	[228769] = 228818, -- 暗黑吐息
-	[228768] = 228810, -- 鹽蝕唾沫
-	[228758] = 228744, -- 熾炎痰液
-	
-	--[[ Nighthold ]]--
-	--時光異象
-	[206617] = "none", --定時炸彈
-	--法刃
-	[212647] = 212587, --冰霜咬噬
-	--植物學家
-	[218342] = "none", --寄生專注
-	[218304] = "none", --寄生束縛
-	--提克迪奧斯
-	[206480] = "none", --腐屍瘟疫
-	--星占師
-	--[206589] = "none", --冰凍
-	--[205445] = "none", --貪狼
-	--[205429] = "none", --巨蟹
-	--[216345] = "none", --獵戶
-	--[216344] = "none", --飛龍	
-	[205445] = "compare", --貪狼
-	[205429] = "compare", --巨蟹
-	[216345] = "compare", --獵戶
-	[216344] = "compare", --飛龍
-	--古爾丹
-	[221606] = "none", --薩格拉斯之焰
-	[221603] = "none", --薩格拉斯之焰	
 }
