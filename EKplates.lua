@@ -857,6 +857,27 @@ local function UpdateRaidTarget(unitFrame)
 	end
 end
 
+local function UpdateNamePlateEvents(unitFrame)
+	-- These are events affected if unit is in a vehicle
+	local unit = unitFrame.unit
+	local displayedUnit
+	if ( unit ~= unitFrame.displayedUnit ) then
+		displayedUnit = unitFrame.displayedUnit
+	end
+	unitFrame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit)
+	unitFrame:RegisterUnitEvent("UNIT_AURA", unit, displayedUnit)
+	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
+	if C.show_power then
+		if C.ShowPower[UnitName(unitFrame.displayedUnit)] then
+			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
+			unitFrame.power:Show()
+		else
+			unitFrame:UnregisterEvent("UNIT_POWER_FREQUENT")
+			unitFrame.power:Hide()
+		end
+	end
+end
+
 local function UpdateInVehicle(unitFrame)
 	if ( UnitHasVehicleUI(unitFrame.unit) ) then
 		if ( not unitFrame.inVehicle ) then
@@ -956,27 +977,6 @@ local function NamePlate_OnEvent(self, event, ...)
 			if C.ShowPower[UnitName(self.displayedUnit)] then
 				UpdatePower(self)
 			end
-		end
-	end
-end
-
-local function UpdateNamePlateEvents(unitFrame)
-	-- These are events affected if unit is in a vehicle
-	local unit = unitFrame.unit
-	local displayedUnit
-	if ( unit ~= unitFrame.displayedUnit ) then
-		displayedUnit = unitFrame.displayedUnit
-	end
-	unitFrame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit)
-	unitFrame:RegisterUnitEvent("UNIT_AURA", unit, displayedUnit)
-	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
-	if C.show_power then
-		if C.ShowPower[UnitName(unitFrame.displayedUnit)] then
-			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
-			unitFrame.power:Show()
-		else
-			unitFrame:UnregisterEvent("UNIT_POWER_FREQUENT")
-			unitFrame.power:Hide()
 		end
 	end
 end
