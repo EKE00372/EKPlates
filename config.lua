@@ -126,26 +126,26 @@ C.BlackList = {
 
 C.Customcoloredplates = {
 	[1] = {
-		name = "暴躁蠍子", --水晶蠍的大怪
+		name = "暴躁蠍子", --水晶蠍的大怪，白色
 		color = {r = 1, g = 1, b = 1},
 	},
 	[2] = {
-		name = "寒冰裂片", --法刃的冰塊
-		color = {r = 1, g = 0, b = 1},
+		name = "魔化炸彈", --M+易爆詞綴ZHTW.....黃色
+		color = {r = 1, g = 1, b = 0.2},
 	},
 	[3] = {
-		name = "魔化炸彈", --M+易爆詞綴ZHTW
-		color = {r = 1, g = 1, b = 0},
+		name = "邪能炸弹", --M+易爆詞綴ZHCN
+		color = {r = 1, g = 1, b = 0.2},
 	},
 	[4] = {
-		name = "邪能炸弹", --M+易爆詞綴ZHCN
-		color = {r = 1, g = 1, b = 0},
+		name = "Fel Explosives", --M+易爆詞綴ENUS
+		color = {r = 1, g = 1, b = 0.2},
 	},
 }
 
 --[[ Show Power ]]--
 
-C.show_power = true  --替特定怪(自行編輯清單)顯示特特殊能量/show spacial power
+C.show_power = true  --替特定怪(自行編輯清單)啟用顯示特特殊能量/show spacial power
 C.ShowPower = {
 	["清扫器"] = true,
 	["清掃者"] = true,
