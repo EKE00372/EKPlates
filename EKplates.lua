@@ -1246,8 +1246,8 @@ local function defaultcvar()
 		SetCVar("nameplateOtherBottomInset", -1)		
 		SetCVar("nameplateMaxDistance", 45)
 	else
-		SetCVar("nameplateOtherTopInset", 0.08)
-		SetCVar("nameplateOtherBottomInset", 0.1)
+		SetCVar("nameplateOtherTopInset", .08)
+		SetCVar("nameplateOtherBottomInset", .1)
 		SetCVar("nameplateMaxDistance", 60)	
 	end
 	--fix fps drop(距離縮放與描邊功能會引起掉幀)
@@ -1269,11 +1269,11 @@ local function defaultcvar()
 	SetCVar("nameplatePersonalShowWithTarget", 1)
 	SetCVar("nameplatePersonalHideDelaySeconds", 3)
 	--敵方顯示條件
-	--SetCVar("nameplateShowEnemyGuardians", 0) --守護者
+	SetCVar("nameplateShowEnemyGuardians", 1) --守護者
 	SetCVar("nameplateShowEnemyMinions", 1)  --僕從
 	--SetCVar("nameplateShowEnemyPets", 0)  --寵物
-	SetCVar("nameplateShowEnemyTotems", 1) --圖騰	
-	SetCVar("nameplateShowEnemyMinus", 1) --次要	
+	SetCVar("nameplateShowEnemyTotems", 1) --圖騰
+	--SetCVar("nameplateShowEnemyMinus", 1) --次要	
 	--友方顯示條件
 	SetCVar("nameplateShowFriendlyGuardians", 0) --守護者
 	SetCVar("nameplateShowFriendlyMinions", 0)  --僕從
