@@ -1248,12 +1248,11 @@ local function defaultcvar()
 	if C.CVAR then
 		SetCVar("nameplateOtherTopInset", -1)
 		SetCVar("nameplateOtherBottomInset", -1)
-		SetCVar("nameplateMaxDistance", 45)
 	else
 		SetCVar("nameplateOtherTopInset", .08)
 		SetCVar("nameplateOtherBottomInset", .1)
-		SetCVar("nameplateMaxDistance", 60)
 	end
+	SetCVar("nameplateMaxDistance", C.MaxDistance)
 	--fix fps drop(距離縮放與描邊功能會引起掉幀)
 	SetCVar("namePlateMinScale", 1)  --default is 0.8
 	SetCVar("namePlateMaxScale", 1) 
@@ -1264,6 +1263,8 @@ local function defaultcvar()
 	SetCVar("nameplateLargerScale", 1)
 	--非當前目標透明度
 	SetCVar("nameplateMinAlpha", C.MinAlpha)
+	--當前目標大小
+	SetCVar("nameplateSelectedScale", C.SelectedScale)
 	--禁用點擊
 	C_NamePlate.SetNamePlateFriendlyClickThrough(C.FriendlyClickThrough)
 	C_NamePlate.SetNamePlateEnemyClickThrough(C.EnemyClickThrough)
@@ -1283,10 +1284,7 @@ local function defaultcvar()
 	SetCVar("nameplateShowFriendlyMinions", 0)  --僕從
 	SetCVar("nameplateShowFriendlyNPCs", 0) --npc
 	SetCVar("nameplateShowFriendlyPets", 0) --寵物
-	SetCVar("nameplateShowFriendlyTotems", 0) --圖騰
-	--當前目標大小
-	SetCVar("nameplateSelectedScale", C.SelectedScale)
-	
+	SetCVar("nameplateShowFriendlyTotems", 0) --圖騰	
 end 
 	
 local function NamePlates_OnEvent(self, event, ...)
