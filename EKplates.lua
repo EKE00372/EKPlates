@@ -1051,6 +1051,16 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.iconborder = CreateBG(namePlate.UnitFrame.castBar.Icon)
 		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY",-1)
 		
+		if C.castbar then
+			namePlate.UnitFrame.castBar:SetSize(100, 5)
+			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMLEFT", -12, 0)
+			namePlate.UnitFrame.castBar.Icon:SetSize(10, 10)
+		else
+			namePlate.UnitFrame.castBar:SetSize(38,38)
+			namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER", 0, 0)
+			namePlate.UnitFrame.castBar.Icon:SetSize(32, 32)
+		end
+		
 		if C.cbtext then
 		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
 		namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
