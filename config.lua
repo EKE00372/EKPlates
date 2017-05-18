@@ -55,7 +55,7 @@ C.HideArrow = false  --隱藏箭頭/hide arrow
 
 --number style additional config
 C.cbtext = false --施法條法術名稱/show castbar text
-
+C.castbar = false  --條形施法條/show castbar as a "bar"
 --[[ the Player Plate ]]--
 
 C.playerplate = false  --玩家個人資源/player self nameplate
