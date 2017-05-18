@@ -5,5 +5,5 @@
 ## Credits-to:Paopao, Dawn
 ## Notes: Nameplates
 
-config.lua
-EKplates.lua
+Config.lua
+EKPlates.lua
