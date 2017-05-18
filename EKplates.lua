@@ -341,6 +341,7 @@ if C.playerplate then
 end
 
 --[[ Class bar stuff ]]--
+
 if C.classresource_show then
 	local function multicheck(check, ...)
 		for i=1, select("#", ...) do
@@ -573,6 +574,7 @@ if C.classresource_show then
 end
 
 --[[ Unit frame ]]--
+
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
@@ -783,7 +785,7 @@ local function UpdateSelectionHighlight(unitFrame)
 			end
 		end	
 	else	--橫向箭頭，在boss mod友方目標隱藏名字的時候會有點蠢
-		if not C.numberstyle then 
+		if not C.numberstyle then
 			unitFrame.redarrow:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
 			unitFrame.redarrow:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
@@ -991,9 +993,9 @@ local function OnRaidTargetUpdate()
 end
 
 function NamePlates_UpdateNamePlateOptions()
-	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox
+	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox(110/45)
 	local baseNamePlateWidth = 100
-	local baseNamePlateHeight = 30
+	local baseNamePlateHeight = 28
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
 	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
 	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
@@ -1027,7 +1029,11 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
-		namePlate.UnitFrame.castBar:SetSize(38,38)
+		if C.castbar then
+			namePlate.UnitFrame.castBar:SetSize(100, 10)
+			else
+			namePlate.UnitFrame.castBar:SetSize(38,38)
+		end
 		if C.classresource_show and C.classresource == "target" then
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -7)
 		else  
@@ -1045,22 +1051,17 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.bg:SetTexture(1/3, 1/3, 1/3, .5)
 
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
-		namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER")
-		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
-		namePlate.UnitFrame.castBar.Icon:SetSize(32, 32)
-		namePlate.UnitFrame.castBar.iconborder = CreateBG(namePlate.UnitFrame.castBar.Icon)
-		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY",-1)
-		
 		if C.castbar then
-			namePlate.UnitFrame.castBar:SetSize(100, 5)
-			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMLEFT", -12, 0)
-			namePlate.UnitFrame.castBar.Icon:SetSize(10, 10)
+			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -1)
+			namePlate.UnitFrame.castBar.Icon:SetSize(16, 16)
 		else
-			namePlate.UnitFrame.castBar:SetSize(38,38)
-			namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER", 0, 0)
+			namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER")
 			namePlate.UnitFrame.castBar.Icon:SetSize(32, 32)
 		end
-		
+		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+		namePlate.UnitFrame.castBar.iconborder = CreateBG(namePlate.UnitFrame.castBar.Icon)
+		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY",-1)
+
 		if C.cbtext then
 		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
 		namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
@@ -1253,7 +1254,8 @@ local function OnNamePlateRemoved(unit)
 	CastingBarFrame_SetUnit(namePlate.UnitFrame.castBar, nil, false, true)
 end
 
---加一段cvar代碼
+--[[ 加一段cvar代碼 ]]--
+
 local function defaultcvar()
 	if C.CVAR then
 		SetCVar("nameplateOtherTopInset", -1)

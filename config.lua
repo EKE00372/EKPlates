@@ -9,7 +9,7 @@ local T, C, L, G = unpack(select(2, ...))
 --[[ Global ]]--
 
 --啟用/enable=true 停用/disable=false
-C.numberstyle = true --數字樣式/infinity plates's number style
+C.numberstyle = true --數字樣式/number style
 
 --[[ Textures ]]--
 
@@ -53,9 +53,10 @@ C.level = false --顯示等級/show level
 C.HorizontalArrow = false --橫向箭頭/horizontal red arrow at right
 C.HideArrow = false  --隱藏箭頭/hide arrow
 
---number style additional config
+--數字模式額外選項/number style additional config
 C.cbtext = false --施法條法術名稱/show castbar text
 C.castbar = false  --條形施法條/show castbar as a "bar"
+
 --[[ the Player Plate ]]--
 
 C.playerplate = false  --玩家個人資源/player self nameplate
