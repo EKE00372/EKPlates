@@ -8,6 +8,7 @@ local T, C, L, G = unpack(select(2, ...))
 
 --[[ Global ]]--
 
+--啟用/enable=true 停用/disable=false
 C.numberstyle = true --數字樣式/infinity plates's number style
 
 --[[ Textures ]]--
@@ -32,9 +33,11 @@ G.fontflag = "OUTLINE"  -- "OUTLINE" or none
 
 --[[ Config ]]--
 
-C.CVAR = true  --舊版姓名板/do a cvar setting to turn nameplate work like WOD
+C.CVAR = true  --姓名板不要貼齊畫面邊緣/Let Nameplates go off screen
+C.MaxDistance = 45  --姓名版顯示的最大距離/max distance for nameplate show on
 C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
 C.SelectedScale = 1 --縮放當前目標的姓名板大小/scale select target nameplate
+
 C.FriendlyClickThrough = true --友方姓名板點擊穿透/friendly nameplate click through
 C.EnemyClickThrough = false  --敵方姓名板點擊穿透/enemy nameplate click through
 
@@ -74,51 +77,51 @@ C.otherfiltertype = "whitelist"  --他人施放/show aura cast by other
 C.WhiteList = {
 	--[166646] = true, -- 御風而行(test)
 	--BUFF
-	--[209859] = true, -- 激勵(mythic+)
-	--[226510] = true, -- 膿血(mythic+)
+	[209859] = true, -- 激勵/Bloster (mythic+)
+	[226510] = true, -- 膿血/Sanguine Ichor (mythic+)
 	
 	-- DEBUFF
 	
 	-- CC
-	[25046]  = true, -- 奧流之術
+	[25046]  = true, -- 奧流之術/Arcane Torrent
 	
-	[118]    = true, -- 變形術
-	[51514]  = true, -- 妖術
-	[217832] = true, -- 禁錮
-	[605]    = true, -- 心控
-	[710]    = true, -- 放逐
-	[2094]   = true, -- 致盲
-	[6770]   = true, -- 悶棍
-	[9484]   = true, -- 束縛不死生物
-	[20066]  = true, -- 懺悔
-	[115078] = true, -- 點穴
+	[118]    = true, -- 變形術/Polymorph
+	[51514]  = true, -- 妖術/Hex
+	[217832] = true, -- 禁錮/Imprison
+	[605]    = true, -- 心控/Mind Contrl
+	[710]    = true, -- 放逐/Banish
+	[2094]   = true, -- 致盲/Blind
+	[6770]   = true, -- 悶棍/Sap
+	[9484]   = true, -- 束縛不死生物/Shackle Undead
+	[20066]  = true, -- 懺悔/Repentance
+	[115078] = true, -- 點穴/Paralysis
 	
-	[339]    = true, -- 小d綁
-	[102359] = true, -- 群纏
-	[3355]   = true, -- 冰凍陷阱
-	[64695]  = true, -- 地縛圖騰
+	[339]    = true, -- 小d綁/Entangling Roots
+	[102359] = true, -- 群纏/Mass Entanglement
+	[3355]   = true, -- 冰凍陷阱/Freezing Trap
+	[64695]  = true, -- 地縛圖騰/Earthgrab
 	
-	[5211]   = true, -- 蠻力猛擊
-	[853]    = true, -- 制裁(聖騎)
-	[221562] = true, -- 窒息(dk)
+	[5211]   = true, -- 蠻力猛擊/Mighty Bash
+	[853]    = true, -- 制裁/Hammer of Justice (Paladin)
+	[221562] = true, -- 窒息/Asphyxiate (DK)
 	
-	[118905] = true, -- 電容(薩滿)
-	[132168] = true, -- 震懾波(戰士)
-	[179057] = true, -- 混沌新星(dh)
-	[30283]  = true, -- 暗影之怒(術士)
- 	[207171] = true, -- 凜冬將至(dk)
-	[117405] = true, -- 束縛射擊(獵人)
-	[119381] = true, -- 掃葉腿(武僧)
-	[127797] = true, -- 厄索克之旋(小德)
-	[205369] = true, -- 精神炸彈 
-	[81261]  = true, -- 日光(小德)
+	[118905] = true, -- 電容/Static Charge (Shaman)
+	[132168] = true, -- 震懾波/Shockwave (War)
+	[179057] = true, -- 混沌新星/Chaos Nova (DH)
+	[30283]  = true, -- 暗影之怒/Shadowfury (WL)
+ 	[207171] = true, -- 凜冬將至/Winter is Coming (DK)
+	[117405] = true, -- 束縛射擊/Binding Shot (Hunter)
+	[119381] = true, -- 掃葉腿/Leg Sweep (Monk)
+	[127797] = true, -- 厄索克之旋(小德)/Ursol's Vortex (Druid)
+	[205369] = true, -- 精神炸彈/Mind Bomb
+	[81261]  = true, -- 日光/Solar Beam (Druid)
 }
 
 C.BlackList = {
 	--[11426]  = true, -- 寒冰護體(test)
 	--[196741] = true, -- 連珠狂拳(test)	
-	[166646] = true, -- 御風而行
-	[227723] = true, -- 上古法力感應石(test)												
+	[166646] = true, -- 御風而行/Windwalking
+	[227723] = true, -- 上古法力感應石/Mana Divining Stone(test)
 	[15407]  = true, -- 精神鞭笞
 }
 
@@ -150,4 +153,5 @@ C.ShowPower = {
 	["清扫器"] = true,
 	["清掃者"] = true,
 	["Scrubber"] = true,
+	["Automated Sweeper"] = true,
 }
