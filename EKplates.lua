@@ -296,7 +296,11 @@ if C.playerplate then
 				PowerFrame.powerBar:SetValue(perc)  
 			else  
 				if minPower ~= maxPower then  
-					PowerFrame.powerperc:SetText(perc_text)  
+					if powertype == 0 then
+						PowerFrame.powerperc:SetText(perc_text)
+					else
+						PowerFrame.powerperc:SetText(minPower)
+					end
 				else  
 					PowerFrame.powerperc:SetText("")  
 				end  
