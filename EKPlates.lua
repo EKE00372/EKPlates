@@ -283,7 +283,7 @@ if C.playerplate then
 	
 	PowerFrame:SetScript("OnEvent", function(self, event, unit)
 		if event == "PLAYER_ENTERING_WORLD" or (event == "UNIT_POWER_FREQUENT" and unit == "player") then
-			local minPower, maxPower, _, powertype = UnitPower("player"), UnitPowerMax("player"), UnitPowerType("player")
+			local minPower, maxPower, powertype_index, powertype = UnitPower("player"), UnitPowerMax("player"), UnitPowerType("player")
 			local perc
 			
 			if maxPower ~= 0 then
@@ -297,7 +297,7 @@ if C.playerplate then
 				PowerFrame.powerBar:SetValue(perc)
 			else
 				if minPower ~= maxPower then  
-					if powertype == 0 then
+					if powertype_index == 0 then
 						PowerFrame.powerperc:SetText(perc_text)
 					else
 						PowerFrame.powerperc:SetText(minPower)
