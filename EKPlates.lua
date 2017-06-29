@@ -1267,12 +1267,13 @@ local function defaultcvar()
 	SetCVar("nameplateLargeTopInset", .08) 
 	SetCVar("nameplateLargeBottomInset", .1)
 	
-	SetCVar("nameplateMaxDistance", C.MaxDistance)	
+	--最大視距
+	SetCVar("nameplateMaxDistance", C.MaxDistance)	 --default is 60
 	--fix fps drop(距離縮放與描邊功能會引起掉幀)
 	SetCVar("namePlateMinScale", 1)  --default is 0.8
 	SetCVar("namePlateMaxScale", 1) 
 	--boss nameplate scale
-	SetCVar("nameplateLargerScale", 1)
+	SetCVar("nameplateLargerScale", 1) --default is 1.2
 	--當前目標大小
 	SetCVar("nameplateSelectedScale", C.SelectedScale)	
 	--讓堆疊血條的間距小一點
@@ -1289,7 +1290,6 @@ local function defaultcvar()
 	C_NamePlate.SetNamePlateSelfClickThrough(C.PlayerClickThrough) 
 	--個人資源顯示條件
 	SetCVar("nameplatePersonalShowAlways", 0)
-	SetCVar("NameplatePersonalHideDelayAlpha", 0)
 	SetCVar("nameplatePersonalShowInCombat", 1)
 	SetCVar("nameplatePersonalShowWithTarget", 1)
 	SetCVar("nameplatePersonalHideDelaySeconds", 3)
