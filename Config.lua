@@ -33,10 +33,10 @@ G.fontflag = "OUTLINE"  -- "OUTLINE" or none
 
 --[[ Config ]]--
 
-C.CVAR = true  --姓名板不要貼齊畫面邊緣/Let Nameplates go off screen
+C.Inset = true  --姓名板不要貼齊畫面邊緣/Let Nameplates go off screen
 C.MaxDistance = 45  --姓名版顯示的最大距離/max distance for nameplate show on
-C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out of range and non-target
 C.SelectedScale = 1 --縮放當前目標的姓名板大小/scale select target nameplate
+C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out of range and non-target
 
 C.FriendlyClickThrough = true --友方姓名板點擊穿透/friendly nameplate click through
 C.EnemyClickThrough = false  --敵方姓名板點擊穿透/enemy nameplate click through
@@ -61,8 +61,9 @@ C.castbar = false  --條形施法條/show castbar as a "bar"
 
 C.playerplate = false  --玩家個人資源/player self nameplate
 C.classresource_show = false  --玩家資源/resource
-C.classresource = "player" -- "player", "target"  
+C.classresource = "player" -- "player", "target"
 C.plateaura = false  --玩家光環/aura
+C.PlayerClickThrough = false --個人資源點擊穿透/player resource click through
 
 --[[ Aura Icons on Plates ]]--
 
