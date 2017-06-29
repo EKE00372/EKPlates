@@ -8,7 +8,7 @@ local T, C, L, G = unpack(select(2, ...))
 
 --[[ Global ]]--
 
---啟用/enable=true 停用/disable=false
+--啟用/enable = true 停用/disable = false
 C.numberstyle = true --數字樣式/number style
 
 --[[ Textures ]]--
@@ -35,7 +35,7 @@ G.fontflag = "OUTLINE"  -- "OUTLINE" or none
 
 C.CVAR = true  --姓名板不要貼齊畫面邊緣/Let Nameplates go off screen
 C.MaxDistance = 45  --姓名版顯示的最大距離/max distance for nameplate show on
-C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
+C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out of range and non-target
 C.SelectedScale = 1 --縮放當前目標的姓名板大小/scale select target nameplate
 
 C.FriendlyClickThrough = true --友方姓名板點擊穿透/friendly nameplate click through
@@ -80,6 +80,8 @@ C.WhiteList = {
 	--BUFF
 	[209859] = true, -- 激勵/Bloster (mythic+)
 	[226510] = true, -- 膿血/Sanguine Ichor (mythic+)
+	
+	[236513] = true, -- 骨牢護甲(tos)
 	
 	-- DEBUFF
 	
