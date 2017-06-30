@@ -9,7 +9,7 @@ local T, C, L, G = unpack(select(2, ...))
 --[[ Global ]]--
 
 --啟用/enable = true 停用/disable = false
-C.numberstyle = true --數字樣式/number style
+C.numberstyle = true --啟用數字樣式，如果想要條形的血條就關閉這項/number style, if you want a bar-style nameplates, change to false.
 
 --[[ Textures ]]--
 
