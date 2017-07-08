@@ -1224,7 +1224,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.redarrow:Hide()
 		
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame, "TOP", 0, 0)
+		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 2)
 		namePlate.UnitFrame.icons:SetWidth(140)
 		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
