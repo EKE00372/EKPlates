@@ -1,18 +1,18 @@
-local T, C, L, G = unpack(select(2, ...))
+local C, G = unpack(select(2, ...))
 
---[[ config從beta7版本起獨立，至config.lua編輯設定 ]]--
+-- [[ config從beta7版本起獨立，至config.lua編輯設定 ]] --
 
---[[ Functions ]]-- 
+-- [[ Functions ]] -- 
 
-colorspower = {}
+local colorspower = {}
 for power, color in next, PowerBarColor do
-	if (type(power) == "string") then
+	if type(power) == "string" then
 		colorspower[power] = {color.r, color.g, color.b}
 	end
 end
 
 local Ccolors = {}
-if(IsAddOnLoaded'!ClassColors' and CUSTOM_CLASS_COLORS) then
+if IsAddOnLoaded("!ClassColors") and CUSTOM_CLASS_COLORS then
 	Ccolors = CUSTOM_CLASS_COLORS
 else
 	Ccolors = RAID_CLASS_COLORS
@@ -117,7 +117,7 @@ local createBackdrop = function(parent, anchor, a)
     return frame
 end
 
---[[ Auras ]]-- 
+-- [[ Auras ]] -- 
 
 local day, hour, minute = 86400, 3600, 60
 local function FormatTime(s)
@@ -133,7 +133,7 @@ local function FormatTime(s)
 end
 
 local function CreateAuraIcon(parent)
-	local button = CreateFrame("Frame",nil,parent)
+	local button = CreateFrame("Frame", "EKPlateButton",parent)
 	button:SetSize(C.auraiconsize, C.auraiconsize)
 
 	button.icon = button:CreateTexture(nil, "OVERLAY", nil, 3)
@@ -224,13 +224,13 @@ local function UpdateBuffs(unitFrame)
 
 	for index = 1, 15 do
 		if i <= C.auranum then
-			local bname, _, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, 'HELPFUL')
+			local bname, _, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, "HELPFUL")
 			local matchbuff = AuraFilter(bcaster, bspellid)
 			if bname and matchbuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HELPFUL')
+				UpdateAuraIcon(unitFrame.icons[i], unit, index, "HELPFUL")
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -241,13 +241,13 @@ local function UpdateBuffs(unitFrame)
 
 	for index = 1, 20 do
 		if i <= C.auranum then
-			local dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, 'HARMFUL')
+			local dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL")
 			local matchdebuff = AuraFilter(dcaster, dspellid)
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HARMFUL')
+				UpdateAuraIcon(unitFrame.icons[i], unit, index, "HARMFUL")
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -258,16 +258,16 @@ local function UpdateBuffs(unitFrame)
 	
 	unitFrame.iconnumber = i - 1
 	
-	if i > 1 then
-		unitFrame.icons[1]:SetPoint("LEFT", unitFrame.icons, "CENTER", -((C.auraiconsize+4)*(unitFrame.iconnumber)-4)/2,0)
+	if i > 1 then	
+		unitFrame.icons[1]:SetPoint("LEFT", unitFrame.icons, "CENTER", -((C.auraiconsize+4)*(unitFrame.iconnumber)-4)/2, 0)
 	end
 	for index = i, #unitFrame.icons do unitFrame.icons[index]:Hide() end
 end
 
---[[ Player Power ]]-- 
+-- [[ Player Power ]] -- 
 
 if C.playerplate then
-	local PowerFrame = CreateFrame("Frame", "EKNamePlatePowerFrame")
+	local PowerFrame = CreateFrame("Frame", "EKPlatePowerFrame")
 	
 	PowerFrame.powerBar = CreateFrame("StatusBar", nil, PowerFrame)
 	PowerFrame.powerBar:SetHeight(3)
@@ -327,7 +327,11 @@ if C.playerplate then
 					PowerFrame.powerBar:SetPoint("TOPRIGHT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -3)
 				else
 					PowerFrame.powerperc:ClearAllPoints()
-					PowerFrame.powerperc:SetPoint("BOTTOMLEFT", namePlatePlayer.UnitFrame.healthperc, "BOTTOMRIGHT", 0, 0)
+					if C.plateaura then
+						PowerFrame.powerperc:SetPoint("TOP", namePlatePlayer.UnitFrame.healthperc, "BOTTOM", 0, -6)
+					else
+						PowerFrame.powerperc:SetPoint("BOTTOMLEFT", namePlatePlayer.UnitFrame.healthperc, "BOTTOMRIGHT", 0, 0)
+					end
 				end
 			end
 		elseif event == "NAME_PLATE_UNIT_REMOVED" and UnitIsUnit(unit, "player") then
@@ -340,7 +344,7 @@ if C.playerplate then
 	PowerFrame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 end
 
---[[ Class bar stuff ]]--
+-- [[ Class bar stuff ]] --
 
 if C.classresource_show then
 	local function multicheck(check, ...)
@@ -365,33 +369,33 @@ if C.classresource_show then
 		{1, 1, 0},
 	}
 	
-	if(G.myClass == 'MONK') then
+	if(G.myClass == "MONK") then
 		ClassPowerID = Enum.PowerType.Chi
 		ClassPowerType = "CHI"
 		RequireSpec = SPEC_MONK_WINDWALKER
-	elseif(G.myClass == 'PALADIN') then
+	elseif(G.myClass == "PALADIN") then
 		ClassPowerID = Enum.PowerType.HolyPower
 		ClassPowerType = "HOLY_POWER"
 		RequireSpec = SPEC_PALADIN_RETRIBUTION
-	elseif(G.myClass == 'MAGE') then
+	elseif(G.myClass == "MAGE") then
 		ClassPowerID = Enum.PowerType.ArcaneCharges
 		ClassPowerType = "ARCANE_CHARGES"
 		RequireSpec = SPEC_MAGE_ARCANE
-	elseif(G.myClass == 'WARLOCK') then
+	elseif(G.myClass == "WARLOCK") then
 		ClassPowerID = Enum.PowerType.SoulShards
 		ClassPowerType = "SOUL_SHARDS"
-	elseif(G.myClass == 'ROGUE' or G.myClass == 'DRUID') then
+	elseif(G.myClass == "ROGUE" or G.myClass == "DRUID") then
 		ClassPowerID = Enum.PowerType.ComboPoints
 		ClassPowerType = "COMBO_POINTS"
 	end
 
-	local Resourcebar = CreateFrame("Frame", "EKplateresource", UIParent)
-	Resourcebar:SetWidth(100)--(10+3)*6 - 3
+	local Resourcebar = CreateFrame("Frame", "EKPlateResource", UIParent)
+	Resourcebar:SetWidth(100)		--(10+3)*6 - 3
 	Resourcebar:SetHeight(3)
 	Resourcebar.maxbar = 6
 	
 	for i = 1, 6 do
-		Resourcebar[i] = CreateFrame("Frame", "EKplateresource"..i, Resourcebar)
+		Resourcebar[i] = CreateFrame("Frame", "EKPlateResource"..i, Resourcebar)
 		Resourcebar[i]:SetFrameLevel(1)
 		Resourcebar[i]:SetSize(15, 3)
 		Resourcebar[i].bd = createBackdrop(Resourcebar[i], Resourcebar[i], 1)
@@ -434,8 +438,8 @@ if C.classresource_show then
 			if multicheck(G.myClass, "WARLOCK", "PALADIN", "MONK", "MAGE", "ROGUE", "DRUID") then
 				local cur, max, oldMax
 
-				cur = UnitPower('player', ClassPowerID)
-				max = UnitPowerMax('player', ClassPowerID)
+				cur = UnitPower("player", ClassPowerID)
+				max = UnitPowerMax("player", ClassPowerID)
 
 				if multicheck(G.myClass, "WARLOCK", "PALADIN", "MONK", "MAGE") then
 					for i = 1, max do
@@ -573,13 +577,13 @@ if C.classresource_show then
 	Resourcebar:RegisterEvent("PLAYER_TALENT_UPDATE")
 end
 
---[[ Unit frame ]]--
+-- [[ Unit frame ]] --
 
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
 	local hexColor
-	if not C.numberstyle and C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then return end
+	if not C.numberstyle and C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
 	if name then
 		if C.level then
 			if UnitIsUnit(unitFrame.displayedUnit, "player") then
@@ -606,7 +610,7 @@ local function UpdateName(unitFrame)
 		else
 			if UnitIsUnit(unitFrame.displayedUnit, "player") then
 				unitFrame.name:SetText("")
-			else  
+			else
 				unitFrame.name:SetText(name)
 			end
 		end
@@ -705,9 +709,9 @@ local function UpdateHealthColor(unitFrame)
 		if not iscustomed then
 			local _, englishClass = UnitClass(unit)
 			local classColor = Ccolors[englishClass]
-			if UnitIsPlayer(unit) and classColor and C.friendlyCR and UnitReaction(unit, 'player') >= 5 then
+			if UnitIsPlayer(unit) and classColor and C.friendlyCR and UnitReaction(unit, "player") >= 5 then
 				r, g, b = classColor.r, classColor.g, classColor.b
-			elseif UnitIsPlayer(unit) and classColor and C.enemyCR and UnitReaction(unit, 'player') <= 4 then
+			elseif UnitIsPlayer(unit) and classColor and C.enemyCR and UnitReaction(unit, "player") <= 4 then
 				r, g, b = classColor.r, classColor.g, classColor.b
 			elseif ( IsTapDenied(unitFrame) ) then
 				r, g, b = 0.3, 0.3, 0.3
@@ -728,7 +732,7 @@ local function UpdateHealthColor(unitFrame)
 			unitFrame.healthBar:SetStatusBarColor(r, g, b)
 			unitFrame.healthBar.bd:SetBackdropColor(r/3, g/3, b/3)
 			if C.name_mod then
-				if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+				if UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then
 					unitFrame.name:SetTextColor(r, g, b)
 				else
 					unitFrame.name:SetTextColor(1, 1, 1)
@@ -762,7 +766,7 @@ end
 
 local function UpdateSelectionHighlight(unitFrame)
 	local unit = unitFrame.unit
-	if UnitIsUnit(unit, "target") and not UnitIsUnit(unit, "player") then
+	if UnitIsUnit(unit, "target") and not UnitIsUnit(unit, "player") and not C.HideArrow then
 		unitFrame.redarrow:Show()
 	else
 		unitFrame.redarrow:Hide()
@@ -784,7 +788,7 @@ local function UpdateSelectionHighlight(unitFrame)
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		end	
-	else	--橫向箭頭，在boss mod友方目標隱藏名字的時候會有點蠢
+	else	--橫向箭頭
 		if not C.numberstyle then
 			unitFrame.redarrow:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
@@ -845,7 +849,7 @@ end
 local function UpdateforNamemod(unitFrame)
 	if not C.name_mod then return end
 	local unit = unitFrame.displayedUnit
-	if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
+	if UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 and not UnitIsUnit(unit, "player") then
 		if C.numberstyle then
 			unitFrame.healthperc:Hide()
 		else
@@ -875,7 +879,7 @@ local function UpdateAll(unitFrame)
 		
 		if UnitIsUnit("player", unitFrame.displayedUnit) then
 			unitFrame.castBar:UnregisterAllEvents()
-			if not C.numberstyle then  
+			if not C.numberstyle then
 				unitFrame.healthBar.value:Hide()
 			end
 		else
@@ -890,7 +894,7 @@ local function UpdateAll(unitFrame)
 end
 
 local function NamePlate_OnEvent(self, event, ...)
-	local arg1, arg2, arg3, arg4 = ...
+	local arg1 = ...
 	if ( event == "PLAYER_TARGET_CHANGED" ) then
 		UpdateName(self)
 		UpdateSelectionHighlight(self)
@@ -944,8 +948,9 @@ local function SetUnit(unitFrame, unit)
 	end
 end
 
---[[ Driver frame ]]--
+-- [[ Driver frame ]] --
 
+local NamePlateDriverFrame = NamePlateDriverFrame
 local function HideBlizzard()
 	NamePlateDriverFrame:UnregisterAllEvents()
 	NamePlateDriverFrame.SetupClassNameplateBars = function() end
@@ -967,13 +972,6 @@ local function HideBlizzard()
 		end
 		NamePlates_UpdateNamePlateOptions()
 	end
-	
-	--去你的DBM
-	--if DBM and DBM.Nameplate then
-		--function DBM.Nameplate:SupportedNPMod()
-			--return true
-		--end
-	--end
 end
 
 local function OnUnitFactionChanged(unit)
@@ -992,6 +990,7 @@ local function OnRaidTargetUpdate()
 	end
 end
 
+local NamePlates_UpdateNamePlateOptions = NamePlates_UpdateNamePlateOptions
 function NamePlates_UpdateNamePlateOptions()
 	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox(110/45)
 	local baseNamePlateWidth = 100
@@ -1025,7 +1024,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.name:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, -3)
 		namePlate.UnitFrame.name:SetTextColor(1,1,1)
 		namePlate.UnitFrame.name:SetText("Name")
-			
+		
 		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
@@ -1046,7 +1045,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.border = CreateBDFrame(namePlate.UnitFrame.castBar, 0)
 		CreateThinSD(namePlate.UnitFrame.castBar.border, 1, 0, 0, 0, 1, -2)
 		
-		namePlate.UnitFrame.castBar.bg = namePlate.UnitFrame.castBar:CreateTexture(nil, 'BORDER')
+		namePlate.UnitFrame.castBar.bg = namePlate.UnitFrame.castBar:CreateTexture(nil, "BORDER")
 		namePlate.UnitFrame.castBar.bg:SetAllPoints(namePlate.UnitFrame.castBar)
 		namePlate.UnitFrame.castBar.bg:SetTexture(1/3, 1/3, 1/3, .5)
 
@@ -1100,11 +1099,8 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
-		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture(nil, 'OVERLAY')
+		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		if C.HideArrow then
-			namePlate.UnitFrame.redarrow:SetAlpha(0)
-		end
 		if C.HorizontalArrow then
 			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
 		else
@@ -1210,11 +1206,8 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
-		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", 'OVERLAY')
+		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
 		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		if C.HideArrow then
-			namePlate.UnitFrame.redarrow:SetAlpha(0)
-		end
 		if C.HorizontalArrow then
 			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
 		else
@@ -1254,7 +1247,7 @@ local function OnNamePlateRemoved(unit)
 	CastingBarFrame_SetUnit(namePlate.UnitFrame.castBar, nil, false, true)
 end
 
---[[ 加一段cvar代碼 ]]--
+-- [[ 加一段cvar代碼 ]] --
 
 local function defaultcvar()
 	if C.Inset then
@@ -1265,52 +1258,47 @@ local function defaultcvar()
 		SetCVar("nameplateOtherBottomInset", .1)
 	end
 	SetCVar("nameplateLargeTopInset", .08) 
-	SetCVar("nameplateLargeBottomInset", .1)
-	
-	--最大視距
-	SetCVar("nameplateMaxDistance", C.MaxDistance)	 --default is 60
-	--fix fps drop(距離縮放與描邊功能會引起掉幀)
-	SetCVar("namePlateMinScale", 1)  --default is 0.8
-	SetCVar("namePlateMaxScale", 1) 
-	--boss nameplate scale
-	SetCVar("nameplateLargerScale", 1) --default is 1.2
-	--當前目標大小
-	SetCVar("nameplateSelectedScale", C.SelectedScale)	
-	--讓堆疊血條的間距小一點
-	SetCVar("nameplateOverlapH",  0.3) --default is 0.8
-	SetCVar("nameplateOverlapV",  0.7) --default is 1.1
-	--非當前目標透明度
-	SetCVar("nameplateMinAlpha", C.MinAlpha) --default is 0.8
-	--障礙物後的名條透名度
-	SetCVar("nameplateOccludedAlphaMult", 0.2) --default is 0.4
-	
-	--禁用點擊
+	SetCVar("nameplateLargeBottomInset", .1)	
+	-- 最大視距
+	SetCVar("nameplateMaxDistance", C.MaxDistance)		-- default is 60
+	-- fix fps drop(距離縮放與描邊功能會引起掉幀)
+	SetCVar("namePlateMinScale", 1)						-- default is 0.8
+	SetCVar("namePlateMaxScale", 1)
+	-- boss nameplate scale
+	SetCVar("nameplateLargerScale", 1)					-- default is 1.2
+	-- 當前目標大小
+	SetCVar("nameplateSelectedScale", C.SelectedScale)
+	-- 讓堆疊血條的間距小一點
+	SetCVar("nameplateOverlapH",  0.3)					-- default is 0.8
+	SetCVar("nameplateOverlapV",  0.7)					-- default is 1.1
+	-- 非當前目標透明度
+	SetCVar("nameplateMinAlpha", C.MinAlpha)			-- default is 0.8
+	-- 障礙物後的名條透名度
+	SetCVar("nameplateOccludedAlphaMult", 0.2)			-- default is 0.4	
+	-- 禁用點擊
 	C_NamePlate.SetNamePlateFriendlyClickThrough(C.FriendlyClickThrough)
 	C_NamePlate.SetNamePlateEnemyClickThrough(C.EnemyClickThrough)
-	C_NamePlate.SetNamePlateSelfClickThrough(C.PlayerClickThrough) 
-	--個人資源顯示條件
+	C_NamePlate.SetNamePlateSelfClickThrough(C.PlayerClickThrough)
+	-- 個人資源顯示條件
 	SetCVar("nameplatePersonalShowAlways", 0)
 	SetCVar("nameplatePersonalShowInCombat", 1)
 	SetCVar("nameplatePersonalShowWithTarget", 1)
 	SetCVar("nameplatePersonalHideDelaySeconds", 3)
-	--敵方顯示條件
-	SetCVar("nameplateShowEnemyGuardians", 1) --守護者
-	SetCVar("nameplateShowEnemyMinions", 1)  --僕從
-	--SetCVar("nameplateShowEnemyPets", 0)  --寵物
-	SetCVar("nameplateShowEnemyTotems", 1) --圖騰
-	--SetCVar("nameplateShowEnemyMinus", 1) --次要
-	--友方顯示條件
-	SetCVar("nameplateShowFriendlyGuardians", 0) --守護者
-	SetCVar("nameplateShowFriendlyMinions", 0)  --僕從
-	SetCVar("nameplateShowFriendlyNPCs", 0) --npc
-	SetCVar("nameplateShowFriendlyPets", 0) --寵物
-	SetCVar("nameplateShowFriendlyTotems", 0) --圖騰	
+	-- 敵方顯示條件
+	SetCVar("nameplateShowEnemyGuardians", 1)			-- 守護者
+	SetCVar("nameplateShowEnemyMinions", 1)				-- 僕從
+	--SetCVar("nameplateShowEnemyPets", 0)				-- 寵物
+	SetCVar("nameplateShowEnemyTotems", 1)				-- 圖騰
+	--SetCVar("nameplateShowEnemyMinus", 1				-- 次要
+	-- 友方顯示條件
+	SetCVar("nameplateShowFriendlyGuardians", 0)		-- 守護者
+	SetCVar("nameplateShowFriendlyMinions", 0)			-- 僕從
+	SetCVar("nameplateShowFriendlyNPCs", 0)				-- npc
+	SetCVar("nameplateShowFriendlyPets", 0)				-- 寵物
+	SetCVar("nameplateShowFriendlyTotems", 0)			-- 圖騰	
 end 
 	
 local function NamePlates_OnEvent(self, event, ...)
-	if ( event == "PLAYER_ENTERING_WORLD" ) then
-		defaultcvar()
-	end
 	if ( event == "VARIABLES_LOADED" ) then
 		HideBlizzard()
 		if C.playerplate then
@@ -1318,7 +1306,6 @@ local function NamePlates_OnEvent(self, event, ...)
 		else
 			SetCVar("nameplateShowSelf", 0)
 		end
-
 		NamePlates_UpdateNamePlateOptions()
 	elseif ( event == "NAME_PLATE_CREATED" ) then
 		local namePlate = ...
@@ -1335,6 +1322,8 @@ local function NamePlates_OnEvent(self, event, ...)
 		NamePlates_UpdateNamePlateOptions()
 	elseif ( event == "UNIT_FACTION" ) then
 		OnUnitFactionChanged(...)
+	elseif ( event == "PLAYER_ENTERING_WORLD" ) then
+		defaultcvar()
 	end
 end
 
