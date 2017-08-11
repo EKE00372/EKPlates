@@ -110,19 +110,24 @@ C.WhiteList = {
 	[6770]	= true,		-- 悶棍/Sap
 	-- 聖騎士
 	[20066]	= true,		-- 懺悔/Repentance
+	[29511]	= true,		-- 懺悔/Repentance
 	[853]	= true,		-- 制裁/Hammer of Justice
+	[205290]= true,		-- 灰燼甦醒/Wake of Ashes
+	[115750]= true,		-- 盲目之光/Blinding Light
+	[183218]= true,		-- 封阻之手/Hand of Hindrance
 	-- 武僧
 	[115078]= true,		-- 點穴/Paralysis	
 	[119381]= true,		-- 掃葉腿/Leg Sweep
 	-- 德魯伊
-	[339]	= true,		-- 小d綁/Entangling Roots
-	[102359]= true,		-- 群纏/Mass Entanglement
+	[339]	= true,		-- 糾纏根鬚/Entangling Roots
+	[102359]= true,		-- 群體糾纏/Mass Entanglement
 	[5211]	= true,		-- 蠻力猛擊/Mighty Bash
 	[81261]	= true,		-- 日光/Solar Beam
 	[127797]= true,		-- 厄索克之旋/Ursol's Vortex
 	-- 死亡騎士
 	[221562]= true,		-- 窒息/Asphyxiate
 	[207171]= true,		-- 凜冬將至/Winter is Coming
+	[207167]= true,		-- 致盲凍雨/Blinding Sleet
 	-- 戰士
 	[132168]= true,		-- 震懾波/Shockwave
 	-- 惡魔獵人
