@@ -36,6 +36,7 @@ local createtext = function(f, layer, fontsize, flag, justifyh)
 	return text
 end
 
+-- 給數字模式施法條的框體樣式
 local CreateBD = function(f, a)
 	f:SetBackdrop({
 		bgFile = G.blank,
@@ -83,6 +84,7 @@ local CreateBDFrame = function(f, a)
 	return bg
 end
 
+-- 給施法條圖示的框體樣式
 local CreateBG = function(frame)
 	local f = frame
 	if frame:GetObjectType() == "Texture" then f = frame:GetParent() end
@@ -96,6 +98,7 @@ local CreateBG = function(frame)
 	return bg
 end
 
+-- 給各個條條兒的框體樣式
 local frameBD = {
     edgeFile = G.glow, edgeSize = 3,
     bgFile = G.blank,
@@ -806,8 +809,8 @@ local function UpdateSelectionHighlight(unitFrame)
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.icons, "TOP", 0, 3)
 			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
-			else
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0) -- 只有名字
+			else -- 只有名字
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		end
 	else	--橫向箭頭
@@ -849,7 +852,7 @@ local function UpdateNamePlateEvents(unitFrame)
 	if C.show_power then
 		if C.ShowPower[UnitName(unitFrame.displayedUnit)] then
 			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
-			if not C.numberstyle then
+			if not C.numberstyle then	-- 顯示能量條時微調名字位置
 				unitFrame.powerBar:Show()
 				unitFrame.powerBar.value:Show()
 				unitFrame.name:SetPoint("TOPLEFT", unitFrame, "TOPLEFT", 5, 6)
@@ -919,14 +922,14 @@ local function UpdateAll(unitFrame)
 		UpdateRaidTarget(unitFrame)
 		UpdateforNamemod(unitFrame)
 		
-		if UnitIsUnit("player", unitFrame.displayedUnit) then	-- 個人資源
+		if UnitIsUnit("player", unitFrame.displayedUnit) then	-- 替個人資源微調位置
 			unitFrame.castBar:UnregisterAllEvents()
-			if not C.numberstyle then
+			if not C.numberstyle then	-- 條形樣式
 				unitFrame.healthBar.value:Hide()
-				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthBar, "TOP", 0, 4)
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthBar, "TOP", 0, 4)	
 				unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.healthBar, "LEFT")
 			else
-				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthperc, "BOTTOM", 0, -C.auraiconsize-10)
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 				unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.healthperc, "LEFT")
 			end
 		else
@@ -1311,18 +1314,21 @@ local function OnNamePlateRemoved(unit)
 	CastingBarFrame_SetUnit(namePlate.UnitFrame.castBar, nil, false, true)
 end
 
--- [[ 加一段cvar代碼 ]] --
+-- [[ cvar ]] --
 
 local function defaultcvar()
 	if C.Inset then
+		SetCVar("nameplateOtherTopInset", .05)
+		SetCVar("nameplateOtherBottomInset", .1)
+		SetCVar("nameplateLargeTopInset", .05) 
+		SetCVar("nameplateLargeBottomInset", .1)
+	else
 		SetCVar("nameplateOtherTopInset", -1)
 		SetCVar("nameplateOtherBottomInset", -1)
-	else
-		SetCVar("nameplateOtherTopInset", .08)
-		SetCVar("nameplateOtherBottomInset", .1)
+		SetCVar("nameplateLargeTopInset", -1) 
+		SetCVar("nameplateLargeBottomInset", -1)
 	end
-	SetCVar("nameplateLargeTopInset", .08) 
-	SetCVar("nameplateLargeBottomInset", .1)	
+		
 	-- 最大視距
 	SetCVar("nameplateMaxDistance", C.MaxDistance)		-- default is 60
 	-- fix fps drop(距離縮放與描邊功能會引起掉幀)

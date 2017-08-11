@@ -31,13 +31,13 @@ G.fontflag = "OUTLINE"															-- "OUTLINE" or none/描邊
 
 -- [[ Config ]] --
 
-C.Inset = true						-- 姓名板不要貼齊畫面邊緣/Let Nameplates go off screen
-C.MaxDistance = 45 					-- 姓名版顯示的最大距離/max distance for nameplate show on
-C.SelectedScale = 1					-- 縮放當前目標的姓名板大小/scale select target nameplate
-C.MinAlpha = 0.8					-- 非當前目標與遠距離姓名板的透明度/set fadeout for out of range and non-target
+C.Inset = true						-- 名條貼齊畫面邊緣/Let Nameplates don't go off screen
+C.MaxDistance = 45 					-- 名條顯示的最大距離/max distance for nameplate show on
+C.SelectedScale = 1					-- 縮放當前目標的名條大小/scale select target nameplate
+C.MinAlpha = 0.8					-- 非當前目標與遠距離名條的透明度/set fadeout for out of range and non-target
 
-C.FriendlyClickThrough = true		-- 友方姓名板點擊穿透/friendly nameplate click through
-C.EnemyClickThrough = false 		-- 敵方姓名板點擊穿透/enemy nameplate click through
+C.FriendlyClickThrough = true		-- 友方名條點擊穿透/friendly nameplate click through
+C.EnemyClickThrough = false 		-- 敵方名條點擊穿透/enemy nameplate click through
 
 C.name_mod = true					-- 友方玩家只顯示名字不顯示血量/show only name on friendy player nameplates
 C.friendlyCR = true					-- 友方職業顏色/friendly class color
@@ -49,17 +49,17 @@ C.cbshield = false					-- 施法條不可打斷圖示/show castbar un-interrupt 
 C.level = false						-- 顯示等級/show level
 
 -- Arrow/箭頭
-C.HorizontalArrow = true			-- 橫向箭頭/horizontal red arrow at right
+C.HorizontalArrow = false			-- 橫向箭頭/horizontal red arrow at right
 C.HideArrow = false					-- 隱藏箭頭/hide arrow
 
 -- number style additional config/數字模式額外選項
 C.cbtext = false					-- 施法條法術名稱/show castbar text
 C.castbar = false					-- 條形施法條/show castbar as a "bar"
 
--- [[ the Player Plate ]] --
+-- [[ Player Plate ]] --
 
-C.playerplate = false				-- 玩家個人資源/player self nameplate
-C.classresource_show = false			-- 玩家資源/resource
+C.playerplate = false				-- 玩家名條/player self nameplate
+C.classresource_show = false		-- 玩家資源/player resource
 C.classresource = "player"			-- "player", "target"
 C.plateaura = false					-- 玩家光環/aura
 C.PlayerClickThrough = false		-- 個人資源點擊穿透/player resource click through
