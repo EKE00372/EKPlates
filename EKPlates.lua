@@ -4,6 +4,7 @@ local C, G = unpack(select(2, ...))
 
 -- [[ Functions ]] -- 
 
+-- 能量顏色
 local colorspower = {}
 for power, color in next, PowerBarColor do
 	if type(power) == "string" then
@@ -11,6 +12,7 @@ for power, color in next, PowerBarColor do
 	end
 end
 
+-- 職業顏色
 local Ccolors = {}
 if IsAddOnLoaded("!ClassColors") and CUSTOM_CLASS_COLORS then
 	Ccolors = CUSTOM_CLASS_COLORS
@@ -18,6 +20,7 @@ else
 	Ccolors = RAID_CLASS_COLORS
 end
 
+-- 光環的數字文本
 local createnumber = function(f, layer, fontsize, flag, justifyh)
 	local text = f:CreateFontString(nil, layer)
 	text:SetFont(G.numFont, fontsize, flag)
@@ -25,6 +28,7 @@ local createnumber = function(f, layer, fontsize, flag, justifyh)
 	return text
 end
 
+-- 文本
 local createtext = function(f, layer, fontsize, flag, justifyh)
 	local text = f:CreateFontString(nil, layer)
 	text:SetFont(G.norFont, fontsize, flag)
@@ -327,11 +331,7 @@ if C.playerplate then
 					PowerFrame.powerBar:SetPoint("TOPRIGHT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -3)
 				else
 					PowerFrame.powerperc:ClearAllPoints()
-					if C.plateaura then
-						PowerFrame.powerperc:SetPoint("TOP", namePlatePlayer.UnitFrame.healthperc, "BOTTOM", 0, -6)
-					else
-						PowerFrame.powerperc:SetPoint("BOTTOMLEFT", namePlatePlayer.UnitFrame.healthperc, "BOTTOMRIGHT", 0, 0)
-					end
+					PowerFrame.powerperc:SetPoint("BOTTOMLEFT", namePlatePlayer.UnitFrame.healthperc, "BOTTOMRIGHT", 0, 0)
 				end
 			end
 		elseif event == "NAME_PLATE_UNIT_REMOVED" and UnitIsUnit(unit, "player") then
@@ -549,9 +549,9 @@ if C.classresource_show then
 					self:ClearAllPoints()
 					self:Show()
 					if C.numberstyle then
-						self:SetPoint("TOP", namePlatePlayer.UnitFrame.name, "TOP", 0, 0) -- 玩家數字
+						self:SetPoint("TOP", namePlatePlayer.UnitFrame.name, "TOP", 0, 0)			-- 玩家數字
 					else
-						self:SetPoint("BOTTOM", namePlatePlayer.UnitFrame.healthBar, "TOP", 0, 3) -- 玩家條
+						self:SetPoint("TOP", namePlatePlayer.UnitFrame.healthBar, "BOTTOM", 0, -8)	-- 玩家條
 					end
 				end
 			elseif event == "NAME_PLATE_UNIT_REMOVED" and UnitIsUnit(unit, "player") then
@@ -563,9 +563,9 @@ if C.classresource_show then
 				self:SetParent(namePlateTarget)
 				self:ClearAllPoints()
 				if C.numberstyle then
-					self:SetPoint("TOP", namePlateTarget.UnitFrame.name, "BOTTOM", 0, -2) -- 目標數字
+					self:SetPoint("TOP", namePlateTarget.UnitFrame.name, "BOTTOM", 0, -2)			-- 目標數字
 				else
-					self:SetPoint("TOP", namePlateTarget.UnitFrame.healthBar, "BOTTOM", 0, -2) -- 目標條
+					self:SetPoint("TOP", namePlateTarget.UnitFrame.healthBar, "BOTTOM", 0, -2)		-- 目標條
 				end
 				self:Show()
 			else
@@ -583,7 +583,7 @@ local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
 	local hexColor
-	if not C.numberstyle and C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
+	if not C.numberstyle and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
 	if name then
 		if C.level then
 			if UnitIsUnit(unitFrame.displayedUnit, "player") then
@@ -642,7 +642,11 @@ local function UpdateHealth(unitFrame)
 		if minHealth ~= maxHealth then
 			unitFrame.healthperc:SetText(perc_text)
 		else
-			unitFrame.healthperc:SetText("")
+			if UnitIsUnit("player", unitFrame.displayedUnit) then
+				unitFrame.healthperc:SetText("100")
+			else
+				unitFrame.healthperc:SetText("")
+			end
 		end
 		
 		if perc < .25 then
@@ -657,20 +661,38 @@ end
 
 local function UpdatePower(unitFrame)
 	local unit = unitFrame.displayedUnit
-
 	local minPower, maxPower = UnitPower(unit), UnitPowerMax(unit)
-	local perc = minPower/maxPower
-	local perc_text = string.format("%d", math.floor(perc*100))
-	
-	unitFrame.power:SetText(perc_text)
-	
-	if perc < .25 then
-		unitFrame.power:SetTextColor(.2, .2, 1)
-	elseif perc < .3 then
-		unitFrame.power:SetTextColor(.4, .4, 1)
+	local perc = minPower/maxPower	
+	if minPower and maxPower and maxPower > 0 then
+		perc = minPower/maxPower
+		perc_text = string.format("%d", math.floor(perc*100)) 
 	else
-		unitFrame.power:SetTextColor(.8, .8, 1)
+		perc = 0
+		perc_text = 0
 	end
+	
+	if not C.numberstyle then
+		unitFrame.powerBar:SetValue(perc)
+		unitFrame.powerBar.value:SetText(perc_text)
+	else
+		unitFrame.powerperc:SetText(perc_text)
+	end
+	
+	local r, g, b	
+  	if perc < .25 then
+		r, g, b = .2, .2, 1
+	elseif perc < .3 then
+		r, g, b = .4, .4, 1
+	else
+		r, g, b = .8, .8, 1
+	end
+	
+	if not C.numberstyle then
+		unitFrame.powerBar:SetStatusBarColor(r, g, b)
+	else
+		unitFrame.powerperc:SetTextColor(r, g, b)
+	end
+	
 end
 
 local function IsOnThreatList(unit)
@@ -784,17 +806,23 @@ local function UpdateSelectionHighlight(unitFrame)
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.icons, "TOP", 0, 3)
 			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
-			else -- 只有名字
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+			else
+				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0) -- 只有名字
 			end
-		end	
+		end
 	else	--橫向箭頭
 		if not C.numberstyle then
 			unitFrame.redarrow:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
-			unitFrame.redarrow:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
+			if C.show_power then
+				if C.ShowPower[UnitName(unitFrame.displayedUnit)] then	--顯示能量
+					unitFrame.redarrow:SetPoint("LEFT", unitFrame.powerperc, "RIGHT", 0, 0)
+					else
+					unitFrame.redarrow:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
+				end
+			end
 		end
-	end	
+	end
 end
 
 local function UpdateRaidTarget(unitFrame)
@@ -821,10 +849,24 @@ local function UpdateNamePlateEvents(unitFrame)
 	if C.show_power then
 		if C.ShowPower[UnitName(unitFrame.displayedUnit)] then
 			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
-			unitFrame.power:Show()
+			if not C.numberstyle then
+				unitFrame.powerBar:Show()
+				unitFrame.powerBar.value:Show()
+				unitFrame.name:SetPoint("TOPLEFT", unitFrame, "TOPLEFT", 5, 6)
+				unitFrame.name:SetPoint("BOTTOMRIGHT", unitFrame, "TOPRIGHT", -5, -4)
+			else
+				unitFrame.powerperc:Show()
+			end
 		else
 			unitFrame:UnregisterEvent("UNIT_POWER_FREQUENT")
-			unitFrame.power:Hide()
+			if not C.numberstyle then
+				unitFrame.powerBar:Hide()
+				unitFrame.powerBar.value:Hide()
+				unitFrame.name:SetPoint("TOPLEFT", unitFrame, "TOPLEFT", 5, 2)
+				unitFrame.name:SetPoint("BOTTOMRIGHT", unitFrame, "TOPRIGHT", -5, -8)
+			else
+				unitFrame.powerperc:Hide()
+			end
 		end
 	end
 end
@@ -877,14 +919,23 @@ local function UpdateAll(unitFrame)
 		UpdateRaidTarget(unitFrame)
 		UpdateforNamemod(unitFrame)
 		
-		if UnitIsUnit("player", unitFrame.displayedUnit) then
+		if UnitIsUnit("player", unitFrame.displayedUnit) then	-- 個人資源
 			unitFrame.castBar:UnregisterAllEvents()
 			if not C.numberstyle then
 				unitFrame.healthBar.value:Hide()
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthBar, "TOP", 0, 4)
+				unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.healthBar, "LEFT")
+			else
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthperc, "BOTTOM", 0, -C.auraiconsize-10)
+				unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.healthperc, "LEFT")
 			end
 		else
+			unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.name, "LEFT")
 			if not C.numberstyle then
 				unitFrame.healthBar.value:Show()
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 2)
+			else
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 			end
 		end
 		if C.show_power and C.ShowPower[UnitName(unitFrame.displayedUnit)] then
@@ -959,7 +1010,7 @@ local function HideBlizzard()
 	hooksecurefunc(NamePlateDriverFrame, "SetupClassNameplateBar", function()  
 		NamePlateTargetResourceFrame:Hide()
 		NamePlatePlayerResourceFrame:Hide()
-	end)  
+	end)
 
 	local checkBox = InterfaceOptionsNamesPanelUnitNameplatesMakeLarger
 	function checkBox.setFunc(value)
@@ -998,6 +1049,7 @@ function NamePlates_UpdateNamePlateOptions()
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
 	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
 	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
+	C_NamePlate.SetNamePlateSelfSize(baseNamePlateWidth, baseNamePlateHeight)
 
 	for i, namePlate in ipairs(C_NamePlate.GetNamePlates()) do
 		local unitFrame = namePlate.UnitFrame
@@ -1035,7 +1087,7 @@ local function OnNamePlateCreated(namePlate)
 		end
 		if C.classresource_show and C.classresource == "target" then
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -7)
-		else  
+		else
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -3)
 		end 
 
@@ -1050,8 +1102,9 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.bg:SetTexture(1/3, 1/3, 1/3, .5)
 
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
+
 		if C.castbar then
-			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -1)
+			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -2)
 			namePlate.UnitFrame.castBar.Icon:SetSize(16, 16)
 		else
 			namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER")
@@ -1072,13 +1125,16 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.BorderShield:SetPoint("CENTER", namePlate.UnitFrame.castBar, "BOTTOMLEFT")  
 		namePlate.UnitFrame.castBar.BorderShield:SetDrawLayer("OVERLAY",2)
 
-		
 		namePlate.UnitFrame.castBar.Spark = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.castBar.Spark:SetSize(38, 76)
+		namePlate.UnitFrame.castBar.Spark:SetSize(30, 25)
 		namePlate.UnitFrame.castBar.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 		namePlate.UnitFrame.castBar.Spark:SetBlendMode("ADD")
-		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, -3)
-		namePlate.UnitFrame.castBar.Spark:SetAlpha(0) --Disable this spark
+		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, -1)
+		if C.castbar then
+			namePlate.UnitFrame.castBar.Spark:SetAlpha(1)
+		else
+			namePlate.UnitFrame.castBar.Spark:SetAlpha(0) --Disable this spark
+		end
 		
 		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.castBar.Flash:SetAllPoints()
@@ -1091,6 +1147,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar:SetScript("OnShow", CastingBarFrame_OnShow)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
+		namePlate.UnitFrame.RaidTargetFrame:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 4)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
 		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 		
@@ -1114,13 +1171,14 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
 		
-		namePlate.UnitFrame.power = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.power:SetFont(G.numberstylefont, G.fontsize, "OUTLINE")
-		namePlate.UnitFrame.power:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthperc, "BOTTOMRIGHT", 0, 0)
-		namePlate.UnitFrame.power:SetTextColor(.8,.8,1)
-		namePlate.UnitFrame.power:SetShadowColor(0, 0, 0, 0.4)
-		namePlate.UnitFrame.power:SetShadowOffset(1, -1)
-		namePlate.UnitFrame.power:SetText("55")
+		namePlate.UnitFrame.powerperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
+		namePlate.UnitFrame.powerperc:SetFont(G.numberstylefont, G.fontsize, G.fontflag)
+		namePlate.UnitFrame.powerperc:SetPoint("LEFT", namePlate.UnitFrame.name, "RIGHT", 0, 0)
+		namePlate.UnitFrame.powerperc:SetTextColor(.8,.8,1)
+		namePlate.UnitFrame.powerperc:SetShadowColor(0, 0, 0, 0.4)
+		namePlate.UnitFrame.powerperc:SetShadowOffset(1, -1)
+		namePlate.UnitFrame.powerperc:SetText("55")
+		
 	else -- 條形樣式
 		namePlate.UnitFrame.healthBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.healthBar:SetHeight(8)
@@ -1222,13 +1280,19 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
 		
-		namePlate.UnitFrame.power = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.power:SetFont(G.numberstylefont, G.fontsize, "OUTLINE")
-		namePlate.UnitFrame.power:SetPoint("LEFT", namePlate.UnitFrame.healthBar, "RIGHT", 2, 2)
-		namePlate.UnitFrame.power:SetTextColor(.8,.8,1)
-		namePlate.UnitFrame.power:SetShadowColor(0, 0, 0, 0.4)
-		namePlate.UnitFrame.power:SetShadowOffset(1, -1)
-		namePlate.UnitFrame.power:SetText("55")
+		namePlate.UnitFrame.powerBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
+		namePlate.UnitFrame.powerBar:SetHeight(3)
+		namePlate.UnitFrame.powerBar:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 0, 2)
+		namePlate.UnitFrame.powerBar:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, 2)
+		namePlate.UnitFrame.powerBar:SetStatusBarTexture(G.ufbar)
+		namePlate.UnitFrame.powerBar:SetMinMaxValues(0, 1)
+		
+		namePlate.UnitFrame.powerBar.bd = createBackdrop(namePlate.UnitFrame.powerBar, namePlate.UnitFrame.powerBar, 1)
+		
+		namePlate.UnitFrame.powerBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
+		namePlate.UnitFrame.powerBar.value:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 0, -G.fontsize/3)
+		namePlate.UnitFrame.powerBar.value:SetText("55")
+		
 	end
 	
 	namePlate.UnitFrame:EnableMouse(false)
@@ -1280,6 +1344,7 @@ local function defaultcvar()
 	C_NamePlate.SetNamePlateEnemyClickThrough(C.EnemyClickThrough)
 	C_NamePlate.SetNamePlateSelfClickThrough(C.PlayerClickThrough)
 	-- 個人資源顯示條件
+	SetCVar("nameplateSelfAlpha", 1)
 	SetCVar("nameplatePersonalShowAlways", 0)
 	SetCVar("nameplatePersonalShowInCombat", 1)
 	SetCVar("nameplatePersonalShowWithTarget", 1)

@@ -7,7 +7,7 @@ local C, G = unpack(select(2, ...))
 -- [[ Global ]] --
 
 -- 啟用/enable = true 停用/disable = false
-C.numberstyle = true		-- 數字樣式/number style
+C.numberstyle = true		-- 啟用數字樣式，如果想要條形的血條就關閉這項/number style, if you want a bar-style nameplates, change to false.
 
 -- [[ Textures ]] --
 
@@ -49,7 +49,7 @@ C.cbshield = false					-- 施法條不可打斷圖示/show castbar un-interrupt 
 C.level = false						-- 顯示等級/show level
 
 -- Arrow/箭頭
-C.HorizontalArrow = false			-- 橫向箭頭/horizontal red arrow at right
+C.HorizontalArrow = true			-- 橫向箭頭/horizontal red arrow at right
 C.HideArrow = false					-- 隱藏箭頭/hide arrow
 
 -- number style additional config/數字模式額外選項
@@ -58,10 +58,10 @@ C.castbar = false					-- 條形施法條/show castbar as a "bar"
 
 -- [[ the Player Plate ]] --
 
-C.playerplate = true				-- 玩家個人資源/player self nameplate
-C.classresource_show = true			-- 玩家資源/resource
+C.playerplate = false				-- 玩家個人資源/player self nameplate
+C.classresource_show = false			-- 玩家資源/resource
 C.classresource = "player"			-- "player", "target"
-C.plateaura = true					-- 玩家光環/aura
+C.plateaura = false					-- 玩家光環/aura
 C.PlayerClickThrough = false		-- 個人資源點擊穿透/player resource click through
 
 -- [[ Aura Icons on Plates ]] --
@@ -160,7 +160,7 @@ C.Customcoloredplates = {
 
 -- [[ Show Power ]] --
 
-C.show_power = true		-- 替特定怪(自行編輯清單)啟用顯示特特殊能量/show spacial power
+C.show_power = true		-- 替特定怪(自行編輯清單)啟用顯示能量值/show power/energy
 C.ShowPower = {
 	["清扫器"] = true,
 	["清掃者"] = true,
