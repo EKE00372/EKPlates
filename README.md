@@ -16,6 +16,10 @@ Dawn是個神人，也曾經很高產，但軍團入侵時我真的以為他不�
 
 數字模式姓名版用了超過五年，以後大概也會一直用下去；本插件不提供售後，條形模式的bug修復也永遠不是最優先。
 
+## license: All Rights Reserved
+
+目前沒有寫License，計劃跟ekminimap release一起完成，所以先使用All Rights Reserved，我去你媽的多玩魔盒
+
 ## 更新紀錄
   
 * R1.7  
