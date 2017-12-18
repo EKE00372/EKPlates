@@ -22,7 +22,10 @@ Dawn是個神人，也曾經很高產，但軍團入侵時我真的以為他不�
 
 ## 更新紀錄
   
-* R1.7  
+* R1.7a
+    * bump toc
+    * show Ember of Taeshalach energy
+* R1.7  
     * bump toc  
     * T21 Spell  
 * R1.6  
