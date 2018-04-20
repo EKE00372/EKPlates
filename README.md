@@ -8,7 +8,7 @@
 
 2.真的不考慮做一個GUI？
 
-反正我說我不想加也有人機機歪歪，那......幹你老師恁爸不會啦。作者寫給自己用的東西幹麻貼合別人的習慣？
+反正我說我不想加也有人機機歪歪，那......幹你老師恁爸不會啦。自己用的東西幹麻貼合別人的習慣？
 
 ## 關於EKplates
 
@@ -18,11 +18,13 @@ Dawn是個神人，也曾經很高產，但軍團入侵時我真的以為他不�
 
 ## license: All Rights Reserved
 
-目前沒有寫License，計劃跟ekminimap release一起完成，所以先使用All Rights Reserved，我去你媽的多玩魔盒
+目前沒有寫License，計劃跟ekminimap release一起完成，所以先使用All Rights Reserved，我去（消音）的多玩魔盒
 
 ## 更新紀錄
-  
-* R1.7a  
+  
+* B1.8
+    * for bfa test
+* R1.7a  
     * 將泰夏拉克燼火加入顯示能量白名單  
 * R1.7  
     * bump toc  
