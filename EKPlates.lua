@@ -4,6 +4,11 @@ local C, G = unpack(select(2, ...))
 
 -- [[ Functions ]] -- 
 
+-- 版本相容性
+local isBfA = strmatch((GetBuildInfo()),"^%d+") == "8"
+--local tocVersion = select(4, GetBuildInfo())
+--local Beta = tocVersion >= 80000 or GetBuildInfo() == "8.0.1"
+
 -- 能量顏色
 local colorspower = {}
 for power, color in next, PowerBarColor do
