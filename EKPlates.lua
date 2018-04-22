@@ -1,5 +1,4 @@
 local C, G = unpack(select(2, ...))
-local isBfA = strmatch((GetBuildInfo()),"^%d+") == "8"
 
 -- [[ config從beta7版本起獨立，至config.lua編輯設定 ]] --
 
