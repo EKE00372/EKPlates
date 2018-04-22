@@ -254,8 +254,8 @@ local function UpdateBuffs(unitFrame)
 	for index = 1, 20 do
 		if i <= C.auranum then
 			local dname, _, dduration, dcaster, dspellid
-			if isBfA then dname, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HELPFUL")
-			else dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HELPFUL") end
+			if isBfA then dname, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL")
+			else dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL") end
 			local matchdebuff = AuraFilter(dcaster, dspellid)
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
