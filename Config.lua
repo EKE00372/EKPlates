@@ -82,6 +82,7 @@ C.WhiteList = {
 	-- Mythic+
 	[209859]= true,		-- 激勵/Bloster
 	[226510]= true,		-- 膿血/Sanguine Ichor
+	[277242]= true,		-- 感染/Symbiote of G'huun
 	-- TOS
 	[236513]= true,		-- 骨牢護甲
 	-- antorus
