@@ -99,7 +99,7 @@ C.WhiteList = {
 	
 	-- DEBUFF	
 	-- 種族
-	[25046]	= true,		-- 奧流之術/Arcane Torrent
+	[25049]	= true,		-- 戰爭踐踏/War Stomp
 	-- 法師
 	[118]	= true,		-- 變形術/Polymorph
 	-- 薩滿
