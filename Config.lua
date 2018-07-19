@@ -25,7 +25,7 @@ G.myClass = select(2, UnitClass("player"))			-- DO NOT touch this!/別碰這個�
 G.numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"	-- 數字樣式的數字字體/number style's number font
 G.numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf"					-- 數字字體/number font
 G.norFont = STANDARD_TEXT_FONT													-- 名字字體/name font (or use"GameFontHighlight:GetFont()")
-G.fontsize = 14																	-- 名字字體大小/name font size
+G.fontsize = 12																-- 名字字體大小/name font size
 G.aurafontsize = 12																-- 光環字體大小/Aura font size
 G.fontflag = "OUTLINE"															-- "OUTLINE" or none/描邊
 
