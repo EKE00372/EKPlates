@@ -28,6 +28,8 @@ Dawn是個神人，也曾經很高產，但軍團入侵時我真的以為他不�
 
 ## 更新紀錄
   
+* R1.9a
+    * fix toc. emmm....
 * R1.9
     * bump toc
     * 刪除legion相容性
