@@ -158,18 +158,26 @@ C.BlackList = {
 
 C.Customcoloredplates = {
 	[1] = {
-		name = "暴躁蠍子",				-- 水晶蠍的大怪，白色
+		name = "古翰幼體",				-- M+感染詞綴ZHTW.......白色
 		color = {r = 1, g = 1, b = 1},
 	},
 	[2] = {
-		name = "魔化炸彈",				-- M+易爆詞綴ZHTW.....黃色
+		name = "Spawn of G'huun",			-- M+感染詞綴ENUS.....黃色
 		color = {r = 1, g = 1, b = 0.2},
 	},
 	[3] = {
+		name = "戈霍恩之嗣",			-- M+感染詞綴ZHCN.....黃色
+		color = {r = 1, g = 1, b = 0.2},
+	},		
+	[4] = {
+		name = "魔化炸彈",				-- M+易爆詞綴ZHTW......黃色
+		color = {r = 1, g = 1, b = 0.2},
+	},
+	[5] = {
 		name = "邪能炸弹",				-- M+易爆詞綴ZHCN
 		color = {r = 1, g = 1, b = 0.2},
 	},
-	[4] = {
+	[6] = {
 		name = "Fel Explosives",		-- M+易爆詞綴ENUS
 		color = {r = 1, g = 1, b = 0.2},
 	},
