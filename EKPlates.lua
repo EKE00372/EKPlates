@@ -4,11 +4,6 @@ local C, G = unpack(select(2, ...))
 
 -- [[ Functions ]] -- 
 
--- 版本相容性
-local isBfA = strmatch((GetBuildInfo()),"^%d+") == "8"
---local tocVersion = select(4, GetBuildInfo())
---local Beta = tocVersion >= 80000 or GetBuildInfo() == "8.0.1"
-
 -- 能量顏色
 local colorspower = {}
 for power, color in next, PowerBarColor do
@@ -175,9 +170,7 @@ local function CreateAuraIcon(parent)
 end
 
 local function UpdateAuraIcon(button, unit, index, filter)
-	local name, icon, count, debuffType, duration, expirationTime, _, spellID
-	if isBfA then name, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
-	else name, _, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter) end
+	local name, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
 
 	button.icon:SetTexture(icon)
 	button.expirationTime = expirationTime
@@ -238,9 +231,7 @@ local function UpdateBuffs(unitFrame)
 
 	for index = 1, 15 do
 		if i <= C.auranum then
-			local bname, _, bduration, bcaster, bspellid
-			if isBfA then bname, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, "HELPFUL")
-			else bname, _, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, "HELPFUL") end
+			local bname, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, "HELPFUL")
 			local matchbuff = AuraFilter(bcaster, bspellid)
 			if bname and matchbuff then
 				if not unitFrame.icons[i] then
@@ -257,9 +248,7 @@ local function UpdateBuffs(unitFrame)
 
 	for index = 1, 20 do
 		if i <= C.auranum then
-			local dname, _, dduration, dcaster, dspellid
-			if isBfA then dname, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL")
-			else dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL") end
+			local dname, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL")
 			local matchdebuff = AuraFilter(dcaster, dspellid)
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
