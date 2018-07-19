@@ -195,4 +195,11 @@ C.ShowPower = {
 	["泰夏拉克燼火"] = true,
 	["泰沙拉克之焰"] = true,
 	["Ember of Taeshalach"] = true,
+	-- Temple of Sethraliss
+	["阿德利斯"] = true,
+	["艾斯匹"] = true,
+	["阿德里斯"] = true,
+	["阿斯匹克斯"] = true,
+	["Adderis"] = true,
+	["Aspix"] = true,	
 }
