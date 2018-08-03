@@ -170,13 +170,15 @@ C.Customcoloredplates = {
 		name = "戈霍恩之嗣",
 		color = {r = 1, g = 1, b = 0.2},
 	},
-	-- M+易爆詞綴，白色
+	-- M+火爆詞綴
 	[4] = {
-		name = "魔化炸彈",
+		--name = "魔化炸彈",
+		name = "炸彈",
 		color = {r = 1, g = 1, b = 0.2},
 	},
 	[5] = {
-		name = "邪能炸弹",
+		--name = "邪能炸弹",
+		name = "爆炸物",
 		color = {r = 1, g = 1, b = 0.2},
 	},
 	[6] = {
