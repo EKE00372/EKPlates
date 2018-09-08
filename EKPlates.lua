@@ -791,13 +791,19 @@ end
 
 local function UpdateSelectionHighlight(unitFrame)
 	local unit = unitFrame.unit
-	if UnitIsUnit(unit, "target") and not UnitIsUnit(unit, "player") and not C.HideArrow then
+	if UnitIsUnit(unit, "target") and not UnitIsUnit(unit, "player") and C.HighlightTarget then
 		unitFrame.redarrow:Show()
 	else
 		unitFrame.redarrow:Hide()
 	end
-
-	if not C.HorizontalArrow then
+	
+	if UnitIsUnit(unit, "focus") and not UnitIsUnit(unit, "player") and C.HighlightFocus then
+		unitFrame.hlfocus:Show()
+	else
+		unitFrame.hlfocus:Hide()
+	end
+	
+	if C.HighlightMode == "Vertical" then
 		if not C.numberstyle then
 			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
@@ -813,7 +819,7 @@ local function UpdateSelectionHighlight(unitFrame)
 				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		end
-	else	--橫向箭頭
+	elseif C.HighlightMode == "Horizontal" then 	--橫向箭頭
 		if not C.numberstyle then
 			unitFrame.redarrow:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
@@ -825,6 +831,10 @@ local function UpdateSelectionHighlight(unitFrame)
 				end
 			end
 		end
+	--elseif C.HighlightMode == "Glow" then
+		--namePlate.UnitFrame.redarrow:SetAllPoints(unitFrame)
+	else
+		return
 	end
 end
 
@@ -949,7 +959,7 @@ end
 
 local function NamePlate_OnEvent(self, event, ...)
 	local arg1 = ...
-	if ( event == "PLAYER_TARGET_CHANGED" ) then
+	if ( event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" ) then
 		UpdateName(self)
 		UpdateSelectionHighlight(self)
 	elseif ( event == "PLAYER_ENTERING_WORLD" ) then
@@ -979,6 +989,7 @@ local function RegisterNamePlateEvents(unitFrame)
 	unitFrame:RegisterEvent("UNIT_NAME_UPDATE")
 	unitFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	unitFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+	unitFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	unitFrame:RegisterEvent("UNIT_PET")
 	unitFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
 	unitFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
@@ -1047,8 +1058,8 @@ end
 local NamePlates_UpdateNamePlateOptions = NamePlates_UpdateNamePlateOptions
 function NamePlates_UpdateNamePlateOptions()
 	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox(110/45)
-	local baseNamePlateWidth = 100
-	local baseNamePlateHeight = 30
+	local baseNamePlateWidth = 110
+	local baseNamePlateHeight = 45
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
 	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
 	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
@@ -1084,7 +1095,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
 		if C.castbar then
-			namePlate.UnitFrame.castBar:SetSize(100, 10)
+			namePlate.UnitFrame.castBar:SetSize(110, 8)
 			else
 			namePlate.UnitFrame.castBar:SetSize(38,38)
 		end
@@ -1094,7 +1105,12 @@ local function OnNamePlateCreated(namePlate)
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -3)
 		end 
 
-		namePlate.UnitFrame.castBar:SetStatusBarTexture(G.iconcastbar)
+		if C.castbar then
+			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.ufbar)
+			createBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1) 
+			else
+			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.iconcastbar)
+		end
 		namePlate.UnitFrame.castBar:SetStatusBarColor(0.5, 0.5, 0.5)
 		
 		namePlate.UnitFrame.castBar.border = CreateBDFrame(namePlate.UnitFrame.castBar, 0)
@@ -1105,17 +1121,16 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.bg:SetTexture(1/3, 1/3, 1/3, .5)
 
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
-
 		if C.castbar then
-			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -2)
+			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -8)
 			namePlate.UnitFrame.castBar.Icon:SetSize(16, 16)
 		else
 			namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER")
 			namePlate.UnitFrame.castBar.Icon:SetSize(32, 32)
 		end
-		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 		namePlate.UnitFrame.castBar.iconborder = CreateBG(namePlate.UnitFrame.castBar.Icon)
-		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY",-1)
+		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY", -1)
 
 		if C.cbtext then
 			namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
@@ -1136,7 +1151,7 @@ local function OnNamePlateCreated(namePlate)
 		if C.castbar then
 			namePlate.UnitFrame.castBar.Spark:SetAlpha(1)
 		else
-			namePlate.UnitFrame.castBar.Spark:SetAlpha(0) --Disable this spark
+			namePlate.UnitFrame.castBar.Spark:SetAlpha(0) --Disable this spark in icon style
 		end
 		
 		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
@@ -1159,15 +1174,60 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
-		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		if C.HorizontalArrow then
-			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
-		else
-			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
+		if C.HighlightTarget then
+			if C.HighlightMode == "Horizontal" then
+				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+				namePlate.UnitFrame.redarrow:SetSize(50, 50)
+				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
+			elseif C.HighlightMode == "Vertical" then
+				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+				namePlate.UnitFrame.redarrow:SetSize(50, 50)
+				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
+			else
+				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+				--namePlate.UnitFrame.redarrow:SetDrawLayer("BACKGROUND")
+				namePlate.UnitFrame.redarrow:SetTexture(G.hlglow)
+				--namePlate.UnitFrame.redarrow:SetAllPoints(namePlate.UnitFrame.name)
+				--namePlate.UnitFrame.redarrow:SetSize(namePlate.UnitFrame.name:GetStringWidth(), namePlate.UnitFrame:GetHeight()*2)
+				namePlate.UnitFrame.redarrow:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
+				namePlate.UnitFrame.redarrow:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
+				namePlate.UnitFrame.redarrow:SetVertexColor(0, 1, 1)
+				namePlate.UnitFrame.redarrow:SetTexCoord(0, 1, 1, 0)
+				namePlate.UnitFrame.redarrow:SetBlendMode("ADD")
+			end
+			namePlate.UnitFrame.redarrow:Hide()
 		end
-		namePlate.UnitFrame.redarrow:Hide()
 		
+		if C.HighlightFocus then
+			namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+			namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
+			namePlate.UnitFrame.hlfocus:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
+			namePlate.UnitFrame.hlfocus:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
+			namePlate.UnitFrame.hlfocus:SetVertexColor(1, 1, 0)
+			namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
+			namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
+			namePlate.UnitFrame.hlfocus:Hide()
+		end
+		--[[
+		if C.HighlightMouseover then
+				
+		namePlate.UnitFrame.hlmof = CreateFrame("Frame", nil, namePlate.UnitFrame)
+		namePlate.UnitFrame.hlmof:EnableMouse()
+		namePlate.UnitFrame.hlmof:SetScript("OnEnter", function()
+		
+		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+		namePlate.UnitFrame.hlmo:SetTexture(G.hlglow)
+		namePlate.UnitFrame.hlmo:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
+		namePlate.UnitFrame.hlmo:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
+		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 1)
+		namePlate.UnitFrame.hlmo:SetTexCoord(0, 1, 1, 0)
+		namePlate.UnitFrame.hlmo:SetBlendMode("ADD")
+		namePlate.UnitFrame.hlmo:Show()
+		end)
+		namePlate.UnitFrame.hlmof :SetScript('OnLeave', function() namePlate.UnitFrame.hlmo:Hide() end)			
+			
+		end
+		]]--
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.healthperc, "TOP", 0, 0)
 		namePlate.UnitFrame.icons:SetWidth(140)
@@ -1186,7 +1246,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.healthBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.healthBar:SetHeight(8)
 		namePlate.UnitFrame.healthBar:SetPoint("LEFT", 0, 0)
-		namePlate.UnitFrame.healthBar:SetPoint("RIGHT", 0, 0)
+		namePlate.UnitFrame.healthBar:SetPoint("RIGHT", 0, 8)
 		namePlate.UnitFrame.healthBar:SetStatusBarTexture(G.ufbar)
 		namePlate.UnitFrame.healthBar:SetMinMaxValues(0, 1)
 		
@@ -1194,14 +1254,14 @@ local function OnNamePlateCreated(namePlate)
 		
 		namePlate.UnitFrame.healthBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
 		namePlate.UnitFrame.healthBar.value:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, -G.fontsize/3)
-		namePlate.UnitFrame.healthBar.value:SetTextColor(1,1,1)
+		namePlate.UnitFrame.healthBar.value:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.healthBar.value:SetText("Value")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
-		namePlate.UnitFrame.name:SetPoint("TOPLEFT", namePlate.UnitFrame, "TOPLEFT", 5, 2)
-		namePlate.UnitFrame.name:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "TOPRIGHT", -5, -8)
+		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", G.fontsize-2, G.fontflag, "CENTER")
+		namePlate.UnitFrame.name:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 5, 0)
+		namePlate.UnitFrame.name:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", -5, 0)
 		namePlate.UnitFrame.name:SetIndentedWordWrap(false)
-		namePlate.UnitFrame.name:SetTextColor(1,1,1)
+		namePlate.UnitFrame.name:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.name:SetText("Name")
 		
 		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
@@ -1227,7 +1287,7 @@ local function OnNamePlateCreated(namePlate)
 		
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
 		namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -1)
-		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 		if C.classresource_show and C.classresource == "target" then
 			namePlate.UnitFrame.castBar.Icon:SetSize(25, 25)
 		else
@@ -1267,15 +1327,26 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
-		namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-		namePlate.UnitFrame.redarrow:SetSize(50, 50)
-		if C.HorizontalArrow then
-			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
-		else
-			namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
+		if C.HighlightTarget then
+			if C.HighlightMode == "Horizontal" then
+				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+				namePlate.UnitFrame.redarrow:SetSize(50, 50)
+				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
+			elseif C.HighlightMode == "Vertical" then
+				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+				namePlate.UnitFrame.redarrow:SetSize(50, 50)
+				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
+			else
+				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+				namePlate.UnitFrame.redarrow:SetTexture(G.hlglow)
+				namePlate.UnitFrame.redarrow:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
+				namePlate.UnitFrame.redarrow:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
+				namePlate.UnitFrame.redarrow:SetVertexColor(0, 0.65, 1, 0.9)
+				namePlate.UnitFrame.redarrow:SetTexCoord(0, 1, 1, 0)
+				namePlate.UnitFrame.redarrow:SetBlendMode("ADD")
+			end
+			namePlate.UnitFrame.redarrow:Hide()
 		end
-		namePlate.UnitFrame.redarrow:SetPoint("CENTER")
-		namePlate.UnitFrame.redarrow:Hide()
 		
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 2)

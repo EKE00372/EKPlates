@@ -15,6 +15,7 @@ G.iconcastbar = "Interface\\AddOns\\EKplates\\media\\dM3"
 G.raidicon = "Interface\\AddOns\\EKplates\\media\\raidicons"
 G.redarrow1 = "Interface\\AddOns\\EKplates\\media\\NeonRedArrow"
 G.redarrow2 = "Interface\\AddOns\\EKplates\\media\\NeonRedArrowH"
+G.hlglow = "Interface\\AddOns\\EKplates\\media\\hlglow"
 G.ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
 G.blank = "Interface\\Buttons\\WHITE8x8"
 G.glow = "Interface\\AddOns\\EKplates\\media\\glow"
@@ -25,7 +26,7 @@ G.myClass = select(2, UnitClass("player"))			-- DO NOT touch this!/別碰這個�
 G.numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"	-- 數字樣式的數字字體/number style's number font
 G.numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf"					-- 數字字體/number font
 G.norFont = STANDARD_TEXT_FONT													-- 名字字體/name font (or use"GameFontHighlight:GetFont()")
-G.fontsize = 12																-- 名字字體大小/name font size
+G.fontsize = 12																	-- 名字字體大小/name font size
 G.aurafontsize = 12																-- 光環字體大小/Aura font size
 G.fontflag = "OUTLINE"															-- "OUTLINE" or none/描邊
 
@@ -39,7 +40,7 @@ C.MinAlpha = 0.8					-- 非當前目標與遠距離名條的透明度/set fadeou
 C.FriendlyClickThrough = true		-- 友方名條點擊穿透/friendly nameplate click through
 C.EnemyClickThrough = false 		-- 敵方名條點擊穿透/enemy nameplate click through
 
-C.name_mod = true					-- 友方玩家只顯示名字不顯示血量/show only name on friendy player nameplates
+C.name_mod = false					-- 友方玩家只顯示名字不顯示血量/show only name on friendy player nameplates
 C.friendlyCR = true					-- 友方職業顏色/friendly class color
 
 C.enemyCR = true					-- 敵方職業顏色/enemy class color
@@ -48,13 +49,15 @@ C.threatcolor = true				-- 名字仇恨染色/change name color by threat
 C.cbshield = false					-- 施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false						-- 顯示等級/show level
 
--- Arrow/箭頭
-C.HorizontalArrow = false			-- 橫向箭頭/horizontal red arrow at right
-C.HideArrow = false					-- 隱藏箭頭/hide arrow
+-- highlight/高亮目標
+C.HighlightTarget = true			-- 高亮目標
+C.HighlightMode = "Glow"			-- "Vertical" vertical arrow "Horizontal" horizontal arrow "Glow" blue glow on nameplate
+C.HighlightFocus = true				-- 高亮焦點
+--C.HighlightMouseover = true
 
 -- number style additional config/數字模式額外選項
 C.cbtext = false					-- 施法條法術名稱/show castbar text
-C.castbar = false					-- 條形施法條/show castbar as a "bar"
+C.castbar = true					-- 條形施法條/show castbar as a "bar"
 
 -- [[ Player Plate ]] --
 
@@ -157,7 +160,7 @@ C.BlackList = {
 -- [[ Custom colored plates ]] --
 
 C.Customcoloredplates = {
-	-- M+感染詞綴，白色
+	-- 感染
 	[1] = {
 		name = "古翰幼體",
 		color = {r = 1, g = 1, b = 0.2},
@@ -170,35 +173,29 @@ C.Customcoloredplates = {
 		name = "戈霍恩之嗣",
 		color = {r = 1, g = 1, b = 0.2},
 	},
-	-- M+火爆詞綴
+	-- 火爆
 	[4] = {
-		--name = "魔化炸彈",
-		name = "炸彈",
-		color = {r = 1, g = 1, b = 0.2},
+		name = "爆炸物",
+		color = {r = 0.7, g = 0.95, b = 1},
 	},
 	[5] = {
-		--name = "邪能炸弹",
-		name = "爆炸物",
-		color = {r = 1, g = 1, b = 0.2},
+		name = "炸彈",
+		color = {r = 0.7, g = 0.95, b = 1},
 	},
 	[6] = {
 		name = "Fel Explosives",
-		color = {r = 1, g = 1, b = 0.2},
+		color = {r = 0.7, g = 0.95, b = 1},
 	},
+		--color = {r = 0.95, g = 1, b = 0.8},
+		--color = {r = 0.9, g = 1, b = 0.8},
+		--color = {r = 0.92, g = 1, b = 0.48},
+		--color = {r = 0.8, g = 1, b = 0.1},
 }
 
 -- [[ Show Power ]] --
 
 C.show_power = true		-- 替特定怪(自行編輯清單)啟用顯示能量值/show power/energy
 C.ShowPower = {
-	["清扫器"] = true,
-	["清掃者"] = true,
-	["Scrubber"] = true,
-	["Automated Sweeper"] = true,
-	-- Arggramar
-	["泰夏拉克燼火"] = true,
-	["泰沙拉克之焰"] = true,
-	["Ember of Taeshalach"] = true,
 	-- Temple of Sethraliss
 	["阿德利斯"] = true,
 	["艾斯匹"] = true,
