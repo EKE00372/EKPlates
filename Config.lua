@@ -40,7 +40,7 @@ C.MinAlpha = 0.8					-- 非當前目標與遠距離名條的透明度/set fadeou
 C.FriendlyClickThrough = true		-- 友方名條點擊穿透/friendly nameplate click through
 C.EnemyClickThrough = false 		-- 敵方名條點擊穿透/enemy nameplate click through
 
-C.name_mod = false					-- 友方玩家只顯示名字不顯示血量/show only name on friendy player nameplates
+C.name_mod = true					-- 友方玩家只顯示名字不顯示血量/show only name on friendy player nameplates
 C.friendlyCR = true					-- 友方職業顏色/friendly class color
 
 C.enemyCR = true					-- 敵方職業顏色/enemy class color
@@ -49,15 +49,15 @@ C.threatcolor = true				-- 名字仇恨染色/change name color by threat
 C.cbshield = false					-- 施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false						-- 顯示等級/show level
 
--- highlight/高亮目標
-C.HighlightTarget = true			-- 高亮目標
-C.HighlightMode = "Glow"			-- "Vertical" vertical arrow "Horizontal" horizontal arrow "Glow" blue glow on nameplate
-C.HighlightFocus = true				-- 高亮焦點
---C.HighlightMouseover = true
+-- highlight / 高亮
+C.HighlightTarget = true			-- 高亮目標 / highlight target
+C.HighlightMode = "Vertical"		-- "Vertical" vertical arrow "Horizontal" horizontal arrow "Glow" blue glow on nameplate
+C.HighlightFocus = true				-- 高亮焦點 / highlight focus
+C.HighlightMouseover = false		-- 高亮游標指向目標(高cpu占用) / highlight mouseover target (!!! high CPU usage !!!)
 
 -- number style additional config/數字模式額外選項
 C.cbtext = false					-- 施法條法術名稱/show castbar text
-C.castbar = true					-- 條形施法條/show castbar as a "bar"
+C.castbar = false					-- 條形施法條/show castbar as a "bar"
 
 -- [[ Player Plate ]] --
 
@@ -183,7 +183,7 @@ C.Customcoloredplates = {
 		color = {r = 0.7, g = 0.95, b = 1},
 	},
 	[6] = {
-		name = "Fel Explosives",
+		name = "Explosives",
 		color = {r = 0.7, g = 0.95, b = 1},
 	},
 		--color = {r = 0.95, g = 1, b = 0.8},

@@ -1,6 +1,6 @@
 ﻿## Interface: 80000
 ## Title: |cff00ffffEK|rPlates
-## Version: R1.9a
+## Version: R2.0
 ## Author: EK (Linodas@Illidan-US)
 ## Notes: Nameplates. Credits to Paopao and Dawn.
 

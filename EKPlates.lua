@@ -47,6 +47,7 @@ local CreateBD = function(f, a)
 	f:SetBackdropBorderColor(0, 0, 0)
 end
 
+-- 創建毛絨絨
 local CreateThinSD = function(parent, size, r, g, b, alpha, offset)
 	local sd = CreateFrame("Frame", nil, parent)
 	sd.size = size or 1
@@ -64,6 +65,7 @@ local CreateThinSD = function(parent, size, r, g, b, alpha, offset)
 	return sd
 end
 
+-- 創建背景
 local CreateBDFrame = function(f, a)
 	local frame
 	if f:GetObjectType() == "Texture" then
@@ -126,6 +128,7 @@ end
 
 -- [[ Auras ]] -- 
 
+-- 數值
 local day, hour, minute = 86400, 3600, 60
 local function FormatTime(s)
     if s >= day then
@@ -139,6 +142,7 @@ local function FormatTime(s)
     return format("%d", math.fmod(s, minute))
 end
 
+-- 創建圖示
 local function CreateAuraIcon(parent)
 	local button = CreateFrame("Frame", "EKPlateButton",parent)
 	button:SetSize(C.auraiconsize, C.auraiconsize)
@@ -169,6 +173,7 @@ local function CreateAuraIcon(parent)
 	return button
 end
 
+-- 更新圖示
 local function UpdateAuraIcon(button, unit, index, filter)
 	local name, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
 
@@ -205,6 +210,7 @@ local function UpdateAuraIcon(button, unit, index, filter)
 	button:Show()
 end
 
+-- 過濾器
 local function AuraFilter(caster, spellid)
 	if caster == "player" then
 		if C["myfiltertype"] == "none" then
@@ -223,6 +229,7 @@ local function AuraFilter(caster, spellid)
 	end
 end
 
+-- 個人資源的增益
 local function UpdateBuffs(unitFrame)
 	if not unitFrame.icons or not unitFrame.displayedUnit then return end
 	if not C.plateaura and UnitIsUnit(unitFrame.displayedUnit, "player") then return end
@@ -582,6 +589,7 @@ end
 
 -- [[ Unit frame ]] --
 
+-- 名字
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
@@ -620,6 +628,7 @@ local function UpdateName(unitFrame)
 	end
 end
 
+-- 血量
 local function UpdateHealth(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local minHealth, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
@@ -662,6 +671,7 @@ local function UpdateHealth(unitFrame)
 	end
 end
 
+-- 能量
 local function UpdatePower(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local minPower, maxPower = UnitPower(unit), UnitPowerMax(unit)
@@ -681,7 +691,7 @@ local function UpdatePower(unitFrame)
 		unitFrame.powerperc:SetText(perc_text)
 	end
 	
-	local r, g, b	
+	local r, g, b
   	if perc < .25 then
 		r, g, b = .2, .2, 1
 	elseif perc < .3 then
@@ -698,15 +708,20 @@ local function UpdatePower(unitFrame)
 	
 end
 
+-- 仇恨
 local function IsOnThreatList(unit)
 	local _, threatStatus = UnitDetailedThreatSituation("player", unit)
-	if threatStatus == 3 then  --穩定仇恨，當前坦克/securely tanking, highest threat
+	if threatStatus == 3 then 
+		--穩定仇恨，當前坦克/securely tanking, highest threat
 		return .9, .1, .4  --紅色/red
-	elseif threatStatus == 2 then  --非當前仇恨，當前坦克(已OT或坦克正在丟失仇恨)/insecurely tanking, another unit have higher threat but not tanking.
+	elseif threatStatus == 2 then
+		--非當前仇恨，當前坦克(已OT或坦克正在丟失仇恨)/insecurely tanking, another unit have higher threat but not tanking.
 		return .9, .1, .9  --粉色/pink
-	elseif threatStatus == 1 then  --當前仇恨，非當前坦克(非坦克高仇恨或坦克正在獲得仇恨)/not tanking, higher threat than tank.
+	elseif threatStatus == 1 then
+		--當前仇恨，非當前坦克(非坦克高仇恨或坦克正在獲得仇恨)/not tanking, higher threat than tank.
 		return .4, .1, .9  --紫色/purple
-	elseif threatStatus == 0 then  --低仇恨，安全/not tanking, lower threat than tank.
+	elseif threatStatus == 0 then 
+		--低仇恨，安全/not tanking, lower threat than tank.
 		return .1, .7, .9  --藍色/blue
 	end
 end
@@ -715,6 +730,7 @@ local function IsTapDenied(unitFrame)
 	return UnitIsTapDenied(unitFrame.unit) and not UnitPlayerControlled(unitFrame.unit)
 end
 
+-- 血量顏色
 local function UpdateHealthColor(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local r, g, b
@@ -768,6 +784,7 @@ local function UpdateHealthColor(unitFrame)
 	end
 end
 
+-- 施法條
 local function UpdateCastBar(unitFrame)
 	local castBar = unitFrame.castBar
 	if not castBar.colored then
@@ -792,9 +809,9 @@ end
 local function UpdateSelectionHighlight(unitFrame)
 	local unit = unitFrame.unit
 	if UnitIsUnit(unit, "target") and not UnitIsUnit(unit, "player") and C.HighlightTarget then
-		unitFrame.redarrow:Show()
+		unitFrame.hltarget:Show()
 	else
-		unitFrame.redarrow:Hide()
+		unitFrame.hltarget:Hide()
 	end
 	
 	if UnitIsUnit(unit, "focus") and not UnitIsUnit(unit, "player") and C.HighlightFocus then
@@ -803,41 +820,40 @@ local function UpdateSelectionHighlight(unitFrame)
 		unitFrame.hlfocus:Hide()
 	end
 	
-	if C.HighlightMode == "Vertical" then
+	if C.HighlightMode == "Vertical" then	--垂直箭頭
 		if not C.numberstyle then
 			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
+				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
 			else
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		else
 			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖示
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.icons, "TOP", 0, 3)
+				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.icons, "TOP", 0, 3)
 			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
+				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 			else -- 只有名字
-				unitFrame.redarrow:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		end
-	elseif C.HighlightMode == "Horizontal" then 	--橫向箭頭
+	elseif C.HighlightMode == "Horizontal" then	--橫向箭頭
 		if not C.numberstyle then
-			unitFrame.redarrow:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
+			unitFrame.hltarget:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
 			if C.show_power then
 				if C.ShowPower[UnitName(unitFrame.displayedUnit)] then	--顯示能量
-					unitFrame.redarrow:SetPoint("LEFT", unitFrame.powerperc, "RIGHT", 0, 0)
+					unitFrame.hltarget:SetPoint("LEFT", unitFrame.powerperc, "RIGHT", 0, 0)
 					else
-					unitFrame.redarrow:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
+					unitFrame.hltarget:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
 				end
 			end
 		end
-	--elseif C.HighlightMode == "Glow" then
-		--namePlate.UnitFrame.redarrow:SetAllPoints(unitFrame)
 	else
 		return
 	end
 end
 
+-- 團隊標記
 local function UpdateRaidTarget(unitFrame)
 	local icon = unitFrame.RaidTargetFrame.RaidTargetIcon
 	local index = GetRaidTargetIndex(unitFrame.displayedUnit)
@@ -849,6 +865,7 @@ local function UpdateRaidTarget(unitFrame)
 	end
 end
 
+-- 更新
 local function UpdateNamePlateEvents(unitFrame)
 	-- These are events affected if unit is in a vehicle
 	local unit = unitFrame.unit
@@ -884,6 +901,7 @@ local function UpdateNamePlateEvents(unitFrame)
 	end
 end
 
+-- 載具
 local function UpdateInVehicle(unitFrame)
 	if ( UnitHasVehicleUI(unitFrame.unit) ) then
 		if ( not unitFrame.inVehicle ) then
@@ -901,6 +919,7 @@ local function UpdateInVehicle(unitFrame)
 	end
 end
 
+-- 名字模式
 local function UpdateforNamemod(unitFrame)
 	if not C.name_mod then return end
 	local unit = unitFrame.displayedUnit
@@ -951,10 +970,27 @@ local function UpdateAll(unitFrame)
 				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 			end
 		end
+		
 		if C.show_power and C.ShowPower[UnitName(unitFrame.displayedUnit)] then
 			UpdatePower(unitFrame)
 		end
 	end
+end
+
+local function UpdateMouseover(unitFrame)
+	if not C.HighlightMouseover then return end
+	local unit = unitFrame.unit
+	if UnitIsUnit(unit, "mouseover") and not UnitIsUnit(unit, "player") then
+		unitFrame.hlmo:Show()
+	else
+		unitFrame.hlmo:Hide()
+	end
+	unitFrame:SetScript("OnUpdate", function(self, elapsed) 
+		local unit = unitFrame.unit
+		if not UnitIsUnit(unit, "mouseover") then
+			unitFrame.hlmo:Hide()
+		end
+	end)
 end
 
 local function NamePlate_OnEvent(self, event, ...)
@@ -962,6 +998,8 @@ local function NamePlate_OnEvent(self, event, ...)
 	if ( event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" ) then
 		UpdateName(self)
 		UpdateSelectionHighlight(self)
+	elseif ( event == "UPDATE_MOUSEOVER_UNIT" ) then
+		UpdateMouseover(self)
 	elseif ( event == "PLAYER_ENTERING_WORLD" ) then
 		UpdateAll(self)
 	elseif ( arg1 == self.unit or arg1 == self.displayedUnit ) then
@@ -984,12 +1022,13 @@ local function NamePlate_OnEvent(self, event, ...)
 		end
 	end
 end
-
+	
 local function RegisterNamePlateEvents(unitFrame)
 	unitFrame:RegisterEvent("UNIT_NAME_UPDATE")
 	unitFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	unitFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 	unitFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
+	unitFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 	unitFrame:RegisterEvent("UNIT_PET")
 	unitFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
 	unitFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
@@ -1174,46 +1213,33 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
-		if C.HighlightTarget then
-			if C.HighlightMode == "Horizontal" then
-				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-				namePlate.UnitFrame.redarrow:SetSize(50, 50)
-				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
-			elseif C.HighlightMode == "Vertical" then
-				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-				namePlate.UnitFrame.redarrow:SetSize(50, 50)
-				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
-			else
-				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
-				--namePlate.UnitFrame.redarrow:SetDrawLayer("BACKGROUND")
-				namePlate.UnitFrame.redarrow:SetTexture(G.hlglow)
-				--namePlate.UnitFrame.redarrow:SetAllPoints(namePlate.UnitFrame.name)
-				--namePlate.UnitFrame.redarrow:SetSize(namePlate.UnitFrame.name:GetStringWidth(), namePlate.UnitFrame:GetHeight()*2)
-				namePlate.UnitFrame.redarrow:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
-				namePlate.UnitFrame.redarrow:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-				namePlate.UnitFrame.redarrow:SetVertexColor(0, 1, 1)
-				namePlate.UnitFrame.redarrow:SetTexCoord(0, 1, 1, 0)
-				namePlate.UnitFrame.redarrow:SetBlendMode("ADD")
-			end
-			namePlate.UnitFrame.redarrow:Hide()
+		if C.HighlightMode == "Horizontal" then
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+			namePlate.UnitFrame.hltarget:SetSize(50, 50)
+			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow2)
+		elseif C.HighlightMode == "Vertical" then
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+			namePlate.UnitFrame.hltarget:SetSize(50, 50)
+			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow1)
+		else
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+			namePlate.UnitFrame.hltarget:SetTexture(G.hlglow)
+			namePlate.UnitFrame.hltarget:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
+			namePlate.UnitFrame.hltarget:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
+			namePlate.UnitFrame.hltarget:SetVertexColor(0, 1, 1)
+			namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 0)
+			namePlate.UnitFrame.hltarget:SetBlendMode("ADD")
 		end
+		namePlate.UnitFrame.hltarget:Hide()
 		
-		if C.HighlightFocus then
-			namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
-			namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
-			namePlate.UnitFrame.hlfocus:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
-			namePlate.UnitFrame.hlfocus:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-			namePlate.UnitFrame.hlfocus:SetVertexColor(1, 1, 0)
-			namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
-			namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
-			namePlate.UnitFrame.hlfocus:Hide()
-		end
-		--[[
-		if C.HighlightMouseover then
-				
-		namePlate.UnitFrame.hlmof = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.hlmof:EnableMouse()
-		namePlate.UnitFrame.hlmof:SetScript("OnEnter", function()
+		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
+		namePlate.UnitFrame.hlfocus:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
+		namePlate.UnitFrame.hlfocus:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
+		namePlate.UnitFrame.hlfocus:SetVertexColor(1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
+		namePlate.UnitFrame.hlfocus:Hide()
 		
 		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
 		namePlate.UnitFrame.hlmo:SetTexture(G.hlglow)
@@ -1222,12 +1248,8 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 1)
 		namePlate.UnitFrame.hlmo:SetTexCoord(0, 1, 1, 0)
 		namePlate.UnitFrame.hlmo:SetBlendMode("ADD")
-		namePlate.UnitFrame.hlmo:Show()
-		end)
-		namePlate.UnitFrame.hlmof :SetScript('OnLeave', function() namePlate.UnitFrame.hlmo:Hide() end)			
-			
-		end
-		]]--
+		namePlate.UnitFrame.hlmo:Hide()
+
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.healthperc, "TOP", 0, 0)
 		namePlate.UnitFrame.icons:SetWidth(140)
@@ -1327,26 +1349,42 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
-		if C.HighlightTarget then
-			if C.HighlightMode == "Horizontal" then
-				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-				namePlate.UnitFrame.redarrow:SetSize(50, 50)
-				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow2)
-			elseif C.HighlightMode == "Vertical" then
-				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-				namePlate.UnitFrame.redarrow:SetSize(50, 50)
-				namePlate.UnitFrame.redarrow:SetTexture(G.redarrow1)
-			else
-				namePlate.UnitFrame.redarrow = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
-				namePlate.UnitFrame.redarrow:SetTexture(G.hlglow)
-				namePlate.UnitFrame.redarrow:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
-				namePlate.UnitFrame.redarrow:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
-				namePlate.UnitFrame.redarrow:SetVertexColor(0, 0.65, 1, 0.9)
-				namePlate.UnitFrame.redarrow:SetTexCoord(0, 1, 1, 0)
-				namePlate.UnitFrame.redarrow:SetBlendMode("ADD")
-			end
-			namePlate.UnitFrame.redarrow:Hide()
+		if C.HighlightMode == "Horizontal" then
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+			namePlate.UnitFrame.hltarget:SetSize(50, 50)
+			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow2)
+		elseif C.HighlightMode == "Vertical" then
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+			namePlate.UnitFrame.hltarget:SetSize(50, 50)
+			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow1)
+		else
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+			namePlate.UnitFrame.hltarget:SetTexture(G.hlglow)
+			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
+			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
+			namePlate.UnitFrame.hltarget:SetVertexColor(0, 0.65, 1, 0.9)
+			namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 0)
+			namePlate.UnitFrame.hltarget:SetBlendMode("ADD")
 		end
+		namePlate.UnitFrame.hltarget:Hide()
+		
+		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
+		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
+		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
+		namePlate.UnitFrame.hlfocus:SetVertexColor(1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
+		namePlate.UnitFrame.hlfocus:Hide()
+		
+		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
+		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
+		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
+		namePlate.UnitFrame.hlfocus:SetVertexColor(1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
+		namePlate.UnitFrame.hlfocus:Hide()
 		
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 2)
@@ -1389,9 +1427,9 @@ end
 
 local function defaultcvar()
 	if C.Inset then
-		SetCVar("nameplateOtherTopInset", .05)
+		SetCVar("nameplateOtherTopInset", .08)
 		SetCVar("nameplateOtherBottomInset", .1)
-		SetCVar("nameplateLargeTopInset", .05) 
+		SetCVar("nameplateLargeTopInset", .08) 
 		SetCVar("nameplateLargeBottomInset", .1)
 	else
 		SetCVar("nameplateOtherTopInset", -1)
@@ -1399,7 +1437,7 @@ local function defaultcvar()
 		SetCVar("nameplateLargeTopInset", -1) 
 		SetCVar("nameplateLargeBottomInset", -1)
 	end
-		
+	
 	-- 最大視距
 	SetCVar("nameplateMaxDistance", C.MaxDistance)		-- default is 60
 	-- fix fps drop(距離縮放與描邊功能會引起掉幀)
@@ -1439,7 +1477,7 @@ local function defaultcvar()
 	SetCVar("nameplateShowFriendlyPets", 0)				-- 寵物
 	SetCVar("nameplateShowFriendlyTotems", 0)			-- 圖騰	
 end 
-	
+
 local function NamePlates_OnEvent(self, event, ...)
 	if ( event == "VARIABLES_LOADED" ) then
 		HideBlizzard()
