@@ -7,7 +7,7 @@ local C, G = unpack(select(2, ...))
 -- [[ Global ]] --
 
 -- 啟用/enable = true 停用/disable = false
-C.numberstyle = true		-- 啟用數字樣式，如果想要條形的血條就關閉這項/number style, if you want a bar-style nameplates, change to false.
+C.numberstyle = true		-- 啟用數字樣式，如果想要條形的血條就關閉這項 / Number style, if you want a bar-style nameplates, change to false.
 
 -- [[ Textures ]] --
 
@@ -19,71 +19,71 @@ G.hlglow = "Interface\\AddOns\\EKplates\\media\\hlglow"
 G.ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
 G.blank = "Interface\\Buttons\\WHITE8x8"
 G.glow = "Interface\\AddOns\\EKplates\\media\\glow"
-G.myClass = select(2, UnitClass("player"))			-- DO NOT touch this!/別碰這個！
+G.myClass = select(2, UnitClass("player"))			-- DO NOT touch this! / 別碰這個！
 
 -- [[ Fonts ]] --
 
-G.numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"	-- 數字樣式的數字字體/number style's number font
-G.numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf"					-- 數字字體/number font
-G.norFont = STANDARD_TEXT_FONT													-- 名字字體/name font (or use"GameFontHighlight:GetFont()")
-G.fontsize = 12																	-- 名字字體大小/name font size
-G.aurafontsize = 12																-- 光環字體大小/Aura font size
-G.fontflag = "OUTLINE"															-- "OUTLINE" or none/描邊
+G.numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"	-- 數字樣式的數字字體 / Number style's number font
+G.numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf"					-- 數字字體 / Number font
+G.norFont = STANDARD_TEXT_FONT													-- 名字字體 / Name font (or use"GameFontHighlight:GetFont()"to get default game font)
+G.fontsize = 12																	-- 名字字體大小 / Name font size
+G.aurafontsize = 12																-- 光環字體大小 / Aura font size
+G.fontflag = "OUTLINE"															-- 描邊 / "OUTLINE" or none
 
 -- [[ Config ]] --
 
-C.Inset = true						-- 名條貼齊畫面邊緣/Let Nameplates don't go off screen
-C.MaxDistance = 45 					-- 名條顯示的最大距離/max distance for nameplate show on
-C.SelectedScale = 1					-- 縮放當前目標的名條大小/scale select target nameplate
-C.MinAlpha = 0.8					-- 非當前目標與遠距離名條的透明度/set fadeout for out of range and non-target
+C.Inset = true						-- 名條貼齊畫面邊緣 / Let Nameplates don't go off screen
+C.MaxDistance = 45 					-- 名條顯示的最大距離 / Max distance for nameplate show on
+C.SelectedScale = 1					-- 縮放當前目標的名條大小 / Scale select target nameplate
+C.MinAlpha = 0.8					-- 非當前目標與遠距離名條的透明度 / Set fadeout for out of range and non-target
 
-C.FriendlyClickThrough = true		-- 友方名條點擊穿透/friendly nameplate click through
-C.EnemyClickThrough = false 		-- 敵方名條點擊穿透/enemy nameplate click through
+C.FriendlyClickThrough = true		-- 友方名條點擊穿透 / Friendly nameplate click through
+C.EnemyClickThrough = false 		-- 敵方名條點擊穿透 / Enemy nameplate click through
 
-C.name_mod = true					-- 友方玩家只顯示名字不顯示血量/show only name on friendy player nameplates
-C.friendlyCR = true					-- 友方職業顏色/friendly class color
+C.name_mod = true					-- 友方玩家只顯示名字不顯示血量 / Show only name on friendy player nameplates
+C.friendlyCR = true					-- 友方職業顏色 / Friendly class color
 
-C.enemyCR = true					-- 敵方職業顏色/enemy class color
-C.threatcolor = true				-- 名字仇恨染色/change name color by threat
+C.enemyCR = true					-- 敵方職業顏色 / Enemy class color
+C.threatcolor = true				-- 名字仇恨染色 / Change name color by threat
 
-C.cbshield = false					-- 施法條不可打斷圖示/show castbar un-interrupt shield icon
-C.level = false						-- 顯示等級/show level
+C.cbshield = false					-- 施法條不可打斷圖示 / Show castbar un-interrupt shield icon
+C.level = false						-- 顯示等級 / Show level
 
 -- highlight / 高亮
-C.HighlightTarget = true			-- 高亮目標 / highlight target
-C.HighlightMode = "Vertical"		-- "Vertical" vertical arrow "Horizontal" horizontal arrow "Glow" blue glow on nameplate
-C.HighlightFocus = true				-- 高亮焦點 / highlight focus
-C.HighlightMouseover = false		-- 高亮游標指向目標(高cpu占用) / highlight mouseover target (!!! high CPU usage !!!)
+C.HighlightTarget = true			-- 高亮目標 / Highlight target
+C.HighlightMode = "Horizontal"		-- "Vertical", "Horizontal", "Glow" 橫向箭頭、直向箭頭、光暈染色 / vertical arrow ,horizontal arrow ,or blue glow on nameplate
+C.HighlightFocus = true				-- 高亮焦點 / Highlight focus
+C.HighlightMouseover = true			-- 高亮游標指向目標(高cpu占用) / Highlight mouseover target (!!! high CPU usage !!!)
 
--- number style additional config/數字模式額外選項
-C.cbtext = false					-- 施法條法術名稱/show castbar text
-C.castbar = false					-- 條形施法條/show castbar as a "bar"
+-- number style additional config / 數字模式額外選項
+C.cbtext = false					-- 施法條法術名稱 / Show castbar text
+C.castbar = false					-- 條形施法條 / Show castbar as a "bar"
 
--- [[ Player Plate ]] --
+-- [[ Player Plate / 玩家名條 ]] --
 
-C.playerplate = false				-- 玩家名條/player self nameplate
-C.classresource_show = false		-- 玩家資源/player resource
-C.classresource = "player"			-- "player", "target"
-C.plateaura = false					-- 玩家光環/aura
-C.PlayerClickThrough = false		-- 個人資源點擊穿透/player resource click through
+C.playerplate = false				-- 玩家名條 /Player self nameplate
+C.classresource_show = false		-- 玩家資源 /Player resource
+C.classresource = "player"			-- "player", "target": 玩家資源顯示在何處 / Show player resource on player nameplate or target nameplate
+C.plateaura = false					-- 玩家光環 / Player aura
+C.PlayerClickThrough = false		-- 個人資源點擊穿透 / Player resource click through
 
--- [[ Aura Icons on Plates ]] --
+-- [[ Aura Icons on Plates / 光環 ]] --
 
-C.auranum = 5						-- 圖示數量/the number of auras
-C.auraiconsize = 22					-- 圖示大小/aura icon size
-C.myfiltertype = "blacklist"		-- 自身施放/show aura cast by player
-C.otherfiltertype = "whitelist"		-- 他人施放/show aura cast by other
+C.auranum = 5						-- 圖示數量 / The number of auras
+C.auraiconsize = 22					-- 圖示大小 / Aura icon size
+C.myfiltertype = "blacklist"		-- 自身施放 / Show aura cast by player
+C.otherfiltertype = "whitelist"		-- 他人施放 / Show aura cast by other
 
--- "whitelist": show only list/白名單：只顯示列表中
--- "blacklist": show only unlist/黑名單：只顯示列表外
--- "none": do not show anything/不顯示任何光環
+-- "whitelist": show only list / 白名單：只顯示列表中
+-- "blacklist": show only unlist / 黑名單：只顯示列表外
+-- "none": do not show anything / 不顯示任何光環
 
 C.WhiteList = {
 	--[166646]=	true,	-- 御風而行(test)
 	
 	-- BUFF
 	-- Mythic+
-	[209859]= true,		-- 激勵/Bloster
+	[209859]= true,		-- 激勵/Bolster
 	[226510]= true,		-- 膿血/Sanguine Ichor
 	[277242]= true,		-- 感染/Symbiote of G'huun
 	-- TOS
@@ -100,14 +100,14 @@ C.WhiteList = {
 	[255418]= true,		-- 物理易傷
 	[255433]= true,		-- 秘法易傷
 	
-	-- DEBUFF	
+	-- DEBUFF
 	-- 種族
 	[25049]	= true,		-- 戰爭踐踏/War Stomp
 	-- 法師
 	[118]	= true,		-- 變形術/Polymorph
 	-- 薩滿
 	[51514]	= true,		-- 妖術/Hex
-	[64695]	= true,		-- 地縛圖騰/Earthgrab	
+	[64695]	= true,		-- 地縛圖騰/Earthgrab
 	[118905]= true,		-- 電容/Static Charge
 	-- 獵人
 	[217832]= true,		-- 禁錮/Imprison
@@ -131,7 +131,7 @@ C.WhiteList = {
 	[115750]= true,		-- 盲目之光/Blinding Light
 	[183218]= true,		-- 封阻之手/Hand of Hindrance
 	-- 武僧
-	[115078]= true,		-- 點穴/Paralysis	
+	[115078]= true,		-- 點穴/Paralysis
 	[119381]= true,		-- 掃葉腿/Leg Sweep
 	-- 德魯伊
 	[339]	= true,		-- 糾纏根鬚/Entangling Roots
@@ -194,7 +194,7 @@ C.Customcoloredplates = {
 
 -- [[ Show Power ]] --
 
-C.show_power = true		-- 替特定怪(自行編輯清單)啟用顯示能量值/show power/energy
+C.show_power = true		-- 替特定怪(自行編輯清單)啟用顯示能量值 / show power or energy
 C.ShowPower = {
 	-- Temple of Sethraliss
 	["阿德利斯"] = true,

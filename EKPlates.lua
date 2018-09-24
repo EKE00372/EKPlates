@@ -4,7 +4,7 @@ local C, G = unpack(select(2, ...))
 
 -- [[ Functions ]] -- 
 
--- 能量顏色
+-- Power color / 能量顏色
 local colorspower = {}
 for power, color in next, PowerBarColor do
 	if type(power) == "string" then
@@ -12,7 +12,7 @@ for power, color in next, PowerBarColor do
 	end
 end
 
--- 職業顏色
+-- Class Color / 職業顏色
 local Ccolors = {}
 if IsAddOnLoaded("!ClassColors") and CUSTOM_CLASS_COLORS then
 	Ccolors = CUSTOM_CLASS_COLORS
@@ -20,7 +20,7 @@ else
 	Ccolors = RAID_CLASS_COLORS
 end
 
--- 光環的數字文本
+-- Aura text / 光環的數字文本
 local createnumber = function(f, layer, fontsize, flag, justifyh)
 	local text = f:CreateFontString(nil, layer)
 	text:SetFont(G.numFont, fontsize, flag)
@@ -28,7 +28,7 @@ local createnumber = function(f, layer, fontsize, flag, justifyh)
 	return text
 end
 
--- 文本
+-- Text / 文本
 local createtext = function(f, layer, fontsize, flag, justifyh)
 	local text = f:CreateFontString(nil, layer)
 	text:SetFont(G.norFont, fontsize, flag)
@@ -36,7 +36,7 @@ local createtext = function(f, layer, fontsize, flag, justifyh)
 	return text
 end
 
--- 給數字模式施法條的框體樣式
+-- Icon style for number style cast bar / 給數字模式施法條的框體樣式
 local CreateBD = function(f, a)
 	f:SetBackdrop({
 		bgFile = G.blank,
@@ -47,7 +47,7 @@ local CreateBD = function(f, a)
 	f:SetBackdropBorderColor(0, 0, 0)
 end
 
--- 創建毛絨絨
+-- make shadowed style / 創建毛絨絨
 local CreateThinSD = function(parent, size, r, g, b, alpha, offset)
 	local sd = CreateFrame("Frame", nil, parent)
 	sd.size = size or 1
@@ -65,7 +65,7 @@ local CreateThinSD = function(parent, size, r, g, b, alpha, offset)
 	return sd
 end
 
--- 創建背景
+-- make background / 創建背景
 local CreateBDFrame = function(f, a)
 	local frame
 	if f:GetObjectType() == "Texture" then
@@ -86,7 +86,7 @@ local CreateBDFrame = function(f, a)
 	return bg
 end
 
--- 給施法條圖示的框體樣式
+-- Icon style for cast bar / 給施法條圖示的框體樣式
 local CreateBG = function(frame)
 	local f = frame
 	if frame:GetObjectType() == "Texture" then f = frame:GetParent() end
@@ -100,7 +100,7 @@ local CreateBG = function(frame)
 	return bg
 end
 
--- 給各個條條兒的框體樣式
+-- Style for bar / 給各個條條兒的框體樣式
 local frameBD = {
     edgeFile = G.glow, edgeSize = 3,
     bgFile = G.blank,
@@ -127,8 +127,8 @@ local createBackdrop = function(parent, anchor, a)
 end
 
 -- [[ Auras ]] -- 
-
--- 數值
+	
+-- timer / 數值
 local day, hour, minute = 86400, 3600, 60
 local function FormatTime(s)
     if s >= day then
@@ -142,7 +142,7 @@ local function FormatTime(s)
     return format("%d", math.fmod(s, minute))
 end
 
--- 創建圖示
+-- Make icon / 創建圖示
 local function CreateAuraIcon(parent)
 	local button = CreateFrame("Frame", "EKPlateButton",parent)
 	button:SetSize(C.auraiconsize, C.auraiconsize)
@@ -173,7 +173,7 @@ local function CreateAuraIcon(parent)
 	return button
 end
 
--- 更新圖示
+-- Creat aura icon and update / 更新圖示
 local function UpdateAuraIcon(button, unit, index, filter)
 	local name, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
 
@@ -189,8 +189,14 @@ local function UpdateAuraIcon(button, unit, index, filter)
 		button.count:SetText(count)
 	else
 		button.count:SetText("")
+	end	
+	-- 激勵?
+	--[[
+	if spellID == 209859 or spellID == 113746 or spellID == 228287 then
+		count = (count or 0) + 1
+		button.count:SetText(count)
 	end
-	
+	]]--
 	button:SetScript("OnUpdate", function(self, elapsed)
 		if not self.duration then return end
 		
@@ -210,7 +216,7 @@ local function UpdateAuraIcon(button, unit, index, filter)
 	button:Show()
 end
 
--- 過濾器
+-- Aura filter / 過濾器
 local function AuraFilter(caster, spellid)
 	if caster == "player" then
 		if C["myfiltertype"] == "none" then
@@ -229,13 +235,14 @@ local function AuraFilter(caster, spellid)
 	end
 end
 
--- 個人資源的增益
+-- Update and show aura / 顯示圖示
 local function UpdateBuffs(unitFrame)
 	if not unitFrame.icons or not unitFrame.displayedUnit then return end
 	if not C.plateaura and UnitIsUnit(unitFrame.displayedUnit, "player") then return end
 	local unit = unitFrame.displayedUnit
 	local i = 1
-
+	
+	
 	for index = 1, 15 do
 		if i <= C.auranum then
 			local bname, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, "HELPFUL")
@@ -258,6 +265,7 @@ local function UpdateBuffs(unitFrame)
 			local dname, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL")
 			local matchdebuff = AuraFilter(dcaster, dspellid)
 			if dname and matchdebuff then
+				--if dspellid == 209859 or dspellid == 113746 or dspellid == 228287 then return end -- 激勵?				
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
@@ -589,7 +597,7 @@ end
 
 -- [[ Unit frame ]] --
 
--- 名字
+-- Name / 名字
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
@@ -628,7 +636,7 @@ local function UpdateName(unitFrame)
 	end
 end
 
--- 血量
+-- Health / 血量
 local function UpdateHealth(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local minHealth, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
@@ -671,7 +679,7 @@ local function UpdateHealth(unitFrame)
 	end
 end
 
--- 能量
+-- Power / 能量
 local function UpdatePower(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local minPower, maxPower = UnitPower(unit), UnitPowerMax(unit)
@@ -708,7 +716,7 @@ local function UpdatePower(unitFrame)
 	
 end
 
--- 仇恨
+-- Threat / 仇恨
 local function IsOnThreatList(unit)
 	local _, threatStatus = UnitDetailedThreatSituation("player", unit)
 	if threatStatus == 3 then 
@@ -730,7 +738,7 @@ local function IsTapDenied(unitFrame)
 	return UnitIsTapDenied(unitFrame.unit) and not UnitPlayerControlled(unitFrame.unit)
 end
 
--- 血量顏色
+-- Health color / 血量顏色
 local function UpdateHealthColor(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local r, g, b
@@ -784,7 +792,7 @@ local function UpdateHealthColor(unitFrame)
 	end
 end
 
--- 施法條
+-- Cast bar / 施法條
 local function UpdateCastBar(unitFrame)
 	local castBar = unitFrame.castBar
 	if not castBar.colored then
@@ -806,6 +814,7 @@ local function UpdateCastBar(unitFrame)
 	end
 end
 
+-- Highlight / 高亮
 local function UpdateSelectionHighlight(unitFrame)
 	local unit = unitFrame.unit
 	if UnitIsUnit(unit, "target") and not UnitIsUnit(unit, "player") and C.HighlightTarget then
@@ -853,7 +862,24 @@ local function UpdateSelectionHighlight(unitFrame)
 	end
 end
 
--- 團隊標記
+-- special update for mouseover highlight remove / 指向高亮
+local function UpdateMouseover(unitFrame)
+	if not C.HighlightMouseover then return end
+	local unit = unitFrame.unit
+	if UnitIsUnit(unit, "mouseover") and not UnitIsUnit(unit, "player") then
+		unitFrame.hlmo:Show()
+	else
+		unitFrame.hlmo:Hide()
+	end
+	unitFrame:SetScript("OnUpdate", function(self, elapsed) 
+		local unit = unitFrame.unit
+		if not UnitIsUnit(unit, "mouseover") then
+			unitFrame.hlmo:Hide()
+		end
+	end)
+end
+
+-- Raid mark / 團隊標記
 local function UpdateRaidTarget(unitFrame)
 	local icon = unitFrame.RaidTargetFrame.RaidTargetIcon
 	local index = GetRaidTargetIndex(unitFrame.displayedUnit)
@@ -865,17 +891,20 @@ local function UpdateRaidTarget(unitFrame)
 	end
 end
 
--- 更新
+-- Update / 更新
 local function UpdateNamePlateEvents(unitFrame)
 	-- These are events affected if unit is in a vehicle
 	local unit = unitFrame.unit
 	local displayedUnit
+	
 	if ( unit ~= unitFrame.displayedUnit ) then
 		displayedUnit = unitFrame.displayedUnit
 	end
+	
 	unitFrame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_AURA", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
+	
 	if C.show_power then
 		if C.ShowPower[UnitName(unitFrame.displayedUnit)] then
 			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
@@ -901,7 +930,7 @@ local function UpdateNamePlateEvents(unitFrame)
 	end
 end
 
--- 載具
+-- vehicle / 載具
 local function UpdateInVehicle(unitFrame)
 	if ( UnitHasVehicleUI(unitFrame.unit) ) then
 		if ( not unitFrame.inVehicle ) then
@@ -919,7 +948,7 @@ local function UpdateInVehicle(unitFrame)
 	end
 end
 
--- 名字模式
+-- Name-only mode / 名字模式
 local function UpdateforNamemod(unitFrame)
 	if not C.name_mod then return end
 	local unit = unitFrame.displayedUnit
@@ -975,22 +1004,6 @@ local function UpdateAll(unitFrame)
 			UpdatePower(unitFrame)
 		end
 	end
-end
-
-local function UpdateMouseover(unitFrame)
-	if not C.HighlightMouseover then return end
-	local unit = unitFrame.unit
-	if UnitIsUnit(unit, "mouseover") and not UnitIsUnit(unit, "player") then
-		unitFrame.hlmo:Show()
-	else
-		unitFrame.hlmo:Hide()
-	end
-	unitFrame:SetScript("OnUpdate", function(self, elapsed) 
-		local unit = unitFrame.unit
-		if not UnitIsUnit(unit, "mouseover") then
-			unitFrame.hlmo:Hide()
-		end
-	end)
 end
 
 local function NamePlate_OnEvent(self, event, ...)
@@ -1097,6 +1110,7 @@ end
 local NamePlates_UpdateNamePlateOptions = NamePlates_UpdateNamePlateOptions
 function NamePlates_UpdateNamePlateOptions()
 	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox(110/45)
+	-- DONT TOUCH THIS! 別碰這個！
 	local baseNamePlateWidth = 110
 	local baseNamePlateHeight = 45
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
@@ -1142,7 +1156,7 @@ local function OnNamePlateCreated(namePlate)
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -7)
 		else
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -3)
-		end 
+		end
 
 		if C.castbar then
 			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.ufbar)
@@ -1427,10 +1441,10 @@ end
 
 local function defaultcvar()
 	if C.Inset then
-		SetCVar("nameplateOtherTopInset", .08)
-		SetCVar("nameplateOtherBottomInset", .1)
-		SetCVar("nameplateLargeTopInset", .08) 
-		SetCVar("nameplateLargeBottomInset", .1)
+		SetCVar("nameplateOtherTopInset", .06)			-- default is 0.08
+		SetCVar("nameplateOtherBottomInset", .09)		-- default is 0.1
+		SetCVar("nameplateLargeTopInset", .06) 
+		SetCVar("nameplateLargeBottomInset", .09)
 	else
 		SetCVar("nameplateOtherTopInset", -1)
 		SetCVar("nameplateOtherBottomInset", -1)
@@ -1448,12 +1462,12 @@ local function defaultcvar()
 	-- 當前目標大小
 	SetCVar("nameplateSelectedScale", C.SelectedScale)
 	-- 讓堆疊血條的間距小一點
-	SetCVar("nameplateOverlapH",  0.3)					-- default is 0.8
-	SetCVar("nameplateOverlapV",  0.7)					-- default is 1.1
+	SetCVar("nameplateOverlapH",  0.6)					-- default is 0.8
+	SetCVar("nameplateOverlapV",  0.9)					-- default is 1.1
 	-- 非當前目標透明度
 	SetCVar("nameplateMinAlpha", C.MinAlpha)			-- default is 0.8
 	-- 障礙物後的名條透名度
-	SetCVar("nameplateOccludedAlphaMult", 0.2)			-- default is 0.4	
+	SetCVar("nameplateOccludedAlphaMult", 0.2)			-- default is 0.4
 	-- 禁用點擊
 	C_NamePlate.SetNamePlateFriendlyClickThrough(C.FriendlyClickThrough)
 	C_NamePlate.SetNamePlateEnemyClickThrough(C.EnemyClickThrough)
@@ -1475,7 +1489,7 @@ local function defaultcvar()
 	SetCVar("nameplateShowFriendlyMinions", 0)			-- 僕從
 	SetCVar("nameplateShowFriendlyNPCs", 0)				-- npc
 	SetCVar("nameplateShowFriendlyPets", 0)				-- 寵物
-	SetCVar("nameplateShowFriendlyTotems", 0)			-- 圖騰	
+	SetCVar("nameplateShowFriendlyTotems", 0)			-- 圖騰
 end 
 
 local function NamePlates_OnEvent(self, event, ...)
