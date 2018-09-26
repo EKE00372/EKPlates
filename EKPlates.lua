@@ -174,6 +174,22 @@ local function CreateAuraIcon(parent)
 end
 
 -- Creat aura icon and update / 更新圖示
+local function AuraIconOnUpdate(self, elapsed)
+	if not self.duration then return end
+	
+	self.elapsed = (self.elapsed or 0) + elapsed
+
+	if self.elapsed < .2 then return end
+	self.elapsed = 0
+
+	local timeLeft = self.expirationTime - GetTime()
+	if timeLeft <= 0 then
+		self.text:SetText(nil)
+	else
+		self.text:SetText(FormatTime(timeLeft))
+	end
+end
+
 local function UpdateAuraIcon(button, unit, index, filter)
 	local name, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
 
@@ -197,21 +213,7 @@ local function UpdateAuraIcon(button, unit, index, filter)
 		button.count:SetText(count)
 	end
 	]]--
-	button:SetScript("OnUpdate", function(self, elapsed)
-		if not self.duration then return end
-		
-		self.elapsed = (self.elapsed or 0) + elapsed
-
-		if self.elapsed < .2 then return end
-		self.elapsed = 0
-
-		local timeLeft = self.expirationTime - GetTime()
-		if timeLeft <= 0 then
-			self.text:SetText(nil)
-		else
-			self.text:SetText(FormatTime(timeLeft))
-		end
-	end)
+	button:SetScript("OnUpdate", AuraIconOnUpdate)
 	
 	button:Show()
 end
@@ -432,6 +434,15 @@ if C.classresource_show then
 		end
 
 	end
+	
+	local function RuneOnUpdate(self, elapsed)
+		self.duration = self.duration + elapsed
+		if self.duration >= self.max or self.duration <= 0 then
+			self.value:SetText("")
+		else
+			self.value:SetText(FormatTime(self.max - self.duration))
+		end
+	end
 
 	Resourcebar:SetScript("OnEvent", function(self, event, unit, powerType)
 		if event == "PLAYER_TALENT_UPDATE" then
@@ -550,14 +561,7 @@ if C.classresource_show then
 				self[rid].tex:SetColorTexture(.3, .3, .3)
 				self[rid].max = duration
 				self[rid].duration = GetTime() - start
-				self[rid]:SetScript("OnUpdate", function(self, elapsed)
-					self.duration = self.duration + elapsed
-					if self.duration >= self.max or self.duration <= 0 then
-						self.value:SetText("")
-					else
-						self.value:SetText(FormatTime(self.max - self.duration))
-					end
-				end)
+				self[rid]:SetScript("OnUpdate", RuneOnUpdate)
 			end
 		elseif C.classresource == "player" then
 			if event == "NAME_PLATE_UNIT_ADDED" and UnitIsUnit(unit, "player") then
@@ -600,7 +604,8 @@ end
 -- Name / 名字
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
-	local level = UnitLevel(unitFrame.unit)
+	local unit = unitFrame.displayedUnit
+	local level = UnitLevel(unit)
 	local hexColor
 	if not C.numberstyle and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
 	if name then
@@ -622,6 +627,8 @@ local function UpdateName(unitFrame)
 		
 				if level == -1 then
 					unitFrame.name:SetText("|cffff0000??|r "..name)
+				elseif level == UnitLevel("player") and UnitLevel("player") == MAX_PLAYER_LEVEL then
+					unitFrame.name:SetText(name)
 				else
 					unitFrame.name:SetText("|cff"..hexColor..""..level.."|r "..name)
 				end
@@ -683,10 +690,11 @@ end
 local function UpdatePower(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local minPower, maxPower = UnitPower(unit), UnitPowerMax(unit)
-	local perc = minPower/maxPower	
+	local perc = minPower/maxPower
+	local perc_text
 	if minPower and maxPower and maxPower > 0 then
 		perc = minPower/maxPower
-		perc_text = string.format("%d", math.floor(perc*100)) 
+		perc_text = string.format("%d", math.floor(perc*100))
 	else
 		perc = 0
 		perc_text = 0
@@ -863,6 +871,12 @@ local function UpdateSelectionHighlight(unitFrame)
 end
 
 -- special update for mouseover highlight remove / 指向高亮
+local function MouseoverOnUpdate(self, elapsed)
+	if not UnitIsUnit(self.unit, "mouseover") then
+		self.hlmo:Hide()
+	end
+end
+
 local function UpdateMouseover(unitFrame)
 	if not C.HighlightMouseover then return end
 	local unit = unitFrame.unit
@@ -871,12 +885,7 @@ local function UpdateMouseover(unitFrame)
 	else
 		unitFrame.hlmo:Hide()
 	end
-	unitFrame:SetScript("OnUpdate", function(self, elapsed) 
-		local unit = unitFrame.unit
-		if not UnitIsUnit(unit, "mouseover") then
-			unitFrame.hlmo:Hide()
-		end
-	end)
+	unitFrame:SetScript("OnUpdate", MouseoverOnUpdate)
 end
 
 -- Raid mark / 團隊標記
