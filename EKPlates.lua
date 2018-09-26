@@ -600,7 +600,8 @@ end
 -- Name / 名字
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
-	local level = UnitLevel(unitFrame.unit)
+	local unit = unitFrame.unit
+	local level = UnitLevel(unit)
 	local hexColor
 	if not C.numberstyle and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
 	if name then
@@ -684,6 +685,7 @@ local function UpdatePower(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local minPower, maxPower = UnitPower(unit), UnitPowerMax(unit)
 	local perc = minPower/maxPower	
+	local perc_text
 	if minPower and maxPower and maxPower > 0 then
 		perc = minPower/maxPower
 		perc_text = string.format("%d", math.floor(perc*100)) 
