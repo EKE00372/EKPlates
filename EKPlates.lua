@@ -604,8 +604,7 @@ end
 -- Name / 名字
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
-	local unit = unitFrame.displayedUnit
-	local level = UnitLevel(unit)
+	local level = UnitLevel(unitFrame.unit)
 	local hexColor
 	if not C.numberstyle and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
 	if name then
