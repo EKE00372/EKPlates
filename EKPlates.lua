@@ -919,8 +919,7 @@ local function UpdateNamePlateEvents(unitFrame)
 			if not C.numberstyle then	-- 顯示能量條時微調名字位置
 				unitFrame.powerBar:Show()
 				unitFrame.powerBar.value:Show()
-				unitFrame.name:SetPoint("TOPLEFT", unitFrame, "TOPLEFT", 5, 6)
-				unitFrame.name:SetPoint("BOTTOMRIGHT", unitFrame, "TOPRIGHT", -5, -4)
+				unitFrame.name:SetPoint("BOTTOM", unitFrame.powerBar, "TOP", 0, 2)
 			else
 				unitFrame.powerperc:Show()
 			end
@@ -929,8 +928,7 @@ local function UpdateNamePlateEvents(unitFrame)
 			if not C.numberstyle then
 				unitFrame.powerBar:Hide()
 				unitFrame.powerBar.value:Hide()
-				unitFrame.name:SetPoint("TOPLEFT", unitFrame, "TOPLEFT", 5, 2)
-				unitFrame.name:SetPoint("BOTTOMRIGHT", unitFrame, "TOPRIGHT", -5, -8)
+				unitFrame.name:SetPoint("BOTTOM", unitFrame.healthBar, "TOP", 0, 2)
 			else
 				unitFrame.powerperc:Hide()
 			end
@@ -1002,7 +1000,7 @@ local function UpdateAll(unitFrame)
 			unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.name, "LEFT")
 			if not C.numberstyle then
 				unitFrame.healthBar.value:Show()
-				unitFrame.icons:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 2)
 			else
 				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 			end
@@ -1302,7 +1300,9 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.healthBar.value:SetText("Value")
 		
 		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", G.fontsize-2, G.fontflag, "CENTER")
-		namePlate.UnitFrame.name:SetPoint("BOTTOM", namePlate.UnitFrame.healthBar, "TOP", 0, 1)
+		namePlate.UnitFrame.name:SetPoint("BOTTOM", namePlate.UnitFrame.healthBar, "TOP", 0, 0)
+		namePlate.UnitFrame.name:SetHeight(G.fontsize)
+		namePlate.UnitFrame.name:SetWidth(100)
 		namePlate.UnitFrame.name:SetWordWrap(false)
 		namePlate.UnitFrame.name:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.name:SetText("Name")
@@ -1408,7 +1408,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.hlmo:Hide()
 		
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 0)
+		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 2)
 		namePlate.UnitFrame.icons:SetWidth(140)
 		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
