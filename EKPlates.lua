@@ -1002,7 +1002,7 @@ local function UpdateAll(unitFrame)
 			unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.name, "LEFT")
 			if not C.numberstyle then
 				unitFrame.healthBar.value:Show()
-				unitFrame.icons:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 2)
+				unitFrame.icons:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			else
 				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
 			end
