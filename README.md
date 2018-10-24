@@ -32,11 +32,28 @@
 
 Dawn是個神人，也曾經很高產，但軍團入侵時我真的以為他不更新了，於是有了這個。現在Infinity Plates仍在，而且代碼一如既往地精簡強大。
 
-數字模式用了超過五年，以後大概也會一直用下去；本插件不提供售後，條形模式的bug修復也永遠不是最優先。
+**數字模式用了超過五年，以後大概也會一直用下去；本插件不提供售後，條形模式的bug修復也永遠不是最優先。**
 
-## license: All Rights Reserved
+## license
 
-目前沒有寫License，計劃跟ekminimap release一起完成，所以先使用All Rights Reserved，我去（消音）的多玩魔盒
+The contents of this addon, excluding third-party resources, are copyrighted to its authors with all rights reserved.
+
+
+The author of this addon hereby grants you the following rights:
+1.	You may make modifications to this addon **for private use only**, except if you have been granted explicit permission by the author;
+2. Do not modify the name of this addon, includig the addon folders;
+3.	You can upload, share or redistribute copies of this addon with offical link (curse/wowi/github).
+4. from 1, if You got premission from author, when you public your edit version, you must give appropriate **credit**, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+	
+All rights not explicitly addressed in this license are reserved by the copyright holder.
+
+此插件中除第三方資源外的內容均受版權保護。
+1. 你可以私下修改插件僅供私人使用，除非你獲得了插件作者明確的許可；
+2. 不要修改此插件的名稱，包括資料夾；
+3. 你可以在附上官方頁面（curse/wowi/github）的前提下重新上傳、轉載本插件
+4. 承第一條，你必須給予適當表彰、提供指向本授權條款的連結、並指出（本作品的原始版本）是否已被變更。你可以任何合理方式為前述表彰，但不得以任何方式暗示授權人為你或你的使用方式背書。
+
+本聲明中未明確規定的所有權利均由版權所有者保留。
 
 ## 更新紀錄
 
