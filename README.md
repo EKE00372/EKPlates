@@ -36,13 +36,10 @@ Dawn是個神人，也曾經很高產，但軍團入侵時我真的以為他不�
 
 ## license
 
-The contents of this addon, excluding third-party resources, are copyrighted to its authors with all rights reserved.
-
-
-The author of this addon hereby grants you the following rights:
-1.	You may make modifications to this addon **for private use only**, except if you have been granted explicit permission by the author;
+The contents of this addon, excluding third-party resources, are copyrighted to its authors with all rights reserved. The author of this addon hereby grants you the following rights:
+1. You may make modifications to this addon **for private use only**, except if you have been granted explicit permission by the author;
 2. Do not modify the name of this addon, includig the addon folders;
-3.	You can upload, share or redistribute copies of this addon with offical link (curse/wowi/github).
+3. You can upload, share or redistribute copies of this addon with offical link (curse/wowi/github).
 4. from 1, if You got premission from author, when you public your edit version, you must give appropriate **credit**, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 	
 All rights not explicitly addressed in this license are reserved by the copyright holder.
@@ -50,13 +47,16 @@ All rights not explicitly addressed in this license are reserved by the copyrigh
 此插件中除第三方資源外的內容均受版權保護。
 1. 你可以私下修改插件僅供私人使用，除非你獲得了插件作者明確的許可；
 2. 不要修改此插件的名稱，包括資料夾；
-3. 你可以在附上官方頁面（curse/wowi/github）的前提下重新上傳、轉載本插件
+3. 你可以在附上官方頁面（curse/wowi/github）的前提下轉載本插件
 4. 承第一條，你必須給予適當表彰、提供指向本授權條款的連結、並指出（本作品的原始版本）是否已被變更。你可以任何合理方式為前述表彰，但不得以任何方式暗示授權人為你或你的使用方式背書。
 
 本聲明中未明確規定的所有權利均由版權所有者保留。
 
 ## 更新紀錄
 
+* R2.1b
+    * 將版權聲明由All Rights Reserved改為自定授權
+    * to do: 個人資源似乎有錯誤地顯示他人的debuff的現象
 * R2.1a
     * 修正條形模式的玩家名條錯誤顯示不該顯示的名字的問題
     * 調整條形模式的高亮層級至陰影之後
