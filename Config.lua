@@ -179,7 +179,7 @@ C.Customcoloredplates = {
 		color = {r = 0.7, g = 0.95, b = 1},
 	},
 	[5] = {
-		name = "炸彈",
+		name = "炸藥",
 		color = {r = 0.7, g = 0.95, b = 1},
 	},
 	[6] = {
