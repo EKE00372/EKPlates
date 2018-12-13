@@ -1,4 +1,4 @@
-﻿## Interface: 80000
+﻿## Interface: 80100
 ## Title: |cff00ffffEK|rPlates
 ## Version: R2.1b
 ## Author: EK (Linodas@Illidan-US)
