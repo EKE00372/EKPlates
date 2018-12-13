@@ -45,7 +45,7 @@ The contents of this addon, excluding third-party resources, are copyrighted to 
 All rights not explicitly addressed in this license are reserved by the copyright holder.
 
 此插件中除第三方資源外的內容均受版權保護。
-1. 你可以私下修改插件僅供私人使用，除非你獲得了插件作者明確的許可；
+1. 你可以隨意修改插件，但僅供私人使用，除非你獲得了插件作者明確的許可方可公開；
 2. 不要修改此插件的名稱，包括資料夾；
 3. 你可以在附上官方頁面（curse/wowi/github）的前提下轉載本插件
 4. 承第一條，你必須給予適當表彰、提供指向本授權條款的連結、並指出（本作品的原始版本）是否已被變更。你可以任何合理方式為前述表彰，但不得以任何方式暗示授權人為你或你的使用方式背書。
