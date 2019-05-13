@@ -126,9 +126,23 @@ local createBackdrop = function(parent, anchor, a)
     return frame
 end
 
+-- 獲取npc id
+local GetNPCID = function(guid)
+	local id = tonumber(strmatch((guid or ""), "%-(%d-)%-%x-$"))
+	return id
+end
+
+local function multicheck(check, ...)
+	for i = 1, select("#", ...) do
+		if check == select(i, ...) then return true end
+	end
+	
+	return false
+end
+
 -- [[ Auras ]] -- 
 	
--- timer / 數值
+-- timer / 計時
 local day, hour, minute = 86400, 3600, 60
 local function FormatTime(s)
     if s >= day then
@@ -205,35 +219,33 @@ local function UpdateAuraIcon(button, unit, index, filter)
 		button.count:SetText(count)
 	else
 		button.count:SetText("")
-	end	
-	-- 激勵?
-	--[[
-	if spellID == 209859 or spellID == 113746 or spellID == 228287 then
-		count = (count or 0) + 1
-		button.count:SetText(count)
 	end
-	]]--
+
 	button:SetScript("OnUpdate", AuraIconOnUpdate)
 	
 	button:Show()
 end
 
 -- Aura filter / 過濾器
-local function AuraFilter(caster, spellid)
-	if caster == "player" then
-		if C["myfiltertype"] == "none" then
+local function AuraFilter(caster, spellid, nameplateShowAll)
+	if C.showMyAuras and multicheck(caster, "player", "pet", "vehicle") then
+		if  C.BlackList[spellid] then
 			return false
-		elseif C["myfiltertype"] == "whitelist" and C.WhiteList[spellid] then
+		elseif C.WhiteList[spellid] then
 			return true
-		elseif C["myfiltertype"] == "blacklist" and not C.BlackList[spellid] then
+		else
+			return nameplateShowAll
+		end
+	elseif C.showOtherAuras and not multicheck(caster, "player", "pet", "vehicle") then
+		if  C.BlackList[spellid] then
+			return false
+		elseif C.WhiteList[spellid] then
 			return true
+		else
+			return nameplateShowAll
 		end
 	else
-		if C["otherfiltertype"] == "none" then
-			return false
-		elseif C["otherfiltertype"] == "whitelist" and C.WhiteList[spellid] then
-			return true
-		end
+		return false
 	end
 end
 
@@ -244,12 +256,12 @@ local function UpdateBuffs(unitFrame)
 	local unit = unitFrame.displayedUnit
 	local i = 1
 	
-	
 	for index = 1, 15 do
 		if i <= C.auranum then
-			local bname, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, "HELPFUL")
-			local matchbuff = AuraFilter(bcaster, bspellid)
+			local bname, _, _, _, bduration, _, bcaster, _, _, bspellid, _, _, _, nameplateShowAll = UnitAura(unit, index, "HELPFUL")
+			local matchbuff = AuraFilter(bcaster, bspellid, nameplateShowAll)
 			if bname and matchbuff then
+			--if (unit == "player" and bduration <= 30 and bduration ~= 0) then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
@@ -264,10 +276,9 @@ local function UpdateBuffs(unitFrame)
 
 	for index = 1, 20 do
 		if i <= C.auranum then
-			local dname, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, "HARMFUL")
-			local matchdebuff = AuraFilter(dcaster, dspellid)
+			local dname, _, _, _, dduration, _, dcaster, _, _, dspellid, _, _, _, nameplateShowAll = UnitAura(unit, index, "HARMFUL")
+			local matchdebuff = AuraFilter(dcaster, dspellid, nameplateShowAll)
 			if dname and matchdebuff then
-				--if dspellid == 209859 or dspellid == 113746 or dspellid == 228287 then return end -- 激勵?				
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
@@ -367,13 +378,6 @@ end
 -- [[ Class bar stuff ]] --
 
 if C.classresource_show then
-	local function multicheck(check, ...)
-		for i=1, select("#", ...) do
-			if check == select(i, ...) then return true end
-		end
-		return false
-	end
-
 	local ClassPowerID, ClassPowerType, RequireSpec
 	local classicon_colors = { --monk/paladin/preist
 		{.6, 0, .1},
@@ -748,15 +752,16 @@ end
 -- Health color / 血量顏色
 local function UpdateHealthColor(unitFrame)
 	local unit = unitFrame.displayedUnit
+	local npcID = GetNPCID(UnitGUID(unit))
 	local r, g, b
 	
 	if ( not UnitIsConnected(unit) ) then
 		r, g, b = 0.7, 0.7, 0.7
 	else
 		local iscustomed = false
-		for index, info in pairs(C.Customcoloredplates) do
-			if GetUnitName(unit, false) == info.name then
-				r, g, b= info.color.r, info.color.g, info.color.b
+		for index, info in pairs(C.CustomUnit) do
+			if npcID == info.id then
+				r, g, b = unpack(info.color)
 				iscustomed = true
 				break
 			end
@@ -857,7 +862,8 @@ local function UpdateSelectionHighlight(unitFrame)
 			unitFrame.hltarget:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
 			if C.show_power then
-				if C.ShowPower[UnitName(unitFrame.displayedUnit)] then	--顯示能量
+				local npcID = GetNPCID(UnitGUID(unitFrame.displayedUnit))
+				if C.ShowPower[npcID] then	--顯示能量
 					unitFrame.hltarget:SetPoint("LEFT", unitFrame.powerperc, "RIGHT", 0, 0)
 					else
 					unitFrame.hltarget:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
@@ -914,7 +920,8 @@ local function UpdateNamePlateEvents(unitFrame)
 	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
 	
 	if C.show_power then
-		if C.ShowPower[UnitName(unitFrame.displayedUnit)] then
+		local npcID = GetNPCID(UnitGUID(unitFrame.displayedUnit))
+		if C.ShowPower[npcID] then
 			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
 			if not C.numberstyle then	-- 顯示能量條時微調名字位置
 				unitFrame.powerBar:Show()
@@ -1006,7 +1013,8 @@ local function UpdateAll(unitFrame)
 			end
 		end
 		
-		if C.show_power and C.ShowPower[UnitName(unitFrame.displayedUnit)] then
+		local npcID = GetNPCID(UnitGUID(unitFrame.displayedUnit))
+		if C.show_power and C.ShowPower[npcID] then
 			UpdatePower(unitFrame)
 		end
 	end
@@ -1035,7 +1043,8 @@ local function NamePlate_OnEvent(self, event, ...)
 		elseif ( event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_PET" ) then
 			UpdateAll(self)
 		elseif (C.show_power and event == "UNIT_POWER_FREQUENT" ) then
-			if C.ShowPower[UnitName(self.displayedUnit)] then
+			local npcID = GetNPCID(UnitGUID(self.displayedUnit))
+			if C.ShowPower[npcID] then
 				UpdatePower(self)
 			end
 		end
