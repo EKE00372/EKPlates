@@ -229,15 +229,13 @@ end
 -- Aura filter / 過濾器
 local function AuraFilter(caster, spellid, nameplateShowAll)
 	if C.showMyAuras and multicheck(caster, "player", "pet", "vehicle") then
-		if  C.BlackList[spellid] then
+		if C.BlackList[spellid] then
 			return false
-		elseif C.WhiteList[spellid] then
-			return true
 		else
-			return nameplateShowAll
+			return true
 		end
 	elseif C.showOtherAuras and not multicheck(caster, "player", "pet", "vehicle") then
-		if  C.BlackList[spellid] then
+		if C.BlackList[spellid] then
 			return false
 		elseif C.WhiteList[spellid] then
 			return true
@@ -260,8 +258,8 @@ local function UpdateBuffs(unitFrame)
 		if i <= C.auranum then
 			local bname, _, _, _, bduration, _, bcaster, _, _, bspellid, _, _, _, nameplateShowAll = UnitAura(unit, index, "HELPFUL")
 			local matchbuff = AuraFilter(bcaster, bspellid, nameplateShowAll)
+			--if (bname and matchbuff) or (UnitIsUnit("player", unit) and (bduration <= 30 and bduration >= 0 )) then
 			if bname and matchbuff then
-			--if (unit == "player" and bduration <= 30 and bduration ~= 0) then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
