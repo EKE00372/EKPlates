@@ -1,113 +1,36 @@
 local C, G = unpack(select(2, ...))
 
--- [[ config從beta7版本起獨立，至config.lua編輯設定 ]] --
+--=================================================--
+-----------------    [[ Notes ]]    -----------------
+--=================================================--
 
--- [[ Functions ]] -- 
+-- 至config.lua編輯設定
 
--- Power color / 能量顏色
-local colorspower = {}
+--=====================================================--
+-----------------    [[ Functions ]]    -----------------
+--=====================================================--
+
+----------------------------
+-- Power color / 能量顏色 --
+----------------------------
+
+local ColorPower = {}
 for power, color in next, PowerBarColor do
 	if type(power) == "string" then
-		colorspower[power] = {color.r, color.g, color.b}
+		ColorPower[power] = {color.r, color.g, color.b}
 	end
-end
-
--- Class Color / 職業顏色
-local Ccolors = {}
-if IsAddOnLoaded("!ClassColors") and CUSTOM_CLASS_COLORS then
-	Ccolors = CUSTOM_CLASS_COLORS
-else
-	Ccolors = RAID_CLASS_COLORS
-end
-
--- Aura text / 光環的數字文本
-local createnumber = function(f, layer, fontsize, flag, justifyh)
-	local text = f:CreateFontString(nil, layer)
-	text:SetFont(G.numFont, fontsize, flag)
-	text:SetJustifyH(justifyh)
-	return text
 end
 
 -- Text / 文本
-local createtext = function(f, layer, fontsize, flag, justifyh)
-	local text = f:CreateFontString(nil, layer)
-	text:SetFont(G.norFont, fontsize, flag)
+local CreateText = function(frame, layer, font, fontsize, flag, justifyh)
+	local text = frame:CreateFontString(nil, layer)
+	text:SetFont(font, fontsize, flag)
 	text:SetJustifyH(justifyh)
 	return text
 end
 
--- Icon style for number style cast bar / 給數字模式施法條的框體樣式
-local CreateBD = function(f, a)
-	f:SetBackdrop({
-		bgFile = G.blank,
-		edgeFile = G.blank,
-		edgeSize = 1,
-	})
-	f:SetBackdropColor(0, 0, 0, a or 1)
-	f:SetBackdropBorderColor(0, 0, 0)
-end
-
--- make shadowed style / 創建毛絨絨
-local CreateThinSD = function(parent, size, r, g, b, alpha, offset)
-	local sd = CreateFrame("Frame", nil, parent)
-	sd.size = size or 1
-	sd.offset = offset or 0
-	sd:SetBackdrop({
-		bgFile = G.blank,
-		edgeFile = G.blank,
-		edgeSize = sd.size,
-	})
-	sd:SetPoint("TOPLEFT", parent, -sd.size - 1 - sd.offset, sd.size + 1 + sd.offset)
-	sd:SetPoint("BOTTOMRIGHT", parent, sd.size + 1 + sd.offset, -sd.size - 1 - sd.offset)
-	sd:SetBackdropBorderColor(r or 0, g or 0, b or 0)
-	sd:SetBackdropColor(r or 0, g or 0, b or 0, alpha or 0)
-	
-	return sd
-end
-
--- make background / 創建背景
-local CreateBDFrame = function(f, a)
-	local frame
-	if f:GetObjectType() == "Texture" then
-		frame = f:GetParent()
-	else
-		frame = f
-	end
-
-	local lvl = frame:GetFrameLevel()
-
-	local bg = CreateFrame("Frame", nil, frame)
-	bg:SetPoint("TOPLEFT", f, -1, 1)
-	bg:SetPoint("BOTTOMRIGHT", f, 1, -1)
-	bg:SetFrameLevel(lvl == 0 and 1 or lvl - 1)
-
-	CreateBD(bg, a or .5)
-
-	return bg
-end
-
--- Icon style for cast bar / 給施法條圖示的框體樣式
-local CreateBG = function(frame)
-	local f = frame
-	if frame:GetObjectType() == "Texture" then f = frame:GetParent() end
-
-	local bg = f:CreateTexture(nil, "BACKGROUND")
-	bg:SetPoint("TOPLEFT", frame, -1, 1)
-	bg:SetPoint("BOTTOMRIGHT", frame, 1, -1)
-	bg:SetTexture(G.blank)
-	bg:SetVertexColor(0, 0, 0)
-
-	return bg
-end
-
--- Style for bar / 給各個條條兒的框體樣式
-local frameBD = {
-    edgeFile = G.glow, edgeSize = 3,
-    bgFile = G.blank,
-    insets = {left = 3, right = 3, top = 3, bottom = 3}
-}
-
-local createBackdrop = function(parent, anchor, a)
+-- Style for bar / 給各個條條兒的毛絨絨框體樣式
+local CreateBackdrop = function(parent, anchor, a)
     local frame = CreateFrame("Frame", nil, parent)
 
 	local flvl = parent:GetFrameLevel()
@@ -117,7 +40,12 @@ local createBackdrop = function(parent, anchor, a)
     frame:SetPoint("TOPLEFT", anchor, "TOPLEFT", -3, 3)
     frame:SetPoint("BOTTOMRIGHT", anchor, "BOTTOMRIGHT", 3, -3)
 
-    frame:SetBackdrop(frameBD)
+    frame:SetBackdrop({
+    edgeFile = G.glow, edgeSize = 3,
+    bgFile = G.blank,
+    insets = {left = 3, right = 3, top = 3, bottom = 3}
+	})
+	
 	if a then
 		frame:SetBackdropColor(.15, .15, .15, a)
 		frame:SetBackdropBorderColor(0, 0, 0)
@@ -126,12 +54,13 @@ local createBackdrop = function(parent, anchor, a)
     return frame
 end
 
--- 獲取npc id
+-- 獲取NPC ID
 local GetNPCID = function(guid)
 	local id = tonumber(strmatch((guid or ""), "%-(%d-)%-%x-$"))
 	return id
 end
 
+-- 省點空間
 local function multicheck(check, ...)
 	for i = 1, select("#", ...) do
 		if check == select(i, ...) then return true end
@@ -140,9 +69,11 @@ local function multicheck(check, ...)
 	return false
 end
 
--- [[ Auras ]] -- 
-	
--- timer / 計時
+--=================================================--
+-----------------    [[ Auras ]]    -----------------
+--=================================================--
+
+-- Create aura timer / 光環計時
 local day, hour, minute = 86400, 3600, 60
 local function FormatTime(s)
     if s >= day then
@@ -156,10 +87,10 @@ local function FormatTime(s)
     return format("%d", math.fmod(s, minute))
 end
 
--- Make icon / 創建圖示
+-- Create aura icon / 創建光環圖示
 local function CreateAuraIcon(parent)
 	local button = CreateFrame("Frame", "EKPlateButton",parent)
-	button:SetSize(C.auraiconsize, C.auraiconsize)
+	button:SetSize(C.auraIconSize, C.auraIconSize)
 
 	button.icon = button:CreateTexture(nil, "OVERLAY", nil, 3)
 	button.icon:SetPoint("TOPLEFT", button,"TOPLEFT", 1, -1)
@@ -167,27 +98,27 @@ local function CreateAuraIcon(parent)
 	button.icon:SetTexCoord(.08, .92, 0.08, 0.92)
 	
 	button.overlay = button:CreateTexture(nil, "ARTWORK", nil, 7)
-	button.overlay:SetTexture("Interface\\Buttons\\WHITE8x8")
+	button.overlay:SetTexture(G.blank)
 	button.overlay:SetAllPoints(button)	
 	
 	button.bd = button:CreateTexture(nil, "ARTWORK", nil, 6)
-	button.bd:SetTexture("Interface\\Buttons\\WHITE8x8")
+	button.bd:SetTexture(G.blank)
 	button.bd:SetVertexColor(0, 0, 0)
 	button.bd:SetPoint("TOPLEFT", button,"TOPLEFT", -1, 1)
 	button.bd:SetPoint("BOTTOMRIGHT", button,"BOTTOMRIGHT", 1, -1)
-	
-	button.text = createnumber(button, "OVERLAY", G.aurafontsize, G.fontflag, "CENTER")
+
+	button.text = CreateText(button, "OVERLAY", G.numFont, G.auraFontSize, G.fontFlag, "CENTER")
 	button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
 	button.text:SetTextColor(1, 1, 0)
 	
-	button.count = createnumber(button, "OVERLAY", G.aurafontsize-2, G.fontflag, "RIGHT")
+	button.count = CreateText(button, "OVERLAY", G.numFont, G.auraFontSize-2, G.fontFlag, "RIGHT")
 	button.count:SetPoint("TOPRIGHT", button, "TOPRIGHT", -1, 2)
 	button.count:SetTextColor(.4, .95, 1)
 	
 	return button
 end
 
--- Creat aura icon and update / 更新圖示
+-- Update aura timer / 更新計時
 local function AuraIconOnUpdate(self, elapsed)
 	if not self.duration then return end
 	
@@ -204,6 +135,7 @@ local function AuraIconOnUpdate(self, elapsed)
 	end
 end
 
+-- Update aura icon / 更新光環
 local function UpdateAuraIcon(button, unit, index, filter)
 	local name, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
 
@@ -247,19 +179,19 @@ local function AuraFilter(caster, spellid, nameplateShowAll)
 	end
 end
 
--- Update and show aura / 顯示圖示
+-- Show aura and sort anchor / 顯示圖示並排列
 local function UpdateBuffs(unitFrame)
-	if not unitFrame.icons or not unitFrame.displayedUnit then return end
-	if not C.plateaura and UnitIsUnit(unitFrame.displayedUnit, "player") then return end
+	if not unitFrame.icons or not unitFrame.displayedUnit then return end	
+	if UnitIsUnit(unitFrame.displayedUnit, "player") then return end
 	local unit = unitFrame.displayedUnit
 	local i = 1
 	
 	for index = 1, 15 do
-		if i <= C.auranum then
+		if i <= C.auraNum then
 			local bname, _, _, _, bduration, _, bcaster, _, _, bspellid, _, _, _, nameplateShowAll = UnitAura(unit, index, "HELPFUL")
 			local matchbuff = AuraFilter(bcaster, bspellid, nameplateShowAll)
-			--if (bname and matchbuff) or (UnitIsUnit("player", unit) and (bduration <= 30 and bduration >= 0 )) then
-			if bname and matchbuff then
+			
+			if bname and matchbuff and other then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
@@ -273,9 +205,12 @@ local function UpdateBuffs(unitFrame)
 	end
 
 	for index = 1, 20 do
-		if i <= C.auranum then
+		if i <= C.auraNum then
 			local dname, _, _, _, dduration, _, dcaster, _, _, dspellid, _, _, _, nameplateShowAll = UnitAura(unit, index, "HARMFUL")
 			local matchdebuff = AuraFilter(dcaster, dspellid, nameplateShowAll)
+			
+			if UnitIsUnit(unitFrame.displayedUnit, "player") then return end
+			
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
@@ -288,58 +223,65 @@ local function UpdateBuffs(unitFrame)
 			end
 		end
 	end
-	
+
 	unitFrame.iconnumber = i - 1
 	
 	if i > 1 then	
-		unitFrame.icons[1]:SetPoint("LEFT", unitFrame.icons, "CENTER", -((C.auraiconsize+4)*(unitFrame.iconnumber)-4)/2, 0)
+		unitFrame.icons[1]:SetPoint("LEFT", unitFrame.icons, "CENTER", -((C.auraIconSize + 4) * (unitFrame.iconnumber) - 4) / 2, 0)
 	end
-	for index = i, #unitFrame.icons do unitFrame.icons[index]:Hide() end
+	
+	for index = i, #unitFrame.icons do
+		unitFrame.icons[index]:Hide()
+	end
 end
 
--- [[ Player Power ]] -- 
+--========================================================--
+-----------------    [[ Player Plate ]]    -----------------
+--========================================================--
 
-if C.playerplate then
+if C.playerPlate then
 	local PowerFrame = CreateFrame("Frame", "EKPlatePowerFrame")
 	
 	PowerFrame.powerBar = CreateFrame("StatusBar", nil, PowerFrame)
-	PowerFrame.powerBar:SetHeight(3)
+	PowerFrame.powerBar:SetHeight(4)
 	PowerFrame.powerBar:SetStatusBarTexture(G.ufbar)
 	PowerFrame.powerBar:SetMinMaxValues(0, 1)
 	
-	PowerFrame.powerBar.bd = createBackdrop(PowerFrame.powerBar, PowerFrame.powerBar, 1)
+	PowerFrame.powerBar.bd = CreateBackdrop(PowerFrame.powerBar, PowerFrame.powerBar, 1)
 	
 	PowerFrame.powerperc = PowerFrame:CreateFontString(nil, "OVERLAY")
-	PowerFrame.powerperc:SetFont(G.numberstylefont, G.fontsize, G.fontflag)
-	PowerFrame.powerperc:SetShadowColor(0, 0, 0, 0.4)
+	PowerFrame.powerperc:SetFont(G.percFont, G.fontSize, G.fontFlag)
+	PowerFrame.powerperc:SetShadowColor(0, 0, 0, .4)
 	PowerFrame.powerperc:SetShadowOffset(1, -1)
 	
 	PowerFrame:SetScript("OnEvent", function(self, event, unit)
 		if event == "PLAYER_ENTERING_WORLD" or (event == "UNIT_POWER_FREQUENT" and unit == "player") then
-			local minPower, maxPower, powertype_index, powertype = UnitPower("player"), UnitPowerMax("player"), UnitPowerType("player")
+			local cur, max, index, powertype = UnitPower("player"), UnitPowerMax("player"), UnitPowerType("player")
 			local perc
 			
-			if maxPower ~= 0 then
-				perc = minPower/maxPower
+			if max ~= 0 then
+				perc = cur / max
 			else
 				perc = 0
 			end
-			local perc_text = string.format("%d", math.floor(perc*100))
+			
+			local percT = math.floor(perc * 100 + .5)
 			
 			if not C.numberstyle then
 				PowerFrame.powerBar:SetValue(perc)
 			else
-				if minPower ~= maxPower then  
-					if powertype_index == 0 then
-						PowerFrame.powerperc:SetText(perc_text)
+				if cur ~= max then  
+					if index == 0 then
+						PowerFrame.powerperc:SetText(percT)
 					else
-						PowerFrame.powerperc:SetText(minPower)
+						PowerFrame.powerperc:SetText(cur)
 					end
 				else
 					PowerFrame.powerperc:SetText("")
 				end
 			end
-			local r, g, b = unpack(colorspower[powertype])
+			
+			local r, g, b = unpack(ColorPower[powertype])
 
 			if ( r ~= PowerFrame.r or g ~= PowerFrame.g or b ~= PowerFrame.b ) then
 				if not C.numberstyle then
@@ -347,17 +289,20 @@ if C.playerplate then
 				else
 					PowerFrame.powerperc:SetTextColor(r, g, b)
 				end
+				
 				PowerFrame.r, PowerFrame.g, PowerFrame.b = r, g, b
 			end
 		elseif event == "NAME_PLATE_UNIT_ADDED" and UnitIsUnit(unit, "player") then
 			local namePlatePlayer = C_NamePlate.GetNamePlateForUnit("player")
+			
 			if namePlatePlayer then
 				PowerFrame:Show()
 				PowerFrame:SetParent(namePlatePlayer)
+				
 				if not C.numberstyle then
 					PowerFrame.powerBar:ClearAllPoints()
-					PowerFrame.powerBar:SetPoint("TOPLEFT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMLEFT", 0, -3)
-					PowerFrame.powerBar:SetPoint("TOPRIGHT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -3)
+					PowerFrame.powerBar:SetPoint("TOPLEFT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMLEFT", 0, -2)
+					PowerFrame.powerBar:SetPoint("TOPRIGHT", namePlatePlayer.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -2)
 				else
 					PowerFrame.powerperc:ClearAllPoints()
 					PowerFrame.powerperc:SetPoint("BOTTOMLEFT", namePlatePlayer.UnitFrame.healthperc, "BOTTOMRIGHT", 0, 0)
@@ -375,8 +320,9 @@ end
 
 -- [[ Class bar stuff ]] --
 
-if C.classresource_show then
+if C.classResourceShow then
 	local ClassPowerID, ClassPowerType, RequireSpec
+	-- 副資源漸變色
 	local classicon_colors = { --monk/paladin/preist
 		{.6, 0, .1},
 		{.9, .1, .2},
@@ -385,9 +331,9 @@ if C.classresource_show then
 		{1, .4, .5},
 		{1, .5, .6},
 	}
-	
+	-- 連擊點滿星色
 	local cpoints_colors = { -- combat points
-		{1, 0, 0},  
+		{1, 0, 0},
 		{1, 1, 0},
 	}
 	
@@ -413,18 +359,19 @@ if C.classresource_show then
 
 	local Resourcebar = CreateFrame("Frame", "EKPlateResource", UIParent)
 	Resourcebar:SetWidth(100)		--(10+3)*6 - 3
-	Resourcebar:SetHeight(3)
+	Resourcebar:SetHeight(4)
 	Resourcebar.maxbar = 6
 	
 	for i = 1, 6 do
 		Resourcebar[i] = CreateFrame("Frame", "EKPlateResource"..i, Resourcebar)
 		Resourcebar[i]:SetFrameLevel(1)
 		Resourcebar[i]:SetSize(15, 3)
-		Resourcebar[i].bd = createBackdrop(Resourcebar[i], Resourcebar[i], 1)
+		Resourcebar[i].bd = CreateBackdrop(Resourcebar[i], Resourcebar[i], 1)
 		Resourcebar[i].tex = Resourcebar[i]:CreateTexture(nil, "OVERLAY")
 		Resourcebar[i].tex:SetAllPoints(Resourcebar[i])
+		
 		if G.myClass == "DEATHKNIGHT" then
-			Resourcebar[i].value = createtext(Resourcebar[i], "OVERLAY", G.fontsize-2, G.fontflag, "CENTER")
+			Resourcebar[i].value = CreateText(Resourcebar[i], "OVERLAY", G.numFont, G.fontSize-2, G.fontFlag, "CENTER")
 			Resourcebar[i].value:SetPoint("CENTER")
 			Resourcebar[i].tex:SetColorTexture(.7, .7, 1)
 		end
@@ -434,7 +381,6 @@ if C.classresource_show then
 		else
 			Resourcebar[i]:SetPoint("LEFT", Resourcebar[i-1], "RIGHT", 2, 0)
 		end
-
 	end
 	
 	local function RuneOnUpdate(self, elapsed)
@@ -472,13 +418,14 @@ if C.classresource_show then
 				cur = UnitPower("player", ClassPowerID)
 				max = UnitPowerMax("player", ClassPowerID)
 
-				if multicheck(G.myClass, "WARLOCK", "PALADIN", "MONK", "MAGE") then
+				if multicheck(G.myClass, "WARLOCK", "PALADIN", "MONK", "MAGE") then	-- 副資源
 					for i = 1, max do
-						if(i <= cur) then
+						if i <= cur then
 							self[i]:Show()
 						else
 							self[i]:Hide()
 						end
+						
 						if cur == max then
 							self[i].tex:SetColorTexture(unpack(classicon_colors[max]))
 						else
@@ -487,44 +434,50 @@ if C.classresource_show then
 					end
 
 					oldMax = self.maxbar
-					if(max ~= oldMax) then
-						if(max < oldMax) then
+					if max ~= oldMax then
+						if max < oldMax then
 							for i = max + 1, oldMax do
 								self[i]:Hide()
 							end
 						end
+						
 						for i = 1, 6 do
 							self[i]:SetWidth(102/max-2)
 						end
+						
 						self.maxbar = max
 					end
-				else -- 連擊點
+				else	-- 連擊點
 					if max <= 6 then
 						for i = 1, max do
-							if(i <= cur) then
+							if i <= cur then
 								self[i]:Show()
 							else
 								self[i]:Hide()
 							end
+							
 							self[i].tex:SetColorTexture(unpack(cpoints_colors[1]))
 						end
 					else
 						if cur <= 5 then
 							for i = 1, 5 do
-								if(i <= cur) then
+								if i <= cur then
 									self[i]:Show()
 								else
 									self[i]:Hide()
 								end
+								
 								self[i].tex:SetColorTexture(unpack(cpoints_colors[1]))
-							end  
+							end
 						else
 							for i = 1, 5 do
 								self[i]:Show()
 							end
+							
 							for i = 1, cur - 5 do
 								self[i].tex:SetColorTexture(unpack(cpoints_colors[2]))
 							end
+							
 							for i = cur - 4, 5 do
 								self[i].tex:SetColorTexture(unpack(cpoints_colors[1]))
 							end
@@ -532,18 +485,20 @@ if C.classresource_show then
 					end
 
 					oldMax = self.maxbar
-					if(max ~= oldMax) then
+					if max ~= oldMax then
 						if max <= 6 then
 							for i = 1, 6 do
-								self[i]:SetWidth(102/max-2)
+								self[i]:SetWidth(102 / max - 2)
+								
 								if i > max then
 									self[i]:Hide()
 								end
 							end
 						else
 							self[6]:Hide()
+							
 							for i = 1, 6 do
-								self[i]:SetWidth(102/5-2)
+								self[i]:SetWidth(102 / 5 - 2)
 							end
 						end
 						self.maxbar = max
@@ -553,6 +508,7 @@ if C.classresource_show then
 		elseif G.myClass == "DEATHKNIGHT" and event == "RUNE_POWER_UPDATE" then
 			local rid = unit
 			local start, duration, runeReady = GetRuneCooldown(rid)
+			
 			if runeReady then
 				self[rid]:SetAlpha(1)
 				self[rid].tex:SetColorTexture(.7, .7, 1)
@@ -565,13 +521,15 @@ if C.classresource_show then
 				self[rid].duration = GetTime() - start
 				self[rid]:SetScript("OnUpdate", RuneOnUpdate)
 			end
-		elseif C.classresource == "player" then
+		elseif C.classResourceOn == "player" then
 			if event == "NAME_PLATE_UNIT_ADDED" and UnitIsUnit(unit, "player") then
 				local namePlatePlayer = C_NamePlate.GetNamePlateForUnit("player")
+				
 				if namePlatePlayer then
 					self:SetParent(namePlatePlayer)
 					self:ClearAllPoints()
 					self:Show()
+					
 					if C.numberstyle then
 						self:SetPoint("TOP", namePlatePlayer.UnitFrame.name, "TOP", 0, 0)			-- 玩家數字
 					else
@@ -581,16 +539,19 @@ if C.classresource_show then
 			elseif event == "NAME_PLATE_UNIT_REMOVED" and UnitIsUnit(unit, "player") then
 				self:Hide()
 			end
-		elseif C.classresource == "target" and (event == "PLAYER_TARGET_CHANGED" or event == "NAME_PLATE_UNIT_ADDED") then
+		elseif C.classResourceOn == "target" and (event == "PLAYER_TARGET_CHANGED" or event == "NAME_PLATE_UNIT_ADDED") then
 			local namePlateTarget = C_NamePlate.GetNamePlateForUnit("target")
+			
 			if namePlateTarget and UnitCanAttack("player", namePlateTarget.UnitFrame.displayedUnit) then
 				self:SetParent(namePlateTarget)
 				self:ClearAllPoints()
+				
 				if C.numberstyle then
 					self:SetPoint("TOP", namePlateTarget.UnitFrame.name, "BOTTOM", 0, -2)			-- 目標數字
 				else
-					self:SetPoint("TOP", namePlateTarget.UnitFrame.healthBar, "BOTTOM", 0, -2)		-- 目標條
+					self:SetPoint("TOP", namePlateTarget.UnitFrame.healthBar, "BOTTOM", 0, 0)		-- 目標條
 				end
+				
 				self:Show()
 			else
 				self:Hide()
@@ -601,31 +562,35 @@ if C.classresource_show then
 	Resourcebar:RegisterEvent("PLAYER_TALENT_UPDATE")
 end
 
--- [[ Unit frame ]] --
+--==================================================--
+-----------------    [[ Status ]]    -----------------
+--==================================================--
 
 -- Name / 名字
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
 	local hexColor
+	
 	if not C.numberstyle and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
+	
 	if name then
 		if C.level then
 			if UnitIsUnit(unitFrame.displayedUnit, "player") then
 				unitFrame.name:SetText("")
 			else
-				if level >= UnitLevel("player")+5 then
+				if level >= (UnitLevel("player") + 5) then
 					hexColor = "ff0000"
-				elseif level >= UnitLevel("player")+3 then
+				elseif level >= (UnitLevel("player") + 3) then
 					hexColor = "ff6600"
-				elseif level <= UnitLevel("player")-3 then
+				elseif level <= (UnitLevel("player") - 3) then
 					hexColor = "00ff00"
-				elseif level <= UnitLevel("player")-5 then
+				elseif level <= (UnitLevel("player") - 5) then
 					hexColor = "808080"
 				else
 					hexColor = "ffff00"
 				end
-		
+
 				if level == -1 then
 					unitFrame.name:SetText("|cffff0000??|r "..name)
 				elseif level == UnitLevel("player") and UnitLevel("player") == MAX_PLAYER_LEVEL then
@@ -647,68 +612,76 @@ end
 -- Health / 血量
 local function UpdateHealth(unitFrame)
 	local unit = unitFrame.displayedUnit
-	local minHealth, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-	local perc = minHealth/maxHealth
-	local perc_text = string.format("%d", math.floor(perc*100))
+	local cur, max = UnitHealth(unit), UnitHealthMax(unit)
+	local perc = cur / max
+	local percT = math.floor(perc * 100 + .5)
+	local r, g, b
 	
-	if not C.numberstyle then
-		unitFrame.healthBar:SetValue(perc)
-		if minHealth ~= maxHealth then
-			unitFrame.healthBar.value:SetText(perc_text)
+	-- 血量百分比
+	if C.numberstyle then
+		if cur ~= max then
+			--數字模式只有百分比
+			unitFrame.healthperc:SetText(percT)
 		else
-			unitFrame.healthBar.value:SetText("")
-		end
-		
-		if perc < .25 then
-			unitFrame.healthBar.value:SetTextColor(0.8, 0.05, 0)
-		elseif perc < .3 then
-			unitFrame.healthBar.value:SetTextColor(0.95, 0.7, 0.25)
-		else
-			unitFrame.healthBar.value:SetTextColor(1, 1, 1)
-		end
-	else
-		if minHealth ~= maxHealth then
-			unitFrame.healthperc:SetText(perc_text)
-		else
-			if UnitIsUnit("player", unitFrame.displayedUnit) then
+			-- 個人資源永遠顯示血量
+			if UnitIsUnit("player", unit) then
 				unitFrame.healthperc:SetText("100")
 			else
 				unitFrame.healthperc:SetText("")
 			end
-		end
-		
-		if perc < .25 then
-			unitFrame.healthperc:SetTextColor(0.8, 0.05, 0)
-		elseif perc < .3 then
-			unitFrame.healthperc:SetTextColor(0.95, 0.7, 0.25)
+		end		
+	else
+		-- status bar value
+		unitFrame.healthBar:SetValue(perc)
+		-- 不滿血顯示百分比
+		if cur ~= max then
+			unitFrame.healthBar.value:SetText(percT)
 		else
-			unitFrame.healthperc:SetTextColor(1, 1, 1)
+			unitFrame.healthBar.value:SetText("")
 		end
+	end
+
+	-- 血量漸變色	
+  	if perc < .25 then
+		r, g, b = .8, .05, 0
+	elseif perc < .3 then
+		r, g, b = .95, .7, .25
+	else
+		r, g, b = 1, 1, 1
+	end
+	
+	if C.numberstyle then
+		unitFrame.healthperc:SetTextColor(r, g, b)
+	else
+		unitFrame.healthBar.value:SetTextColor(r, g, b)
 	end
 end
 
 -- Power / 能量
 local function UpdatePower(unitFrame)
 	local unit = unitFrame.displayedUnit
-	local minPower, maxPower = UnitPower(unit), UnitPowerMax(unit)
-	local perc = minPower/maxPower
-	local perc_text
-	if minPower and maxPower and maxPower > 0 then
-		perc = minPower/maxPower
-		perc_text = string.format("%d", math.floor(perc*100))
+	local cur, max = UnitPower(unit), UnitPowerMax(unit)
+	local perc = cur / max
+	local percT
+	local r, g, b
+	
+	if cur and max and max > 0 then
+		perc = cur / max
+		percT = math.floor(perc * 100 + .5)
 	else
 		perc = 0
-		perc_text = 0
+		percT = 0		
 	end
 	
-	if not C.numberstyle then
-		unitFrame.powerBar:SetValue(perc)
-		unitFrame.powerBar.value:SetText(perc_text)
+	-- 能量百分比
+	if C.numberstyle then
+		unitFrame.powerperc:SetText(percT)
 	else
-		unitFrame.powerperc:SetText(perc_text)
+		unitFrame.powerBar:SetValue(perc)
+		unitFrame.powerBar.value:SetText(percT)
 	end
 	
-	local r, g, b
+	-- 能量漸變色
   	if perc < .25 then
 		r, g, b = .2, .2, 1
 	elseif perc < .3 then
@@ -721,28 +694,29 @@ local function UpdatePower(unitFrame)
 		unitFrame.powerBar:SetStatusBarColor(r, g, b)
 	else
 		unitFrame.powerperc:SetTextColor(r, g, b)
-	end
-	
+	end	
 end
 
--- Threat / 仇恨
+-- Threat / 威脅值
 local function IsOnThreatList(unit)
 	local _, threatStatus = UnitDetailedThreatSituation("player", unit)
+	
 	if threatStatus == 3 then 
-		--穩定仇恨，當前坦克/securely tanking, highest threat
-		return .9, .1, .4  --紅色/red
+		-- 當前仇恨，威脅值穩定/securely tanking, highest threat
+		return .9, .1, .4  -- 紅色/red
 	elseif threatStatus == 2 then
-		--非當前仇恨，當前坦克(已OT或坦克正在丟失仇恨)/insecurely tanking, another unit have higher threat but not tanking.
-		return .9, .1, .9  --粉色/pink
+		-- 當前仇恨，但不穩，已被OT或坦克正在丟失仇恨/insecurely tanking, another unit have higher threat but not tanking.
+		return .9, .1, .9  -- 粉色/pink
 	elseif threatStatus == 1 then
-		--當前仇恨，非當前坦克(非坦克高仇恨或坦克正在獲得仇恨)/not tanking, higher threat than tank.
-		return .4, .1, .9  --紫色/purple
+		-- 非當前仇恨，但已OT即將獲得仇恨，或坦克正在獲得仇恨/not tanking, higher threat than tank.
+		return .4, .1, .9  -- 紫色/purple
 	elseif threatStatus == 0 then 
-		--低仇恨，安全/not tanking, lower threat than tank.
-		return .1, .7, .9  --藍色/blue
+		-- 非當前仇恨，低威脅值/not tanking, lower threat than tank.
+		return .1, .7, .9  -- 藍色/blue
 	end
 end
 
+-- 無拾取權匙
 local function IsTapDenied(unitFrame)
 	return UnitIsTapDenied(unitFrame.unit) and not UnitPlayerControlled(unitFrame.unit)
 end
@@ -753,10 +727,13 @@ local function UpdateHealthColor(unitFrame)
 	local npcID = GetNPCID(UnitGUID(unit))
 	local r, g, b
 	
-	if ( not UnitIsConnected(unit) ) then
-		r, g, b = 0.7, 0.7, 0.7
+	if not UnitIsConnected(unit) then
+		-- 離線
+		r, g, b = .7, .7, .7
 	else
 		local iscustomed = false
+		
+		-- 特定目標染色白名單
 		for index, info in pairs(C.CustomUnit) do
 			if npcID == info.id then
 				r, g, b = unpack(info.color)
@@ -765,32 +742,40 @@ local function UpdateHealthColor(unitFrame)
 			end
 		end
 		
+		--職業或陣營染色
 		if not iscustomed then
-			local _, englishClass = UnitClass(unit)
-			local classColor = Ccolors[englishClass]
-			if UnitIsPlayer(unit) and classColor and C.friendlyCR and UnitReaction(unit, "player") >= 5 then
-				r, g, b = classColor.r, classColor.g, classColor.b
-			elseif UnitIsPlayer(unit) and classColor and C.enemyCR and UnitReaction(unit, "player") <= 4 then
-				r, g, b = classColor.r, classColor.g, classColor.b
-			elseif ( IsTapDenied(unitFrame) ) then
-				r, g, b = 0.3, 0.3, 0.3
+			local Class = select(2, UnitClass(unit))
+			local CC = RAID_CLASS_COLORS[Class]
+			
+			if UnitIsPlayer(unit) and CC and C.friendlyCR and UnitReaction(unit, "player") >= 5 then
+				-- 友方職業染色
+				r, g, b = CC.r, CC.g, CC.b
+			elseif UnitIsPlayer(unit) and CC and C.enemyCR and UnitReaction(unit, "player") <= 4 then
+				-- 敵方職業染色
+				r, g, b = CC.r, CC.g, CC.b
+			elseif IsTapDenied(unitFrame) then
+				-- 無拾取權
+				r, g, b = .3, .3, .3
 			else
-				if C.threatcolor and IsOnThreatList(unitFrame.displayedUnit) then
+				if C.threatColor and IsOnThreatList(unitFrame.displayedUnit) then
+					-- 威脅染色
 					r, g, b = IsOnThreatList(unitFrame.displayedUnit)
 				else
+					-- 陣營染色
 					r, g, b = UnitSelectionColor(unit, true)
 				end
 			end
 		end
 	end
 	
-	if ( r ~= unitFrame.r or g ~= unitFrame.g or b ~= unitFrame.b ) then
+	if (r ~= unitFrame.r or g ~= unitFrame.g or b ~= unitFrame.b) then
 		if C.numberstyle then
 			unitFrame.name:SetTextColor(r, g, b)
 		else
 			unitFrame.healthBar:SetStatusBarColor(r, g, b)
 			unitFrame.healthBar.bd:SetBackdropColor(r/3, g/3, b/3)
-			if C.name_mod then
+			
+			if C.nameOnly then
 				if UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then
 					unitFrame.name:SetTextColor(r, g, b)
 				else
@@ -798,60 +783,79 @@ local function UpdateHealthColor(unitFrame)
 				end
 			end
 		end
+		
 		unitFrame.r, unitFrame.g, unitFrame.b = r, g, b
 	end
 end
 
+--===================================================--
+-----------------    [[ CastBar ]]    -----------------
+--===================================================--
+
 -- Cast bar / 施法條
 local function UpdateCastBar(unitFrame)
 	local castBar = unitFrame.castBar
+	
 	if not castBar.colored then
-		castBar.startCastColor = CreateColor(0.6, 0.6, 0.6)
-		castBar.startChannelColor = CreateColor(0.6, 0.6, 0.6)
-		castBar.finishedCastColor = CreateColor(0.6, 0.6, 0.6)
-		castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
-		castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
+		castBar.startCastColor = CreateColor(unpack(C.castStart))			-- 開始施法
+		castBar.startChannelColor = CreateColor(unpack(C.castStart))		-- 開始引導
+		castBar.finishedCastColor = CreateColor(unpack(C.castStart))		-- 施法完成
+		castBar.failedCastColor = CreateColor(unpack(C.castFailed))			-- 施法失敗
+		castBar.nonInterruptibleColor = CreateColor(unpack(C.castShield))	-- 不可打斷
+
 		CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
 		castBar.colored = true
 	end
 
 	if UnitIsUnit("player", unitFrame.displayedUnit) then return end
-	if C.name_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
-	if C.cbshield then
+	if C.nameOnly and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
+	
+	if C.cbShield then
 		CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, true)
 	else
 		CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, false)
 	end
 end
 
--- Highlight / 高亮
+--==================================================--
+-----------------    [[ Others ]]    -----------------
+--==================================================--
+
+----------------------
+-- Highlight / 高亮 --
+----------------------
+
 local function UpdateSelectionHighlight(unitFrame)
 	local unit = unitFrame.unit
+	
+	-- 目標高亮
 	if UnitIsUnit(unit, "target") and not UnitIsUnit(unit, "player") and C.HighlightTarget then
 		unitFrame.hltarget:Show()
 	else
 		unitFrame.hltarget:Hide()
 	end
 	
+	-- 焦點高亮
 	if UnitIsUnit(unit, "focus") and not UnitIsUnit(unit, "player") and C.HighlightFocus then
 		unitFrame.hlfocus:Show()
 	else
 		unitFrame.hlfocus:Hide()
 	end
 	
-	if C.HighlightMode == "Vertical" then	--垂直箭頭
+	-- 箭頭位移
+	if C.HighlightMode == "Vertical" then		--垂直箭頭
 		if not C.numberstyle then
-			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then
-				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraiconsize+3)
-			else
+			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then											-- 有光環
+				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, C.auraIconSize + 3)
+			else																								-- 只有名字
 				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		else
-			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then -- 有圖示
+			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then											-- 有光環
 				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.icons, "TOP", 0, 3)
-			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then -- 非滿血
+			elseif UnitHealth(unit) and UnitHealthMax(unit) and UnitHealth(unit) ~= UnitHealthMax(unit) then	-- 非滿血
 				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.healthperc, "TOP", 0, 0)
-			else -- 只有名字
+			else																								-- 只有名字
 				unitFrame.hltarget:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 0)
 			end
 		end
@@ -859,11 +863,12 @@ local function UpdateSelectionHighlight(unitFrame)
 		if not C.numberstyle then
 			unitFrame.hltarget:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
-			if C.show_power then
+			if C.ShowPower then
 				local npcID = GetNPCID(UnitGUID(unitFrame.displayedUnit))
-				if C.ShowPower[npcID] then	--顯示能量
+				
+				if C.ShowPowerList[npcID] then																	--顯示能量
 					unitFrame.hltarget:SetPoint("LEFT", unitFrame.powerperc, "RIGHT", 0, 0)
-					else
+				else
 					unitFrame.hltarget:SetPoint("LEFT", unitFrame.name, "RIGHT", 0, 0)
 				end
 			end
@@ -873,13 +878,18 @@ local function UpdateSelectionHighlight(unitFrame)
 	end
 end
 
--- special update for mouseover highlight remove / 指向高亮
+------------------------------------
+-- mouseover highlight / 指向高亮 --
+------------------------------------
+
+-- Update mouseover move out because event only check move in / 檢測移出
 local function MouseoverOnUpdate(self, elapsed)
 	if not UnitIsUnit(self.unit, "mouseover") then
 		self.hlmo:Hide()
 	end
 end
 
+-- Update mouseover
 local function UpdateMouseover(unitFrame)
 	if not C.HighlightMouseover then return end
 	local unit = unitFrame.unit
@@ -891,11 +901,15 @@ local function UpdateMouseover(unitFrame)
 	unitFrame:SetScript("OnUpdate", MouseoverOnUpdate)
 end
 
--- Raid mark / 團隊標記
+--------------------------
+-- Raid mark / 團隊標記 --
+--------------------------
+
 local function UpdateRaidTarget(unitFrame)
 	local icon = unitFrame.RaidTargetFrame.RaidTargetIcon
 	local index = GetRaidTargetIndex(unitFrame.displayedUnit)
-	if ( index ) then
+	
+	if index then
 		SetRaidTargetIconTexture(icon, index)
 		icon:Show()
 	else
@@ -903,13 +917,16 @@ local function UpdateRaidTarget(unitFrame)
 	end
 end
 
--- Update / 更新
+--===========================================================--
+-----------------    [[ Update elements ]]    -----------------
+--===========================================================--
+
 local function UpdateNamePlateEvents(unitFrame)
 	-- These are events affected if unit is in a vehicle
 	local unit = unitFrame.unit
 	local displayedUnit
 	
-	if ( unit ~= unitFrame.displayedUnit ) then
+	if unit ~= unitFrame.displayedUnit then
 		displayedUnit = unitFrame.displayedUnit
 	end
 	
@@ -917,11 +934,13 @@ local function UpdateNamePlateEvents(unitFrame)
 	unitFrame:RegisterUnitEvent("UNIT_AURA", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
 	
-	if C.show_power then
+	if C.ShowPower then
 		local npcID = GetNPCID(UnitGUID(unitFrame.displayedUnit))
-		if C.ShowPower[npcID] then
+		
+		if C.ShowPowerList[npcID] then
 			unitFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit, displayedUnit)
-			if not C.numberstyle then	-- 顯示能量條時微調名字位置
+			-- 顯示能量條時微調名字位置
+			if not C.numberstyle then
 				unitFrame.powerBar:Show()
 				unitFrame.powerBar.value:Show()
 				unitFrame.name:SetPoint("BOTTOM", unitFrame.powerBar, "TOP", 0, 2)
@@ -930,6 +949,7 @@ local function UpdateNamePlateEvents(unitFrame)
 			end
 		else
 			unitFrame:UnregisterEvent("UNIT_POWER_FREQUENT")
+			
 			if not C.numberstyle then
 				unitFrame.powerBar:Hide()
 				unitFrame.powerBar.value:Hide()
@@ -944,15 +964,17 @@ end
 -- vehicle / 載具
 local function UpdateInVehicle(unitFrame)
 	if ( UnitHasVehicleUI(unitFrame.unit) ) then
-		if ( not unitFrame.inVehicle ) then
+		if not unitFrame.inVehicle then
 			unitFrame.inVehicle = true
+			
 			local prefix, id, suffix = string.match(unitFrame.unit, "([^%d]+)([%d]*)(.*)")
 			unitFrame.displayedUnit = prefix.."pet"..id..suffix
 			UpdateNamePlateEvents(unitFrame)
 		end
 	else
-		if ( unitFrame.inVehicle ) then
+		if unitFrame.inVehicle then
 			unitFrame.inVehicle = false
+			
 			unitFrame.displayedUnit = unitFrame.unit
 			UpdateNamePlateEvents(unitFrame)
 		end
@@ -961,8 +983,9 @@ end
 
 -- Name-only mode / 名字模式
 local function UpdateforNamemod(unitFrame)
-	if not C.name_mod then return end
+	if not C.nameOnly then return end	
 	local unit = unitFrame.displayedUnit
+	
 	if UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 and not UnitIsUnit(unit, "player") then
 		if C.numberstyle then
 			unitFrame.healthperc:Hide()
@@ -979,9 +1002,14 @@ local function UpdateforNamemod(unitFrame)
 	end
 end
 
+---------------------
+-- Update them all --
+---------------------
+
 local function UpdateAll(unitFrame)
 	UpdateInVehicle(unitFrame)
-	if ( UnitExists(unitFrame.displayedUnit) ) then
+	
+	if UnitExists(unitFrame.displayedUnit) then
 		UpdateName(unitFrame)
 		UpdateHealthColor(unitFrame)
 		UpdateHealth(unitFrame)
@@ -991,9 +1019,11 @@ local function UpdateAll(unitFrame)
 		UpdateRaidTarget(unitFrame)
 		UpdateforNamemod(unitFrame)
 		
-		if UnitIsUnit("player", unitFrame.displayedUnit) then	-- 替個人資源微調位置
+		-- 替個人資源微調各元素
+		if UnitIsUnit("player", unitFrame.displayedUnit) then
 			unitFrame.castBar:UnregisterAllEvents()
-			if not C.numberstyle then	-- 條形樣式
+			
+			if not C.numberstyle then
 				unitFrame.healthBar.value:Hide()
 				unitFrame.icons:SetPoint("BOTTOM", unitFrame.healthBar, "TOP", 0, 4)	
 				unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.healthBar, "LEFT")
@@ -1003,6 +1033,7 @@ local function UpdateAll(unitFrame)
 			end
 		else
 			unitFrame.RaidTargetFrame:SetPoint("RIGHT", unitFrame.name, "LEFT")
+			
 			if not C.numberstyle then
 				unitFrame.healthBar.value:Show()
 				unitFrame.icons:SetPoint("BOTTOM", unitFrame.name, "TOP", 0, 2)
@@ -1011,8 +1042,9 @@ local function UpdateAll(unitFrame)
 			end
 		end
 		
+		-- 能量白名單
 		local npcID = GetNPCID(UnitGUID(unitFrame.displayedUnit))
-		if C.show_power and C.ShowPower[npcID] then
+		if C.ShowPower and C.ShowPowerList[npcID] then
 			UpdatePower(unitFrame)
 		end
 	end
@@ -1020,35 +1052,36 @@ end
 
 local function NamePlate_OnEvent(self, event, ...)
 	local arg1 = ...
-	if ( event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" ) then
+	if event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" then
 		UpdateName(self)
 		UpdateSelectionHighlight(self)
-	elseif ( event == "UPDATE_MOUSEOVER_UNIT" ) then
+	elseif event == "UPDATE_MOUSEOVER_UNIT" then
 		UpdateMouseover(self)
-	elseif ( event == "PLAYER_ENTERING_WORLD" ) then
+	elseif event == "PLAYER_ENTERING_WORLD" then
 		UpdateAll(self)
-	elseif ( arg1 == self.unit or arg1 == self.displayedUnit ) then
-		if ( event == "UNIT_HEALTH_FREQUENT" ) then
+	elseif arg1 == self.unit or arg1 == self.displayedUnit then
+		if event == "UNIT_HEALTH_FREQUENT" then
 			UpdateHealth(self)
 			UpdateSelectionHighlight(self)
-		elseif ( event == "UNIT_AURA" ) then
+		elseif event == "UNIT_AURA" then
 			UpdateBuffs(self)
 			UpdateSelectionHighlight(self)
-		elseif ( event == "UNIT_THREAT_LIST_UPDATE" ) then
+		elseif event == "UNIT_THREAT_LIST_UPDATE" then
 			UpdateHealthColor(self)
-		elseif ( event == "UNIT_NAME_UPDATE" ) then
+		elseif event == "UNIT_NAME_UPDATE" then
 			UpdateName(self)
-		elseif ( event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_PET" ) then
+		elseif event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_PET" then
 			UpdateAll(self)
-		elseif (C.show_power and event == "UNIT_POWER_FREQUENT" ) then
+		elseif C.ShowPower and event == "UNIT_POWER_FREQUENT" then
 			local npcID = GetNPCID(UnitGUID(self.displayedUnit))
-			if C.ShowPower[npcID] then
+			
+			if C.ShowPowerList[npcID] then
 				UpdatePower(self)
 			end
 		end
 	end
 end
-	
+
 local function RegisterNamePlateEvents(unitFrame)
 	unitFrame:RegisterEvent("UNIT_NAME_UPDATE")
 	unitFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -1071,25 +1104,18 @@ local function SetUnit(unitFrame, unit)
 	unitFrame.unit = unit
 	unitFrame.displayedUnit = unit	 -- For vehicles
 	unitFrame.inVehicle = false
-	if ( unit ) then
+	if unit then
 		RegisterNamePlateEvents(unitFrame)
 	else
 		UnregisterNamePlateEvents(unitFrame)
 	end
 end
 
--- [[ Driver frame ]] --
-
 local NamePlateDriverFrame = NamePlateDriverFrame
 local function HideBlizzard()
 	NamePlateDriverFrame:UnregisterAllEvents()
 	NamePlateDriverFrame.SetupClassNameplateBars = function() end
 	ClassNameplateManaBarFrame:Hide()
-  
-	--[[hooksecurefunc(NamePlateDriverFrame, "SetupClassNameplateBar", function()  
-		NamePlateTargetResourceFrame:Hide()
-		NamePlatePlayerResourceFrame:Hide()
-	end)]]--
 
 	local checkBox = InterfaceOptionsNamesPanelUnitNameplatesMakeLarger
 	function checkBox.setFunc(value)
@@ -1100,6 +1126,7 @@ local function HideBlizzard()
 			SetCVar("NamePlateHorizontalScale", checkBox.normalHorizontalScale)
 			SetCVar("NamePlateVerticalScale", checkBox.normalVerticalScale)
 		end
+		
 		NamePlates_UpdateNamePlateOptions()
 	end
 end
@@ -1107,7 +1134,8 @@ end
 local function OnUnitFactionChanged(unit)
 	-- This would make more sense as a unitFrame:RegisterUnitEvent
 	local namePlate = C_NamePlate.GetNamePlateForUnit(unit)
-	if (namePlate) then
+	
+	if namePlate then
 		UpdateName(namePlate.UnitFrame)
 		UpdateHealthColor(namePlate.UnitFrame)
 		UpdateforNamemod(namePlate.UnitFrame)
@@ -1120,14 +1148,17 @@ local function OnRaidTargetUpdate()
 	end
 end
 
+
 local NamePlates_UpdateNamePlateOptions = NamePlates_UpdateNamePlateOptions
 function NamePlates_UpdateNamePlateOptions()
-	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox(110/45)
+	-- Called at VARIABLES_LOADED and by "Larger Nameplates" interface options checkbox(110/45)	
+	
 	-- DONT TOUCH THIS! 別碰這個！
 	local baseNamePlateWidth = 110
 	local baseNamePlateHeight = 45
-	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
-	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
+	-- DONT TOUCH THIS! 別碰這個！
+	
+	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth , baseNamePlateHeight)
 	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
 	C_NamePlate.SetNamePlateSelfSize(baseNamePlateWidth, baseNamePlateHeight)
 
@@ -1137,84 +1168,105 @@ function NamePlates_UpdateNamePlateOptions()
 	end
 end
 
-local function OnNamePlateCreated(namePlate)
+--=============================================================--
+-----------------    [[ Create Nameplates ]]    -----------------
+--=============================================================--
 
+local function OnNamePlateCreated(namePlate)
 	namePlate.UnitFrame = CreateFrame("Button", "$parentUnitFrame", namePlate)
 	namePlate.UnitFrame:SetAllPoints(namePlate)
 	namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
 	
-	if C.numberstyle then -- 數字樣式
+	if C.numberstyle then
+	
+		-- [[ 數字模式 ]] --
+		
+		-- 百分比
 		namePlate.UnitFrame.healthperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.healthperc:SetFont(G.numberstylefont, G.fontsize*1.75, G.fontflag)
+		namePlate.UnitFrame.healthperc:SetFont(G.percFont, G.fontSize * 1.75, G.fontFlag)
 		namePlate.UnitFrame.healthperc:SetPoint("CENTER")
-		namePlate.UnitFrame.healthperc:SetTextColor(1,1,1)
-		namePlate.UnitFrame.healthperc:SetShadowColor(0, 0, 0, 0.4)
+		namePlate.UnitFrame.healthperc:SetTextColor(1, 1, 1)
+		namePlate.UnitFrame.healthperc:SetShadowColor(0, 0, 0, .4)
 		namePlate.UnitFrame.healthperc:SetShadowOffset(1, -1)
 		namePlate.UnitFrame.healthperc:SetText("92")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "ARTWORK", G.fontsize, G.fontflag, "CENTER")
+		-- 名字
+		namePlate.UnitFrame.name = CreateText(namePlate.UnitFrame, "ARTWORK", G.norFont, G.fontSize, G.fontFlag, "CENTER")
 		namePlate.UnitFrame.name:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, -3)
-		namePlate.UnitFrame.name:SetTextColor(1,1,1)
+		namePlate.UnitFrame.name:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.name:SetText("Name")
 		
+		-- 施法條
 		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
-		if C.castbar then
+		namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -6)
+		
+		-- 施法條或施法"條"
+		if C.castBar then
 			namePlate.UnitFrame.castBar:SetSize(110, 8)
-			else
-			namePlate.UnitFrame.castBar:SetSize(38,38)
-		end
-		if C.classresource_show and C.classresource == "target" then
-			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -7)
-		else
-			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -3)
-		end
-
-		if C.castbar then
 			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.ufbar)
-			createBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1) 
-			else
-			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.iconcastbar)
+			CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1)
+		else
+			namePlate.UnitFrame.castBar:SetSize(32,32)
+			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.blank)
+			namePlate.UnitFrame.castBar.Border = namePlate.UnitFrame.castBar:CreateTexture(nil, "BACKGROUND", nil, -1)
+			namePlate.UnitFrame.castBar.Border:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, -1, 1)
+			namePlate.UnitFrame.castBar.Border:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, 1, -1)
+			namePlate.UnitFrame.castBar.Border:SetTexture(G.blank)
+			namePlate.UnitFrame.castBar.Border:SetVertexColor(0, 0, 0)
 		end
-		namePlate.UnitFrame.castBar:SetStatusBarColor(0.5, 0.5, 0.5)
 		
-		namePlate.UnitFrame.castBar.border = CreateBDFrame(namePlate.UnitFrame.castBar, 0)
-		CreateThinSD(namePlate.UnitFrame.castBar.border, 1, 0, 0, 0, 1, -2)
-		
+		namePlate.UnitFrame.castBar:SetStatusBarColor(.6, .6, .6)
 		namePlate.UnitFrame.castBar.bg = namePlate.UnitFrame.castBar:CreateTexture(nil, "BORDER")
 		namePlate.UnitFrame.castBar.bg:SetAllPoints(namePlate.UnitFrame.castBar)
 		namePlate.UnitFrame.castBar.bg:SetTexture(1/3, 1/3, 1/3, .5)
-
+		
+		-- 施法條圖示
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
-		if C.castbar then
-			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -8)
+		namePlate.UnitFrame.castBar.Icon:SetTexCoord(.08, .92, .08, .92)
+		
+		-- 條不條，樣式不一樣
+		if C.castBar then
+			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -4)
 			namePlate.UnitFrame.castBar.Icon:SetSize(16, 16)
+			namePlate.UnitFrame.castBar.IconBorder = CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar.Icon, 1)
+			
+			namePlate.UnitFrame.castBar.Text = CreateText(namePlate.UnitFrame.castBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
+			namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
+			namePlate.UnitFrame.castBar.Text:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -5, 5)
+			namePlate.UnitFrame.castBar.Text:SetPoint("TOPRIGHT", namePlate.UnitFrame.castBar, "BOTTOMRIGHT", 5, -5)
 		else
 			namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER")
-			namePlate.UnitFrame.castBar.Icon:SetSize(32, 32)
-		end
-		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-		namePlate.UnitFrame.castBar.iconborder = CreateBG(namePlate.UnitFrame.castBar.Icon)
-		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY", -1)
+			namePlate.UnitFrame.castBar.Icon:SetSize(26, 26)
 
-		if C.cbtext then
-			namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
-			namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
+			namePlate.UnitFrame.castBar.IconBorder = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", nil, -1)
+			namePlate.UnitFrame.castBar.IconBorder:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar.Icon, -1, 1)
+			namePlate.UnitFrame.castBar.IconBorder:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar.Icon, 1, -1)
+			namePlate.UnitFrame.castBar.IconBorder:SetTexture(G.blank)
+			namePlate.UnitFrame.castBar.IconBorder:SetVertexColor(0, 0, 0)
+			
+			if C.cbText then
+				namePlate.UnitFrame.castBar.Text = CreateText(namePlate.UnitFrame.castBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
+				namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
+				namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
+			end
 		end
-
-		namePlate.UnitFrame.castBar.BorderShield = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
+		
+		-- 盾牌
+		namePlate.UnitFrame.castBar.BorderShield = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", nil, 2)
 		namePlate.UnitFrame.castBar.BorderShield:SetAtlas("nameplates-InterruptShield")
-		namePlate.UnitFrame.castBar.BorderShield:SetSize(15, 15)
-		namePlate.UnitFrame.castBar.BorderShield:SetPoint("CENTER", namePlate.UnitFrame.castBar, "BOTTOMLEFT")  
-		namePlate.UnitFrame.castBar.BorderShield:SetDrawLayer("OVERLAY",2)
-
+		namePlate.UnitFrame.castBar.BorderShield:SetSize(12, 14)
+		namePlate.UnitFrame.castBar.BorderShield:SetPoint("CENTER", namePlate.UnitFrame.castBar, "BOTTOMLEFT", 6, 0)  
+		
+		-- 進度高亮
 		namePlate.UnitFrame.castBar.Spark = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.castBar.Spark:SetSize(30, 25)
 		namePlate.UnitFrame.castBar.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 		namePlate.UnitFrame.castBar.Spark:SetBlendMode("ADD")
 		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, -1)
-		if C.castbar then
+		
+		if C.castBar then
 			namePlate.UnitFrame.castBar.Spark:SetAlpha(1)
 		else
 			namePlate.UnitFrame.castBar.Spark:SetAlpha(0) --Disable this spark in icon style
@@ -1230,126 +1282,126 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar:SetScript("OnUpdate", CastingBarFrame_OnUpdate)
 		namePlate.UnitFrame.castBar:SetScript("OnShow", CastingBarFrame_OnShow)
 
+		-- 團隊標記
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 4)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
 		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
+		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidIcon)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
-		if C.HighlightMode == "Horizontal" then
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-			namePlate.UnitFrame.hltarget:SetSize(50, 50)
-			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow2)
-		elseif C.HighlightMode == "Vertical" then
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-			namePlate.UnitFrame.hltarget:SetSize(50, 50)
-			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow1)
-		else
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
-			namePlate.UnitFrame.hltarget:SetTexture(G.hlglow)
+		-- 目標高亮
+		if C.HighlightMode == "glow" then
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
+			namePlate.UnitFrame.hltarget:SetTexture(G.hlGlow)
 			namePlate.UnitFrame.hltarget:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
 			namePlate.UnitFrame.hltarget:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-			namePlate.UnitFrame.hltarget:SetVertexColor(0, 1, 1)
+			namePlate.UnitFrame.hltarget:SetVertexColor(0, .85, 1)
 			namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 0)
 			namePlate.UnitFrame.hltarget:SetBlendMode("ADD")
+		else
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+			namePlate.UnitFrame.hltarget:SetSize(50, 50)
+			namePlate.UnitFrame.hltarget:SetTexture(G.redArrow)
+			
+			if C.HighlightMode == "Horizontal" then
+				namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0)
+			end
 		end
-		namePlate.UnitFrame.hltarget:Hide()
+		namePlate.UnitFrame.hltarget:Hide()	
 		
+		-- 焦點高亮
 		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
 		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
 		namePlate.UnitFrame.hlfocus:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
 		namePlate.UnitFrame.hlfocus:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-		namePlate.UnitFrame.hlfocus:SetVertexColor(1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetVertexColor(.3, 1, .3)
 		namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
 		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
 		namePlate.UnitFrame.hlfocus:Hide()
 		
+		-- 指向高亮
 		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
 		namePlate.UnitFrame.hlmo:SetTexture(G.hlglow)
 		namePlate.UnitFrame.hlmo:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
 		namePlate.UnitFrame.hlmo:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 1)
+		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 0)
 		namePlate.UnitFrame.hlmo:SetTexCoord(0, 1, 1, 0)
 		namePlate.UnitFrame.hlmo:SetBlendMode("ADD")
 		namePlate.UnitFrame.hlmo:Hide()
-
+		
+		-- 光環
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.healthperc, "TOP", 0, 0)
 		namePlate.UnitFrame.icons:SetWidth(140)
-		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
+		namePlate.UnitFrame.icons:SetHeight(C.auraIconSize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
 		
+		-- 能量
 		namePlate.UnitFrame.powerperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.powerperc:SetFont(G.numberstylefont, G.fontsize, G.fontflag)
+		namePlate.UnitFrame.powerperc:SetFont(G.percFont, G.fontSize, G.fontFlag)
 		namePlate.UnitFrame.powerperc:SetPoint("LEFT", namePlate.UnitFrame.name, "RIGHT", 0, 0)
-		namePlate.UnitFrame.powerperc:SetTextColor(.8,.8,1)
-		namePlate.UnitFrame.powerperc:SetShadowColor(0, 0, 0, 0.4)
+		namePlate.UnitFrame.powerperc:SetTextColor(.8, .8, 1)
+		namePlate.UnitFrame.powerperc:SetShadowColor(0, 0, 0, .4)
 		namePlate.UnitFrame.powerperc:SetShadowOffset(1, -1)
 		namePlate.UnitFrame.powerperc:SetText("55")
+	else
+	
+		-- [[ 條形模式 ]] --
 		
-	else -- 條形樣式
+		-- 血量條
 		namePlate.UnitFrame.healthBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.healthBar:SetHeight(8)
 		namePlate.UnitFrame.healthBar:SetPoint("LEFT", 0, 0)
 		namePlate.UnitFrame.healthBar:SetPoint("RIGHT", 0, 0)
 		namePlate.UnitFrame.healthBar:SetStatusBarTexture(G.ufbar)
-		namePlate.UnitFrame.healthBar:SetMinMaxValues(0, 1)
+		namePlate.UnitFrame.healthBar:SetMinMaxValues(0, 1)		
+		namePlate.UnitFrame.healthBar.bd = CreateBackdrop(namePlate.UnitFrame.healthBar, namePlate.UnitFrame.healthBar, 1)
 		
-		namePlate.UnitFrame.healthBar.bd = createBackdrop(namePlate.UnitFrame.healthBar, namePlate.UnitFrame.healthBar, 1)
-		
-		namePlate.UnitFrame.healthBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
-		namePlate.UnitFrame.healthBar.value:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, -G.fontsize/3)
+		-- 百分比
+		namePlate.UnitFrame.healthBar.value = CreateText(namePlate.UnitFrame.healthBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
+		namePlate.UnitFrame.healthBar.value:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, -G.fontSize / 3)
 		namePlate.UnitFrame.healthBar.value:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.healthBar.value:SetText("Value")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", G.fontsize-2, G.fontflag, "CENTER")
+		-- 名字
+		namePlate.UnitFrame.name = CreateText(namePlate.UnitFrame, "OVERLAY", G.norFont, G.fontSize-2, G.fontFlag, "CENTER")
 		namePlate.UnitFrame.name:SetPoint("BOTTOM", namePlate.UnitFrame.healthBar, "TOP", 0, 0)
-		namePlate.UnitFrame.name:SetHeight(G.fontsize)
+		namePlate.UnitFrame.name:SetHeight(G.fontSize)
 		namePlate.UnitFrame.name:SetWidth(100)
 		namePlate.UnitFrame.name:SetWordWrap(false)
 		namePlate.UnitFrame.name:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.name:SetText("Name")
 		
+		-- 施法條
 		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.castBar:Hide()
 		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
 		namePlate.UnitFrame.castBar:SetHeight(8)
-		if C.classresource_show and C.classresource == "target" then
-			namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -7)
-			namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -7)
-		else
-			namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -3)
-			namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -3)
-		end
+		namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -4)
+		namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -4)
 
 		namePlate.UnitFrame.castBar:SetStatusBarTexture(G.ufbar)
-		namePlate.UnitFrame.castBar:SetStatusBarColor(0.5, 0.5, 0.5)
-		createBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1) 
-			
-		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
+		namePlate.UnitFrame.castBar:SetStatusBarColor(.6, .6, .6)
+		CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1)
+		
+		namePlate.UnitFrame.castBar.Text = CreateText(namePlate.UnitFrame.castBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
 		namePlate.UnitFrame.castBar.Text:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -5, 5)
 		namePlate.UnitFrame.castBar.Text:SetPoint("TOPRIGHT", namePlate.UnitFrame.castBar, "BOTTOMRIGHT", 5, -5)
 		namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
 		
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
-		namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -1)
-		namePlate.UnitFrame.castBar.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-		if C.classresource_show and C.classresource == "target" then
-			namePlate.UnitFrame.castBar.Icon:SetSize(25, 25)
-		else
-			namePlate.UnitFrame.castBar.Icon:SetSize(21, 21)
-		end
-
-		namePlate.UnitFrame.castBar.Icon.iconborder = CreateBG(namePlate.UnitFrame.castBar.Icon)
-		namePlate.UnitFrame.castBar.Icon.iconborder:SetDrawLayer("OVERLAY", -1)
+		namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, 0)
+		namePlate.UnitFrame.castBar.Icon:SetTexCoord(.08, .92, .08, .92)
+		namePlate.UnitFrame.castBar.Icon:SetSize(20, 20)
+		namePlate.UnitFrame.castBar.IconBorder = CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar.Icon, 1)
 		
 		namePlate.UnitFrame.castBar.BorderShield = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
 		namePlate.UnitFrame.castBar.BorderShield:SetAtlas("nameplates-InterruptShield")
-		namePlate.UnitFrame.castBar.BorderShield:SetSize(15, 15)
+		namePlate.UnitFrame.castBar.BorderShield:SetSize(12, 14)
 		namePlate.UnitFrame.castBar.BorderShield:SetPoint("LEFT", namePlate.UnitFrame.castBar, "LEFT", 5, -5)
 
 		namePlate.UnitFrame.castBar.Spark = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
@@ -1367,59 +1419,64 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar:SetScript("OnEvent", CastingBarFrame_OnEvent)
 		namePlate.UnitFrame.castBar:SetScript("OnUpdate", CastingBarFrame_OnUpdate)
 		namePlate.UnitFrame.castBar:SetScript("OnShow", CastingBarFrame_OnShow)
-
+		
+		-- 團隊標記
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
 		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidicon)
+		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidIcon)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
+		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()		
 		
-		if C.HighlightMode == "Horizontal" then
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-			namePlate.UnitFrame.hltarget:SetSize(50, 50)
-			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow2)
-		elseif C.HighlightMode == "Vertical" then
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-			namePlate.UnitFrame.hltarget:SetSize(50, 50)
-			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow1)
-		else
+		-- 目標高亮
+		if C.HighlightMode == "glow" then
 			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
-			namePlate.UnitFrame.hltarget:SetTexture(G.hlglow)
+			namePlate.UnitFrame.hltarget:SetTexture(G.hlGlow)
 			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
 			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
-			namePlate.UnitFrame.hltarget:SetVertexColor(0, 0.65, 1, 0.9)
+			namePlate.UnitFrame.hltarget:SetVertexColor(0, .85, 1)
 			namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 0)
 			namePlate.UnitFrame.hltarget:SetBlendMode("ADD")
+		else
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
+			namePlate.UnitFrame.hltarget:SetSize(50, 50)
+			namePlate.UnitFrame.hltarget:SetTexture(G.redArrow)
+			if C.HighlightMode == "Horizontal" then
+				namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0)
+			end
 		end
-		namePlate.UnitFrame.hltarget:Hide()
+		namePlate.UnitFrame.hltarget:Hide()	
 		
+		-- 焦點高亮
 		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
 		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
 		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
 		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
-		namePlate.UnitFrame.hlfocus:SetVertexColor(1, 1, 0)
+		namePlate.UnitFrame.hlfocus:SetVertexColor(.3, 1, .3)
 		namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
 		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
 		namePlate.UnitFrame.hlfocus:Hide()
 		
+		-- 指向高亮
 		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
 		namePlate.UnitFrame.hlmo:SetTexture(G.hlglow)
 		namePlate.UnitFrame.hlmo:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
 		namePlate.UnitFrame.hlmo:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
-		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 1)
+		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 0)
 		namePlate.UnitFrame.hlmo:SetTexCoord(0, 1, 1, 0)
 		namePlate.UnitFrame.hlmo:SetBlendMode("ADD")
 		namePlate.UnitFrame.hlmo:Hide()
 		
+		-- 光環
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 2)
 		namePlate.UnitFrame.icons:SetWidth(140)
-		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
+		namePlate.UnitFrame.icons:SetHeight(C.auraIconSize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
 		
+		-- 能量
 		namePlate.UnitFrame.powerBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.powerBar:SetHeight(3)
 		namePlate.UnitFrame.powerBar:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 0, 2)
@@ -1427,16 +1484,20 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.powerBar:SetStatusBarTexture(G.ufbar)
 		namePlate.UnitFrame.powerBar:SetMinMaxValues(0, 1)
 		
-		namePlate.UnitFrame.powerBar.bd = createBackdrop(namePlate.UnitFrame.powerBar, namePlate.UnitFrame.powerBar, 1)
+		namePlate.UnitFrame.powerBar.bd = CreateBackdrop(namePlate.UnitFrame.powerBar, namePlate.UnitFrame.powerBar, 1)
 		
-		namePlate.UnitFrame.powerBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", G.fontsize-4, G.fontflag, "CENTER")
-		namePlate.UnitFrame.powerBar.value:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 0, -G.fontsize/3)
+		namePlate.UnitFrame.powerBar.value = CreateText(namePlate.UnitFrame.healthBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
+		namePlate.UnitFrame.powerBar.value:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 0, -G.fontSize/3)
 		namePlate.UnitFrame.powerBar.value:SetText("55")
 		
 	end
 	
 	namePlate.UnitFrame:EnableMouse(false)
 end
+
+-----------
+-- Spawn --
+-----------
 
 local function OnNamePlateAdded(unit)
 	local namePlate = C_NamePlate.GetNamePlateForUnit(unit)
@@ -1451,7 +1512,9 @@ local function OnNamePlateRemoved(unit)
 	CastingBarFrame_SetUnit(namePlate.UnitFrame.castBar, nil, false, true)
 end
 
--- [[ cvar ]] --
+----------
+-- CVar --
+----------
 
 local function defaultcvar()
 	if C.Inset then
@@ -1468,7 +1531,7 @@ local function defaultcvar()
 	
 	-- 最大視距
 	SetCVar("nameplateMaxDistance", C.MaxDistance)		-- default is 60
-	-- fix fps drop(距離縮放與描邊功能會引起掉幀)
+	-- fix fps drop
 	SetCVar("namePlateMinScale", 1)						-- default is 0.8
 	SetCVar("namePlateMaxScale", 1)
 	-- boss nameplate scale
@@ -1506,44 +1569,48 @@ local function defaultcvar()
 	SetCVar("nameplateShowFriendlyTotems", 0)			-- 圖騰
 end 
 
+------------
+-- Events --
+------------
+
 local function NamePlates_OnEvent(self, event, ...)
-	if ( event == "VARIABLES_LOADED" ) then
+	if event == "VARIABLES_LOADED" then
 		HideBlizzard()
-		if C.playerplate then
+		if C.playerPlate then
 			SetCVar("nameplateShowSelf", 1)
 		else
 			SetCVar("nameplateShowSelf", 0)
 		end
 		NamePlates_UpdateNamePlateOptions()
-	elseif ( event == "NAME_PLATE_CREATED" ) then
+	elseif event == "NAME_PLATE_CREATED" then
 		local namePlate = ...
 		OnNamePlateCreated(namePlate)
-	elseif ( event == "NAME_PLATE_UNIT_ADDED" ) then
+	elseif event == "NAME_PLATE_UNIT_ADDED" then
 		local unit = ...
 		OnNamePlateAdded(unit)
-	elseif ( event == "NAME_PLATE_UNIT_REMOVED" ) then
+	elseif event == "NAME_PLATE_UNIT_REMOVED" then
 		local unit = ...
 		OnNamePlateRemoved(unit)
 	elseif event == "RAID_TARGET_UPDATE" then
 		OnRaidTargetUpdate()
 	elseif event == "DISPLAY_SIZE_CHANGED" then
 		NamePlates_UpdateNamePlateOptions()
-	elseif ( event == "UNIT_FACTION" ) then
+	elseif event == "UNIT_FACTION" then
 		OnUnitFactionChanged(...)
-	elseif ( event == "PLAYER_ENTERING_WORLD" ) then
+	elseif event == "PLAYER_ENTERING_WORLD" then
 		defaultcvar()
 	end
 end
 
 local NamePlatesFrame = CreateFrame("Frame", "NamePlatesFrame", UIParent)
-NamePlatesFrame:SetScript("OnEvent", NamePlates_OnEvent)
-NamePlatesFrame:RegisterEvent("VARIABLES_LOADED")
-NamePlatesFrame:RegisterEvent("NAME_PLATE_CREATED")
-NamePlatesFrame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-NamePlatesFrame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
-NamePlatesFrame:RegisterEvent("CVAR_UPDATE")
-NamePlatesFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
-NamePlatesFrame:RegisterEvent("RAID_TARGET_UPDATE")
-NamePlatesFrame:RegisterEvent("UNIT_FACTION")
-NamePlatesFrame:RegisterEvent("UNIT_AURA")
-NamePlatesFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	NamePlatesFrame:SetScript("OnEvent", NamePlates_OnEvent)
+	NamePlatesFrame:RegisterEvent("VARIABLES_LOADED")
+	NamePlatesFrame:RegisterEvent("NAME_PLATE_CREATED")
+	NamePlatesFrame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+	NamePlatesFrame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+	NamePlatesFrame:RegisterEvent("CVAR_UPDATE")
+	NamePlatesFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
+	NamePlatesFrame:RegisterEvent("RAID_TARGET_UPDATE")
+	NamePlatesFrame:RegisterEvent("UNIT_FACTION")
+	NamePlatesFrame:RegisterEvent("UNIT_AURA")
+	NamePlatesFrame:RegisterEvent("PLAYER_ENTERING_WORLD")

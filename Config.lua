@@ -27,11 +27,9 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 -- Texture --
 -------------
 
-	G.iconcastbar = MediaFolder.."dM3"			-- cast bar
-	G.raidicon = MediaFolder.."raidicons"		-- raid icon
-	G.redarrow1 = MediaFolder.."NeonRedArrow"	-- Vertical arrow
-	G.redarrow2 = MediaFolder.."NeonRedArrowH"	-- horizontal arrow
-	G.hlglow = MediaFolder.."hlglow"			-- highlight glow
+	G.raidIcon = MediaFolder.."raidicons"		-- raid icon
+	G.redArrow = MediaFolder.."NeonRedArrow"	-- Vertical arrow
+	G.hlGlow = MediaFolder.."hlglow"			-- highlight glow
 	G.ufbar = MediaFolder.."ufbar"				-- health bar
 	G.blank = "Interface\\Buttons\\WHITE8x8"	-- background
 	G.glow = MediaFolder.."glow"				-- shadow border
@@ -40,15 +38,15 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 -- Media --
 -----------
 
-	-- use custom font or use STANDARD_TEXT_FONT / GameFontHighlight:GetFont() to get default game font)
+	-- use custom font or use STANDARD_TEXT_FONT / GameFontHighlight:GetFont() to get default game font
 	
-	G.numberstylefont = MediaFolder.."Infinity Gears.ttf"	-- 數字樣式的數字字體 / Number style's number font
+	G.percFont = MediaFolder.."Infinity Gears.ttf"			-- 數字樣式的數字字體 / Number style's number font
 	G.numFont = MediaFolder.."number.ttf"					-- 數字字體 / Number font
 	G.norFont = STANDARD_TEXT_FONT							-- 名字字體 / Name font
 	
-	G.fontsize = 12						-- 名字字體大小 / Name font size
-	G.aurafontsize = 12					-- 光環字體大小 / Aura font size
-	G.fontflag = "OUTLINE"				-- 描邊 / "OUTLINE" or none
+	G.fontSize = 12						-- 名字字體大小 / Name font size
+	G.auraFontSize = 12					-- 光環字體大小 / Aura font size
+	G.fontFlag = "OUTLINE"				-- 描邊 / "OUTLINE" or none
 
 ---------------------
 -- General Options --
@@ -66,10 +64,14 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 
 	-- [[ colors / 染色 ]] --
 	
-	C.name_mod = false					-- 友方玩家只顯示名字不顯示血量 / Show only name on friendy player nameplates
+	C.nameOnly = true					-- 友方玩家只顯示名字不顯示血量 / Show only name on friendy player nameplates
 	C.friendlyCR = true					-- 友方職業顏色 / Friendly class color
 	C.enemyCR = true					-- 敵方職業顏色 / Enemy class color
-	C.threatcolor = true				-- 名字仇恨染色 / Change name color by threat
+	C.threatColor = true				-- 名字仇恨染色 / Change name color by threat
+	
+	C.castStart = {.6, .6, .6}			-- 施法條顏色 / normal castbar color
+	C.castFailed = {.5, .2, .2}			-- 施法失敗顏色 / cast failed color
+	C.castShield = {.9, 0, 1}			-- 不可打斷顏色 / non-InterruptibleColor castbar color
 
 	-- [[ highlight / 高亮 ]] --
 	
@@ -84,30 +86,29 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 
 	-- [[ other / 其他 ]] --
 
-	C.cbshield = false					-- 施法條不可打斷圖示 / Show castbar un-interrupt shield icon
+	C.cbShield = false					-- 施法條不可打斷圖示 / Show castbar un-interrupt shield icon
 	C.level = false						-- 顯示等級 / Show level
 	
 	-- [[ number style additional config / 數字模式額外選項 ]] --
 	
-	C.cbtext = false					-- 施法條法術名稱 / Show castbar text
-	C.castbar = false					-- 條形施法條 / Show castbar as a "bar"
+	C.cbText = false					-- 施法條法術名稱 / Show castbar text
+	C.castBar = false					-- 條形施法條 / Show castbar as a "bar"
 
 ------------------
 -- Player Plate --
 ------------------
 
-	C.playerplate = true				-- 玩家名條 /Player self nameplate
-	C.classresource_show = false		-- 玩家資源 /Player resource
-	C.classresource = "player"			-- "player", "target": 玩家資源顯示在何處 / where to how player resource
-	C.plateaura = true					-- 玩家光環 / Player aura
+	C.playerPlate = false				-- 玩家名條 /Player self nameplate
+	C.classResourceShow = false			-- 玩家資源 /Player resource
+	C.classResourceOn = "player"		-- "player", "target": 玩家資源顯示在何處 / where to how player resource
 	C.PlayerClickThrough = false		-- 個人資源點擊穿透 / Player resource click through
 
 -----------
 -- Auras --
 -----------
 	
-	C.auranum = 5						-- 圖示數量 / The number of auras
-	C.auraiconsize = 22					-- 圖示大小 / Aura icon size
+	C.auraNum = 5						-- 圖示數量 / The number of auras
+	C.auraIconSize = 22					-- 圖示大小 / Aura icon size
 	C.showMyAuras = true				-- 自身施放 / Show aura cast by player
 	C.showOtherAuras = true				-- 他人施放 / Show aura cast by other
 
@@ -115,7 +116,7 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 		-- [[ 補足暴雪的白名單裡缺少的控場法術 ]] --
 		
 		-- Buffs
-		--[281744]	= true,	-- 罰站披風 test
+		--[281744]	= true,		-- 罰站披風 test
 		[642]		= true,		-- 聖盾術
 		[1022]		= true,		-- 保護祝福
 		[23920]		= true,		-- 法術反射
@@ -165,7 +166,6 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 		-- [[ 幹掉那些太煩人的常駐dot ]] --
 		
 		--[166646]	= true,		-- 御風而行/Windwalking
-		[227723]	= true,		-- 上古法力感應石/Mana Divining Stone
 		[15407]		= true,		-- 精神鞭笞
 		[51714]		= true,		-- 锋锐之霜
 		[199721]	= true,		-- 腐烂光环
@@ -194,8 +194,8 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 
 	-- [[ Show Power / 特定目標顯示能量 ]] --
 
-	C.show_power = true
-	C.ShowPower = {
+	C.ShowPower = true
+	C.ShowPowerList = {
 		-- Temple of Sethraliss
 		[133944] = true,	-- 艾斯匹 神廟
 		[133379] = true,	-- 阿德利斯 神廟	
