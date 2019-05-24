@@ -113,7 +113,7 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 	C.showOtherAuras = true				-- 他人施放 / Show aura cast by other
 
 	C.WhiteList = {
-		-- [[ 補足暴雪的白名單裡缺少的控場法術 ]] --
+		-- [[ 補足暴雪的白名單裡缺少的控場法術 / just need blizzard's missing spell ]] --
 		
 		-- Buffs
 		--[281744]	= true,		-- 罰站披風 test
@@ -163,7 +163,7 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 	}
 
 	C.BlackList = {
-		-- [[ 幹掉那些太煩人的常駐dot ]] --
+		-- [[ 幹掉那些太煩人的常駐dot / let dot debuff gone ]] --
 		
 		--[166646]	= true,		-- 御風而行/Windwalking
 		[15407]		= true,		-- 精神鞭笞

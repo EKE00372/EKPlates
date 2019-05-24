@@ -143,6 +143,7 @@ local function UpdateAuraIcon(button, unit, index, filter)
 	button.expirationTime = expirationTime
 	button.duration = duration
 	button.spellID = spellID
+	button.name = name
 	
 	local color = DebuffTypeColor[debuffType] or DebuffTypeColor.none
 	button.overlay:SetVertexColor(color.r, color.g, color.b)
@@ -153,8 +154,7 @@ local function UpdateAuraIcon(button, unit, index, filter)
 		button.count:SetText("")
 	end
 
-	button:SetScript("OnUpdate", AuraIconOnUpdate)
-	
+	button:SetScript("OnUpdate", AuraIconOnUpdate)	
 	button:Show()
 end
 
@@ -191,11 +191,13 @@ local function UpdateBuffs(unitFrame)
 			local bname, _, _, _, bduration, _, bcaster, _, _, bspellid, _, _, _, nameplateShowAll = UnitAura(unit, index, "HELPFUL")
 			local matchbuff = AuraFilter(bcaster, bspellid, nameplateShowAll)
 			
-			if bname and matchbuff and other then
+			if bname and matchbuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
+				
 				UpdateAuraIcon(unitFrame.icons[i], unit, index, "HELPFUL")
+				
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -209,13 +211,13 @@ local function UpdateBuffs(unitFrame)
 			local dname, _, _, _, dduration, _, dcaster, _, _, dspellid, _, _, _, nameplateShowAll = UnitAura(unit, index, "HARMFUL")
 			local matchdebuff = AuraFilter(dcaster, dspellid, nameplateShowAll)
 			
-			if UnitIsUnit(unitFrame.displayedUnit, "player") then return end
-			
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
+				
 				UpdateAuraIcon(unitFrame.icons[i], unit, index, "HARMFUL")
+				
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
