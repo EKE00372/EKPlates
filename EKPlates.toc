@@ -1,6 +1,6 @@
-﻿## Interface: 80100
+﻿## Interface: 11302
 ## Title: |cff00ffffEK|rPlates
-## Version: R3
+## Version: C1.1
 ## Author: EK (Linodas@Illidan-US)
 ## Notes: Nameplates. Credits to Paopao and Dawn.
 
