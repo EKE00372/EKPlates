@@ -3,9 +3,10 @@ local raidicon = "Interface\\AddOns\\EKplates\\media\\raidicons"
 local redarrow = "Interface\\AddOns\\EKplates\\media\\NeonRedArrow"
 local numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"
 local numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf" --number font
-local norFont = GameFontHighlight:GetFont()  --name font
+local norFont = STANDARD_TEXT_FONT  --name font/GameFontHighlight:GetFont()
 local ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
 local fontsize = 16
+local fontflag = "OUTLINE"  --"OUTLINE" or none, if get FPS drop, dont use outline
 local blank = "Interface\\Buttons\\WHITE8x8"
 local glow = "Interface\\AddOns\\EKplates\\media\\glow"
 local myClass = select(2, UnitClass("player"))
@@ -51,7 +52,7 @@ local Config = {
 	classresource = "player", --"player", "target"  
 	plateaura = false, 
 }
---[[ 自定義姓名板顏色 ]]--
+--[[ 為特定目標自定義姓名板顏色/custom colored plates ]]--
 local Customcoloredplates = {
 	[1] = {
 		name = "ekk",
@@ -210,11 +211,11 @@ local function CreateAuraIcon(parent)
 	button.bd:SetPoint("TOPLEFT",button,"TOPLEFT", -1, 1)
 	button.bd:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT", 1, -1)
 	
-	button.text = createnumber(button, "OVERLAY", Config.auraiconsize-11, "OUTLINE", "CENTER")
+	button.text = createnumber(button, "OVERLAY", Config.auraiconsize-11, fontflag, "CENTER")
     button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
 	button.text:SetTextColor(1, 1, 0)
 	
-	button.count = createnumber(button, "OVERLAY", Config.auraiconsize-13, "OUTLINE", "RIGHT")
+	button.count = createnumber(button, "OVERLAY", Config.auraiconsize-13, fontflag, "RIGHT")
 	button.count:SetPoint("TOPRIGHT", button, "TOPRIGHT", -1, 2)
 	button.count:SetTextColor(.4, .95, 1)
 	
@@ -338,7 +339,7 @@ if Config.playerplate then
 	PowerFrame.powerBar.bd = createBackdrop(PowerFrame.powerBar, PowerFrame.powerBar, 1)  
 	  
 	PowerFrame.powerperc = PowerFrame:CreateFontString(nil, "OVERLAY")  
-	PowerFrame.powerperc:SetFont(numberstylefont, fontsize, "OUTLINE")  
+	PowerFrame.powerperc:SetFont(numberstylefont, fontsize, fontflag)  
 	PowerFrame.powerperc:SetShadowColor(0, 0, 0, 0.4)  
 	PowerFrame.powerperc:SetShadowOffset(1, -1)  
 	  
@@ -455,7 +456,7 @@ if Config.classresource_show then
 		Resourcebar[i].tex = Resourcebar[i]:CreateTexture(nil, "OVERLAY")  
 		Resourcebar[i].tex:SetAllPoints(Resourcebar[i])  
 		if myClass == "DEATHKNIGHT" then  
-			Resourcebar[i].value = createtext(Resourcebar[i], "OVERLAY", fontsize-2, "OUTLINE", "CENTER")  
+			Resourcebar[i].value = createtext(Resourcebar[i], "OVERLAY", fontsize-2, fontflag, "CENTER")  
 			Resourcebar[i].value:SetPoint("CENTER")  
 			Resourcebar[i].tex:SetColorTexture(.7, .7, 1)  
 		end  
@@ -966,21 +967,21 @@ local function OnNamePlateCreated(namePlate)
 	
 	if Config.numberstyle then -- 數字樣式
 		namePlate.UnitFrame.healthperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.healthperc:SetFont(numberstylefont, fontsize*1.75, "OUTLINE")
+		namePlate.UnitFrame.healthperc:SetFont(numberstylefont, fontsize*1.75, fontflag)
 		namePlate.UnitFrame.healthperc:SetPoint("CENTER")
 		namePlate.UnitFrame.healthperc:SetTextColor(1,1,1)
 		namePlate.UnitFrame.healthperc:SetShadowColor(0, 0, 0, 0.4)
 		namePlate.UnitFrame.healthperc:SetShadowOffset(1, -1)
 		namePlate.UnitFrame.healthperc:SetText("92")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "ARTWORK", fontsize, "OUTLINE", "CENTER")
+		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "ARTWORK", fontsize, fontflag, "CENTER")
 		namePlate.UnitFrame.name:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, -3)
 		namePlate.UnitFrame.name:SetTextColor(1,1,1)
 		namePlate.UnitFrame.name:SetText("Name")
 		
 		-- threattext
 		--[[namePlate.UnitFrame.HLthreat = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.HLthreat:SetFont(numberstylefont, fontsize*1.75, "OUTLINE")
+		namePlate.UnitFrame.HLthreat:SetFont(numberstylefont, fontsize*1.75, fontflag)
 		namePlate.UnitFrame.HLthreat:SetPoint("RIGHT", namePlate.UnitFrame.healthperc, "LEFT", -2, 0)
 		namePlate.UnitFrame.HLthreat:SetShadowOffset(1, -1)]]--
 		
@@ -1012,7 +1013,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar.iconborder:SetDrawLayer("OVERLAY",-1)
 		
 		if Config.cbtext then
-		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", fontsize-4, "OUTLINE", "CENTER")
+		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", fontsize-4, fontflag, "CENTER")
 		namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
 		end
 
@@ -1069,12 +1070,12 @@ local function OnNamePlateCreated(namePlate)
 		
 		namePlate.UnitFrame.healthBar.bd = createBackdrop(namePlate.UnitFrame.healthBar, namePlate.UnitFrame.healthBar, 1) 
 		
-		namePlate.UnitFrame.healthBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", fontsize-4, "OUTLINE", "CENTER")
+		namePlate.UnitFrame.healthBar.value = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", fontsize-4, fontflag, "CENTER")
 		namePlate.UnitFrame.healthBar.value:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, -fontsize/3)
 		namePlate.UnitFrame.healthBar.value:SetTextColor(1,1,1)
 		namePlate.UnitFrame.healthBar.value:SetText("Value")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", fontsize-4, "OUTLINE", "CENTER")
+		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", fontsize-4, fontflag, "CENTER")
 		namePlate.UnitFrame.name:SetPoint("TOPLEFT", namePlate.UnitFrame, "TOPLEFT", 5, -5)
 		namePlate.UnitFrame.name:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "TOPRIGHT", -5, -15)
 		namePlate.UnitFrame.name:SetIndentedWordWrap(false)
@@ -1097,7 +1098,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.castBar:SetStatusBarColor(0.5, 0.5, 0.5)
 		createBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1) 
 			
-		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", fontsize-4, "OUTLINE", "CENTER")
+		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", fontsize-4, fontflag, "CENTER")
 		namePlate.UnitFrame.castBar.Text:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -5, 5)
 		namePlate.UnitFrame.castBar.Text:SetPoint("TOPRIGHT", namePlate.UnitFrame.castBar, "BOTTOMRIGHT", 5, -5)
 		namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
