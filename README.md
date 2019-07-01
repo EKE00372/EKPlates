@@ -54,14 +54,11 @@ All rights not explicitly addressed in this license are reserved by the copyrigh
 
 ## 更新紀錄
 
-<<<<<<< HEAD
-=======
 * R3.2b
     * 更正條形施法條引用錯誤的字型
 * B3.2a
     * 移除測試用id
     * 恢復config預設值
->>>>>>> fix bar-castbar wrong font
 * B3.2
     * 使字型正確調用
     * 修正布局
