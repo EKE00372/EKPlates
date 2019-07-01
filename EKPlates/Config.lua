@@ -18,7 +18,7 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 
 	-- 啟用/enable = true
 	-- 停用/disable = false
-	
+
 	-- 啟用數字樣式，如果想要條形的血條就關閉這項
 	-- Number style, if you want a bar-style nameplates, change to false.
 	C.numberstyle = true
@@ -39,21 +39,49 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 -----------
 
 	-- use custom font or use STANDARD_TEXT_FONT / GameFontHighlight:GetFont() to get default game font
-	
+
 	G.percFont = MediaFolder.."Infinity Gears.ttf"			-- 數字樣式的數字字體 / Number style's number font
 	G.numFont = MediaFolder.."number.ttf"					-- 數字字體 / Number font
 	G.norFont = STANDARD_TEXT_FONT							-- 名字字體 / Name font
-	
+
 	G.fontSize = 12						-- 名字字體大小 / Name font size
 	G.auraFontSize = 12					-- 光環字體大小 / Aura font size
 	G.fontFlag = "OUTLINE"				-- 描邊 / "OUTLINE" or none
+
+-------------
+-- FOR XML --
+-------------
+
+	-- 用迂迴的方式使xml調用的字型可以被控制 / make font config-able when use in xml
+
+	-- 數字模式名字 / number style name font
+	local NormalFont = CreateFont("EKPlates_NormalFont")
+	NormalFont:CopyFontObject("GameFontHighlightSmall")
+	NormalFont:SetFont(G.norFont, G.fontSize, G.fontFlag)
+	-- 數字模式血量 / number style health font
+	local NumberFont = CreateFont("EKPlates_NumberFont")
+	NumberFont:CopyFontObject("GameFontHighlightSmall")
+	NumberFont:SetFont(G.percFont, G.fontSize*1.75, G.fontFlag)
+	-- 數字模式能量 / number style power font
+	local PowerFont = CreateFont("EKPlates_PowerFont")
+	PowerFont:CopyFontObject("GameFontHighlightSmall")
+	PowerFont:SetFont(G.percFont, G.fontSize, G.fontFlag)
+
+	-- 條形模式數值 / bar style number font
+	local BarnumFont = CreateFont("EKPlates_BarnumFont")
+	BarnumFont:CopyFontObject("GameFontHighlightSmall")
+	BarnumFont:SetFont(G.numFont, G.fontSize-2, G.fontFlag)
+	-- 條形模式文字 / bar style name font
+	local BarFont = CreateFont("EKPlates_BarFont")
+	BarFont:CopyFontObject("GameFontHighlightSmall")
+	BarFont:SetFont(G.norFont, G.fontSize-2, G.fontFlag)
 
 ---------------------
 -- General Options --
 ---------------------
 
 	-- [[ cvars ]] --
-	
+
 	C.Inset = true						-- 名條貼齊畫面邊緣 / Let Nameplates don't go off screen
 	C.MaxDistance = 45 					-- 名條顯示的最大距離 / Max distance for nameplate show on
 	C.SelectedScale = 1					-- 縮放當前目標的名條大小 / Scale select target nameplate
@@ -63,26 +91,25 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 	C.EnemyClickThrough = false 		-- 敵方名條點擊穿透 / Enemy nameplate click through
 
 	-- [[ colors / 染色 ]] --
-	
+
 	C.nameOnly = true					-- 友方玩家只顯示名字不顯示血量 / Show only name on friendy player nameplates
 	C.friendlyCR = true					-- 友方職業顏色 / Friendly class color
 	C.enemyCR = true					-- 敵方職業顏色 / Enemy class color
 	C.threatColor = true				-- 名字仇恨染色 / Change name color by threat
-	
+
 	C.castStart = {.6, .6, .6}			-- 施法條顏色 / normal castbar color
 	C.castFailed = {.5, .2, .2}			-- 施法失敗顏色 / cast failed color
 	C.castShield = {.9, 0, 1}			-- 不可打斷顏色 / non-InterruptibleColor castbar color
 
 	-- [[ highlight / 高亮 ]] --
-	
+
 	C.HighlightFocus = true				-- 高亮焦點 / Highlight focus
 	C.HighlightMouseover = true			-- 高亮游標指向目標 / Highlight mouseover target
 	C.HighlightTarget = true			-- 高亮目標 / Highlight target
-	C.HighlightMode = "Vertical"		-- "Vertical", "Horizontal", "Glow" 三種目標高亮模式 / three highlight way for target
+	C.HighlightMode = "Vertical"		-- "Vertical", "Horizontal" 二種目標高亮模式 / two highlight way for target
 	
 	-- "Vertical" = 直向箭頭 / vertical arrow
 	-- "Horizontal" = 橫向箭頭 / horizontal arrow
-	-- "Glow" = 無箭頭，光暈染色 / no arrow, glow on nameplate
 
 	-- [[ other / 其他 ]] --
 
@@ -106,12 +133,12 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 -----------
 -- Auras --
 -----------
-	
+
 	C.auraNum = 5						-- 圖示數量 / The number of auras
 	C.auraIconSize = 22					-- 圖示大小 / Aura icon size
 	C.showMyAuras = true				-- 自身施放 / Show aura cast by player
 	C.showOtherAuras = true				-- 他人施放 / Show aura cast by other
-
+	
 	C.WhiteList = {
 		-- [[ 補足暴雪的白名單裡缺少的控場法術 / just need blizzard's missing spell ]] --
 		

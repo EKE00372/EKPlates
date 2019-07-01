@@ -1,10 +1,11 @@
-﻿## Interface: 80100
+﻿## Interface: 80200
 ## Title: |cff00ffffEK|rPlates
-## Version: R3.0
+## Version: R3.2b
 ## Author: EK (Linodas@Illidan-US)
 ## Notes: Nameplates. Credits to Paopao and Dawn.
 
 ## X-Credits: Paopao, Dawn, Siweia, Rubgrsch
 
+EKPlates.xml
 Config.lua
 EKPlates.lua

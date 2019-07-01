@@ -10,6 +10,10 @@ local C, G = unpack(select(2, ...))
 -----------------    [[ Functions ]]    -----------------
 --=====================================================--
 
+local function insecureOnShow(self)
+	self:Hide()
+end
+
 ----------------------------
 -- Power color / 能量顏色 --
 ----------------------------
@@ -87,37 +91,6 @@ local function FormatTime(s)
     return format("%d", math.fmod(s, minute))
 end
 
--- Create aura icon / 創建光環圖示
-local function CreateAuraIcon(parent)
-	local button = CreateFrame("Frame", "EKPlateButton",parent)
-	button:SetSize(C.auraIconSize, C.auraIconSize)
-
-	button.icon = button:CreateTexture(nil, "OVERLAY", nil, 3)
-	button.icon:SetPoint("TOPLEFT", button,"TOPLEFT", 1, -1)
-	button.icon:SetPoint("BOTTOMRIGHT", button,"BOTTOMRIGHT",-1, 1)
-	button.icon:SetTexCoord(.08, .92, 0.08, 0.92)
-	
-	button.overlay = button:CreateTexture(nil, "ARTWORK", nil, 7)
-	button.overlay:SetTexture(G.blank)
-	button.overlay:SetAllPoints(button)	
-	
-	button.bd = button:CreateTexture(nil, "ARTWORK", nil, 6)
-	button.bd:SetTexture(G.blank)
-	button.bd:SetVertexColor(0, 0, 0)
-	button.bd:SetPoint("TOPLEFT", button,"TOPLEFT", -1, 1)
-	button.bd:SetPoint("BOTTOMRIGHT", button,"BOTTOMRIGHT", 1, -1)
-
-	button.text = CreateText(button, "OVERLAY", G.numFont, G.auraFontSize, G.fontFlag, "CENTER")
-	button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
-	button.text:SetTextColor(1, 1, 0)
-	
-	button.count = CreateText(button, "OVERLAY", G.numFont, G.auraFontSize-2, G.fontFlag, "RIGHT")
-	button.count:SetPoint("TOPRIGHT", button, "TOPRIGHT", -1, 2)
-	button.count:SetTextColor(.4, .95, 1)
-	
-	return button
-end
-
 -- Update aura timer / 更新計時
 local function AuraIconOnUpdate(self, elapsed)
 	if not self.duration then return end
@@ -192,12 +165,13 @@ local function UpdateBuffs(unitFrame)
 			local matchbuff = AuraFilter(bcaster, bspellid, nameplateShowAll)
 			
 			if bname and matchbuff then
-				if not unitFrame.icons[i] then
-					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
+				if not unitFrame.icons[i] then					
+					unitFrame.icons[i] = unitFrame.Pools:Acquire("AuraIconTemplate")
+					unitFrame.icons[i]:SetSize(C.auraIconSize, C.auraIconSize)
+					unitFrame.icons[i].text:SetFont(G.numFont, G.auraFontSize, G.fontFlag)
+					unitFrame.icons[i].count:SetFont(G.numFont, G.auraFontSize-2, G.fontFlag)
 				end
-				
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, "HELPFUL")
-				
+				UpdateAuraIcon(unitFrame.icons[i], unitFrame.displayedUnit, index, 'HELPFUL')
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -213,11 +187,12 @@ local function UpdateBuffs(unitFrame)
 			
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
-					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
+					unitFrame.icons[i] = unitFrame.Pools:Acquire("AuraIconTemplate")
+					unitFrame.icons[i]:SetSize(C.auraIconSize, C.auraIconSize)
+					unitFrame.icons[i].text:SetFont(G.numFont, G.auraFontSize, G.fontFlag)
+					unitFrame.icons[i].count:SetFont(G.numFont, G.auraFontSize-2, G.fontFlag)
 				end
-				
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, "HARMFUL")
-				
+				UpdateAuraIcon(unitFrame.icons[i], unitFrame.displayedUnit, index, 'HARMFUL')
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -694,6 +669,7 @@ local function UpdatePower(unitFrame)
 	
 	if not C.numberstyle then
 		unitFrame.powerBar:SetStatusBarColor(r, g, b)
+		unitFrame.powerBar.bd:SetBackdropColor(r/3, g/3, b/3)
 	else
 		unitFrame.powerperc:SetTextColor(r, g, b)
 	end	
@@ -845,6 +821,8 @@ local function UpdateSelectionHighlight(unitFrame)
 	end
 	
 	-- 箭頭位移
+	unitFrame.hltarget:ClearAllPoints()
+	
 	if C.HighlightMode == "Vertical" then		--垂直箭頭
 		if not C.numberstyle then
 			if unitFrame.iconnumber and unitFrame.iconnumber > 0 then											-- 有光環
@@ -862,6 +840,8 @@ local function UpdateSelectionHighlight(unitFrame)
 			end
 		end
 	elseif C.HighlightMode == "Horizontal" then	--橫向箭頭
+		unitFrame.hltarget:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0)
+		
 		if not C.numberstyle then
 			unitFrame.hltarget:SetPoint("LEFT", unitFrame.healthBar, "RIGHT", 0, 0)
 		else
@@ -1175,323 +1155,44 @@ end
 --=============================================================--
 
 local function OnNamePlateCreated(namePlate)
-	namePlate.UnitFrame = CreateFrame("Button", "$parentUnitFrame", namePlate)
-	namePlate.UnitFrame:SetAllPoints(namePlate)
-	namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
+	namePlate.Pools = CreatePoolCollection() 
 	
-	if C.numberstyle then
-	
-		-- [[ 數字模式 ]] --
-		
-		-- 百分比
-		namePlate.UnitFrame.healthperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.healthperc:SetFont(G.percFont, G.fontSize * 1.75, G.fontFlag)
-		namePlate.UnitFrame.healthperc:SetPoint("CENTER")
-		namePlate.UnitFrame.healthperc:SetTextColor(1, 1, 1)
-		namePlate.UnitFrame.healthperc:SetShadowColor(0, 0, 0, .4)
-		namePlate.UnitFrame.healthperc:SetShadowOffset(1, -1)
-		namePlate.UnitFrame.healthperc:SetText("92")
-		
-		-- 名字
-		namePlate.UnitFrame.name = CreateText(namePlate.UnitFrame, "ARTWORK", G.norFont, G.fontSize, G.fontFlag, "CENTER")
-		namePlate.UnitFrame.name:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, -3)
-		namePlate.UnitFrame.name:SetTextColor(1, 1, 1)
-		namePlate.UnitFrame.name:SetText("Name")
-		
-		-- 施法條
-		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.castBar:Hide()
-		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
-		namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -6)
-		
-		-- 施法條或施法"條"
+	if C.numberstyle then -- 数字样式
 		if C.castBar then
-			namePlate.UnitFrame.castBar:SetSize(110, 8)
-			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.ufbar)
-			CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1)
+			namePlate.Pools:CreatePool("Button", namePlate, "NumberStyleNameplateNormalCastBarTemplate")
+			namePlate.UnitFrame = namePlate.Pools:Acquire("NumberStyleNameplateNormalCastBarTemplate")
 		else
-			namePlate.UnitFrame.castBar:SetSize(32,32)
-			namePlate.UnitFrame.castBar:SetStatusBarTexture(G.blank)
-			namePlate.UnitFrame.castBar.Border = namePlate.UnitFrame.castBar:CreateTexture(nil, "BACKGROUND", nil, -1)
-			namePlate.UnitFrame.castBar.Border:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, -1, 1)
-			namePlate.UnitFrame.castBar.Border:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, 1, -1)
-			namePlate.UnitFrame.castBar.Border:SetTexture(G.blank)
-			namePlate.UnitFrame.castBar.Border:SetVertexColor(0, 0, 0)
-		end
-		
-		namePlate.UnitFrame.castBar:SetStatusBarColor(.6, .6, .6)
-		namePlate.UnitFrame.castBar.bg = namePlate.UnitFrame.castBar:CreateTexture(nil, "BORDER")
-		namePlate.UnitFrame.castBar.bg:SetAllPoints(namePlate.UnitFrame.castBar)
-		namePlate.UnitFrame.castBar.bg:SetTexture(1/3, 1/3, 1/3, .5)
-		
-		-- 施法條圖示
-		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
-		namePlate.UnitFrame.castBar.Icon:SetTexCoord(.08, .92, .08, .92)
-		
-		-- 條不條，樣式不一樣
-		if C.castBar then
-			namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, -4)
-			namePlate.UnitFrame.castBar.Icon:SetSize(16, 16)
-			namePlate.UnitFrame.castBar.IconBorder = CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar.Icon, 1)
-			
-			namePlate.UnitFrame.castBar.Text = CreateText(namePlate.UnitFrame.castBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
-			namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
-			namePlate.UnitFrame.castBar.Text:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -5, 5)
-			namePlate.UnitFrame.castBar.Text:SetPoint("TOPRIGHT", namePlate.UnitFrame.castBar, "BOTTOMRIGHT", 5, -5)
-		else
-			namePlate.UnitFrame.castBar.Icon:SetPoint("CENTER")
-			namePlate.UnitFrame.castBar.Icon:SetSize(26, 26)
-
-			namePlate.UnitFrame.castBar.IconBorder = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", nil, -1)
-			namePlate.UnitFrame.castBar.IconBorder:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar.Icon, -1, 1)
-			namePlate.UnitFrame.castBar.IconBorder:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar.Icon, 1, -1)
-			namePlate.UnitFrame.castBar.IconBorder:SetTexture(G.blank)
-			namePlate.UnitFrame.castBar.IconBorder:SetVertexColor(0, 0, 0)
-			
+			namePlate.Pools:CreatePool("Button", namePlate, "NumberStyleNameplateTemplate")
+			namePlate.UnitFrame = namePlate.Pools:Acquire("NumberStyleNameplateTemplate")
 			if C.cbText then
-				namePlate.UnitFrame.castBar.Text = CreateText(namePlate.UnitFrame.castBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
-				namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
-				namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
+				namePlate.UnitFrame.castBar.Text:Show()
+			else
+				namePlate.UnitFrame.castBar.Text:Hide()
 			end
 		end
 		
-		-- 盾牌
-		namePlate.UnitFrame.castBar.BorderShield = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", nil, 2)
-		namePlate.UnitFrame.castBar.BorderShield:SetAtlas("nameplates-InterruptShield")
-		namePlate.UnitFrame.castBar.BorderShield:SetSize(12, 14)
-		namePlate.UnitFrame.castBar.BorderShield:SetPoint("CENTER", namePlate.UnitFrame.castBar, "BOTTOMLEFT", 6, 0)  
+		namePlate.UnitFrame:SetAllPoints(namePlate)
+		namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
+		namePlate.UnitFrame:Show()
+		namePlate.UnitFrame.Pools = CreatePoolCollection() 
+		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "AuraIconTemplate")
 		
-		-- 進度高亮
-		namePlate.UnitFrame.castBar.Spark = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.castBar.Spark:SetSize(30, 25)
-		namePlate.UnitFrame.castBar.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		namePlate.UnitFrame.castBar.Spark:SetBlendMode("ADD")
-		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, -1)
-		
-		if C.castBar then
-			namePlate.UnitFrame.castBar.Spark:SetAlpha(1)
+		if C.classResourceShow and C.classResourceOn == "target" then
+			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -8)
 		else
-			namePlate.UnitFrame.castBar.Spark:SetAlpha(0) --Disable this spark in icon style
+			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -4)
 		end
+	else -- 条形样式
+		namePlate.Pools:CreatePool("Button", namePlate, "BarStyleNameplateTemplate")
+		namePlate.UnitFrame = namePlate.Pools:Acquire("BarStyleNameplateTemplate")
+		namePlate.UnitFrame:SetAllPoints(namePlate)
+		namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
+		namePlate.UnitFrame:Show()
+		namePlate.UnitFrame.Pools = CreatePoolCollection() 
+		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "AuraIconTemplate")
 		
-		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.castBar.Flash:SetAllPoints()
-		namePlate.UnitFrame.castBar.Flash:SetTexture(G.ufbar)
-		namePlate.UnitFrame.castBar.Flash:SetBlendMode("ADD")
-		
-		CastingBarFrame_OnLoad(namePlate.UnitFrame.castBar, nil, false, true)
-		namePlate.UnitFrame.castBar:SetScript("OnEvent", CastingBarFrame_OnEvent)
-		namePlate.UnitFrame.castBar:SetScript("OnUpdate", CastingBarFrame_OnUpdate)
-		namePlate.UnitFrame.castBar:SetScript("OnShow", CastingBarFrame_OnShow)
-
-		-- 團隊標記
-		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.RaidTargetFrame:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 4)
-		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-		
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidIcon)
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
-		
-		-- 目標高亮
-		if C.HighlightMode == "glow" then
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
-			namePlate.UnitFrame.hltarget:SetTexture(G.hlGlow)
-			namePlate.UnitFrame.hltarget:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
-			namePlate.UnitFrame.hltarget:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-			namePlate.UnitFrame.hltarget:SetVertexColor(0, .85, 1)
-			namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 0)
-			namePlate.UnitFrame.hltarget:SetBlendMode("ADD")
-		else
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-			namePlate.UnitFrame.hltarget:SetSize(50, 50)
-			namePlate.UnitFrame.hltarget:SetTexture(G.redArrow)
-			
-			if C.HighlightMode == "Horizontal" then
-				namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0)
-			end
-		end
-		namePlate.UnitFrame.hltarget:Hide()	
-		
-		-- 焦點高亮
-		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
-		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
-		namePlate.UnitFrame.hlfocus:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
-		namePlate.UnitFrame.hlfocus:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-		namePlate.UnitFrame.hlfocus:SetVertexColor(.3, 1, .3)
-		namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
-		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
-		namePlate.UnitFrame.hlfocus:Hide()
-		
-		-- 指向高亮
-		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
-		namePlate.UnitFrame.hlmo:SetTexture(G.hlglow)
-		namePlate.UnitFrame.hlmo:SetPoint("LEFT", namePlate.UnitFrame.name, "TOPLEFT", -16, 0)
-		namePlate.UnitFrame.hlmo:SetPoint("RIGHT", namePlate.UnitFrame.name,"TOPRIGHT", 16, 0)
-		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 0)
-		namePlate.UnitFrame.hlmo:SetTexCoord(0, 1, 1, 0)
-		namePlate.UnitFrame.hlmo:SetBlendMode("ADD")
-		namePlate.UnitFrame.hlmo:Hide()
-		
-		-- 光環
-		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.healthperc, "TOP", 0, 0)
-		namePlate.UnitFrame.icons:SetWidth(140)
-		namePlate.UnitFrame.icons:SetHeight(C.auraIconSize)
-		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
-		
-		-- 能量
-		namePlate.UnitFrame.powerperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
-		namePlate.UnitFrame.powerperc:SetFont(G.percFont, G.fontSize, G.fontFlag)
-		namePlate.UnitFrame.powerperc:SetPoint("LEFT", namePlate.UnitFrame.name, "RIGHT", 0, 0)
-		namePlate.UnitFrame.powerperc:SetTextColor(.8, .8, 1)
-		namePlate.UnitFrame.powerperc:SetShadowColor(0, 0, 0, .4)
-		namePlate.UnitFrame.powerperc:SetShadowOffset(1, -1)
-		namePlate.UnitFrame.powerperc:SetText("55")
-	else
-	
-		-- [[ 條形模式 ]] --
-		
-		-- 血量條
-		namePlate.UnitFrame.healthBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.healthBar:SetHeight(8)
-		namePlate.UnitFrame.healthBar:SetPoint("LEFT", 0, 0)
-		namePlate.UnitFrame.healthBar:SetPoint("RIGHT", 0, 0)
-		namePlate.UnitFrame.healthBar:SetStatusBarTexture(G.ufbar)
-		namePlate.UnitFrame.healthBar:SetMinMaxValues(0, 1)		
-		namePlate.UnitFrame.healthBar.bd = CreateBackdrop(namePlate.UnitFrame.healthBar, namePlate.UnitFrame.healthBar, 1)
-		
-		-- 百分比
-		namePlate.UnitFrame.healthBar.value = CreateText(namePlate.UnitFrame.healthBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
-		namePlate.UnitFrame.healthBar.value:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, -G.fontSize / 3)
-		namePlate.UnitFrame.healthBar.value:SetTextColor(1, 1, 1)
-		namePlate.UnitFrame.healthBar.value:SetText("Value")
-		
-		-- 名字
-		namePlate.UnitFrame.name = CreateText(namePlate.UnitFrame, "OVERLAY", G.norFont, G.fontSize-2, G.fontFlag, "CENTER")
-		namePlate.UnitFrame.name:SetPoint("BOTTOM", namePlate.UnitFrame.healthBar, "TOP", 0, 0)
-		namePlate.UnitFrame.name:SetHeight(G.fontSize)
-		namePlate.UnitFrame.name:SetWidth(100)
-		namePlate.UnitFrame.name:SetWordWrap(false)
-		namePlate.UnitFrame.name:SetTextColor(1, 1, 1)
-		namePlate.UnitFrame.name:SetText("Name")
-		
-		-- 施法條
-		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.castBar:Hide()
-		namePlate.UnitFrame.castBar.iconWhenNoninterruptible = false
-		namePlate.UnitFrame.castBar:SetHeight(8)
 		namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -4)
 		namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -4)
-
-		namePlate.UnitFrame.castBar:SetStatusBarTexture(G.ufbar)
-		namePlate.UnitFrame.castBar:SetStatusBarColor(.6, .6, .6)
-		CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1)
-		
-		namePlate.UnitFrame.castBar.Text = CreateText(namePlate.UnitFrame.castBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
-		namePlate.UnitFrame.castBar.Text:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -5, 5)
-		namePlate.UnitFrame.castBar.Text:SetPoint("TOPRIGHT", namePlate.UnitFrame.castBar, "BOTTOMRIGHT", 5, -5)
-		namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
-		
-		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
-		namePlate.UnitFrame.castBar.Icon:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -4, 0)
-		namePlate.UnitFrame.castBar.Icon:SetTexCoord(.08, .92, .08, .92)
-		namePlate.UnitFrame.castBar.Icon:SetSize(20, 20)
-		namePlate.UnitFrame.castBar.IconBorder = CreateBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar.Icon, 1)
-		
-		namePlate.UnitFrame.castBar.BorderShield = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
-		namePlate.UnitFrame.castBar.BorderShield:SetAtlas("nameplates-InterruptShield")
-		namePlate.UnitFrame.castBar.BorderShield:SetSize(12, 14)
-		namePlate.UnitFrame.castBar.BorderShield:SetPoint("LEFT", namePlate.UnitFrame.castBar, "LEFT", 5, -5)
-
-		namePlate.UnitFrame.castBar.Spark = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.castBar.Spark:SetSize(30, 25)
-		namePlate.UnitFrame.castBar.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		namePlate.UnitFrame.castBar.Spark:SetBlendMode("ADD")
-		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, -1)
-		
-		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.castBar.Flash:SetAllPoints()
-		namePlate.UnitFrame.castBar.Flash:SetTexture(G.ufbar)
-		namePlate.UnitFrame.castBar.Flash:SetBlendMode("ADD")
-		
-		CastingBarFrame_OnLoad(namePlate.UnitFrame.castBar, nil, false, true)
-		namePlate.UnitFrame.castBar:SetScript("OnEvent", CastingBarFrame_OnEvent)
-		namePlate.UnitFrame.castBar:SetScript("OnUpdate", CastingBarFrame_OnUpdate)
-		namePlate.UnitFrame.castBar:SetScript("OnShow", CastingBarFrame_OnShow)
-		
-		-- 團隊標記
-		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-		
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(G.raidIcon)
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()		
-		
-		-- 目標高亮
-		if C.HighlightMode == "glow" then
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
-			namePlate.UnitFrame.hltarget:SetTexture(G.hlGlow)
-			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
-			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
-			namePlate.UnitFrame.hltarget:SetVertexColor(0, .85, 1)
-			namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 0)
-			namePlate.UnitFrame.hltarget:SetBlendMode("ADD")
-		else
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "OVERLAY")
-			namePlate.UnitFrame.hltarget:SetSize(50, 50)
-			namePlate.UnitFrame.hltarget:SetTexture(G.redArrow)
-			if C.HighlightMode == "Horizontal" then
-				namePlate.UnitFrame.hltarget:SetTexCoord(0, 1, 1, 1, 0, 0, 1, 0)
-			end
-		end
-		namePlate.UnitFrame.hltarget:Hide()	
-		
-		-- 焦點高亮
-		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
-		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
-		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
-		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
-		namePlate.UnitFrame.hlfocus:SetVertexColor(.3, 1, .3)
-		namePlate.UnitFrame.hlfocus:SetTexCoord(0, 1, 1, 0)
-		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
-		namePlate.UnitFrame.hlfocus:Hide()
-		
-		-- 指向高亮
-		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
-		namePlate.UnitFrame.hlmo:SetTexture(G.hlglow)
-		namePlate.UnitFrame.hlmo:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
-		namePlate.UnitFrame.hlmo:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
-		namePlate.UnitFrame.hlmo:SetVertexColor(1, 1, 0)
-		namePlate.UnitFrame.hlmo:SetTexCoord(0, 1, 1, 0)
-		namePlate.UnitFrame.hlmo:SetBlendMode("ADD")
-		namePlate.UnitFrame.hlmo:Hide()
-		
-		-- 光環
-		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 2)
-		namePlate.UnitFrame.icons:SetWidth(140)
-		namePlate.UnitFrame.icons:SetHeight(C.auraIconSize)
-		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
-		
-		-- 能量
-		namePlate.UnitFrame.powerBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.powerBar:SetHeight(3)
-		namePlate.UnitFrame.powerBar:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 0, 2)
-		namePlate.UnitFrame.powerBar:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", 0, 2)
-		namePlate.UnitFrame.powerBar:SetStatusBarTexture(G.ufbar)
-		namePlate.UnitFrame.powerBar:SetMinMaxValues(0, 1)
-		
-		namePlate.UnitFrame.powerBar.bd = CreateBackdrop(namePlate.UnitFrame.powerBar, namePlate.UnitFrame.powerBar, 1)
-		
-		namePlate.UnitFrame.powerBar.value = CreateText(namePlate.UnitFrame.healthBar, "OVERLAY", G.norFont, G.fontSize-4, G.fontFlag, "CENTER")
-		namePlate.UnitFrame.powerBar.value:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 0, -G.fontSize/3)
-		namePlate.UnitFrame.powerBar.value:SetText("55")
-		
 	end
 	
 	namePlate.UnitFrame:EnableMouse(false)
