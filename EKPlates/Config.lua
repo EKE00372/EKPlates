@@ -43,20 +43,17 @@ C.enemyCR = true --敵方職業顏色/enemy class color
 C.threatcolor = true --名字仇恨染色/change name color by threat
 C.cbshield = false  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false --顯示等級/show level
-C.HorizontalArrow = true --橫向箭頭/horizontal red arrow at right
+C.HorizontalArrow = false --橫向箭頭/horizontal red arrow at right
 C.HideArrow = false  --隱藏箭頭/hide arrow
 C.MinAlpha = 0.8 --非當前目標與遠距離姓名板的透明度/set fadeout for out range and non-target
 
 --number style additional config
 C.cbtext = false --施法條法術名稱/show castbar text
 
---bar style additional config
---C.CRname = false --名字也職業染色/class color on name also
-
 --[[ the Player Plate ]]--
 
-C.playerplate = false 
-C.classresource_show = false  
+C.playerplate = false
+C.classresource_show = false
 C.classresource = "player" -- "player", "target"  
 C.plateaura = false
 
@@ -156,6 +153,7 @@ C.ImportantAuras = {
 	--[225506] = 61295, -- 測試用
 	--[166646] = "none", -- 測試用
 	--[57723]  = "none", -- 測試用
+	--[227723]  = "compare", -- 測試用
 	
 	--[[ TrialofValor ]]--
 	--顯示中了沫液的人
@@ -180,14 +178,14 @@ C.ImportantAuras = {
 	[206480] = "none", --腐屍瘟疫
 	--星占師
 	--[206589] = "none", --冰凍
-	[205445] = "none", --貪狼
-	[205429] = "none", --巨蟹
-	[216345] = "none", --獵戶
-	[216344] = "none", --飛龍
-	--[205445] = 205445, --貪狼
-	--[205429] = 205429, --巨蟹
-	--[216345] = 216345, --獵戶
-	--[216344] = 216344, --飛龍
+	--[205445] = "none", --貪狼
+	--[205429] = "none", --巨蟹
+	--[216345] = "none", --獵戶
+	--[216344] = "none", --飛龍	
+	[205445] = "compare", --貪狼
+	[205429] = "compare", --巨蟹
+	[216345] = "compare", --獵戶
+	[216344] = "compare", --飛龍
 	--古爾丹
 	[221606] = "none", --薩格拉斯之焰
 	[221603] = "none", --薩格拉斯之焰	

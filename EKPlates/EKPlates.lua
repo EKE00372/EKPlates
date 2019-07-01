@@ -1,7 +1,18 @@
 local T, C, L, G = unpack(select(2, ...))
 
 --[[ config從beta7版本起獨立 ]]--
-
+local Custom_icons = {
+	--237554, -- 黃色笑臉
+	--237553, -- 紅色怒臉
+	--237552, -- 粉色笑臉	
+	--237555, -- 藍色哭臉
+	--135769, -- 藍色加號
+	--135768, -- 紅色減號
+	--132304, -- 藍色雙劍
+	--132096, -- 紅色漩渦	
+	236595, -- 綠色箭頭
+	236612, -- 紅色箭頭
+}
 
 --[[ Functions ]]-- 
 colorspower = {}
@@ -164,16 +175,21 @@ local function CreateAuraIcon(parent)
 	return button
 end
 
-local function UpdateAuraIcon(button, unit, index, filter)
+local function UpdateAuraIcon(button, unit, index, filter, custom_icon)
 	local name, _, icon, count, debuffType, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
-
-	button.icon:SetTexture(icon)
+	
+	if custom_icon then
+		button.icon:SetTexture(Custom_icons[custom_icon])
+	else
+		button.icon:SetTexture(icon)
+	end
+	
 	button.expirationTime = expirationTime
 	button.duration = duration
 	button.spellID = spellID
 	
 	local color = DebuffTypeColor[debuffType] or DebuffTypeColor.none
-	if C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+	if C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
 		button.overlay:SetVertexColor(0.9, 0.9, 0.9)
 	else
 		button.overlay:SetVertexColor(color.r, color.g, color.b)
@@ -229,6 +245,12 @@ local function AuraFilter(caster, spellid, unit)
 		if C.ImportantAuras[spellid] then
 			if C.ImportantAuras[spellid] == "none" then
 				return true
+			elseif C.ImportantAuras[spellid] == "compare" then
+				if UnitDebuffID("player", spellid) or UnitBuffID("player", spellid) then
+					return true, 1
+				else
+					return true, 2
+				end
 			elseif UnitDebuffID("player", C.ImportantAuras[spellid]) then
 				return true
 			elseif UnitBuffID("player", C.ImportantAuras[spellid]) then
@@ -240,7 +262,7 @@ local function AuraFilter(caster, spellid, unit)
 	if caster == "player" then
 		if C["myfiltertype"] == "none" then
 			return false
-		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
 			return false
 		elseif C["myfiltertype"] == "whitelist" and C.WhiteList[spellid] then
 			return true
@@ -250,7 +272,7 @@ local function AuraFilter(caster, spellid, unit)
 	else
 		if C["otherfiltertype"] == "none" then
 			return false
-		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+		elseif C.boss_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
 			return false
 		elseif C["otherfiltertype"] == "whitelist" and C.WhiteList[spellid] then
 			return true
@@ -267,12 +289,12 @@ local function UpdateBuffs(unitFrame)
 	for index = 1, 15 do
 		if i <= C.auranum then
 			local bname, _, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, 'HELPFUL')
-			local matchbuff = AuraFilter(bcaster, bspellid, unit)
+			local matchbuff, custom_icon = AuraFilter(bcaster, bspellid, unit)
 			if bname and matchbuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HELPFUL')
+				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HELPFUL', custom_icon)
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -284,13 +306,12 @@ local function UpdateBuffs(unitFrame)
 	for index = 1, 20 do
 		if i <= C.auranum then
 			local dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, 'HARMFUL')
-			local matchdebuff = AuraFilter(dcaster, dspellid, unit)
-			
+			local matchdebuff, custom_icon = AuraFilter(dcaster, dspellid, unit)
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame.icons)
 				end
-				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HARMFUL')
+				UpdateAuraIcon(unitFrame.icons[i], unit, index, 'HARMFUL', custom_icon)
 				if i ~= 1 then
 					unitFrame.icons[i]:SetPoint("LEFT", unitFrame.icons[i-1], "RIGHT", 4, 0)
 				end
@@ -760,14 +781,18 @@ local function UpdateHealthColor(unitFrame)
 	end
 	
 	if ( r ~= unitFrame.r or g ~= unitFrame.g or b ~= unitFrame.b ) then
-		if not C.numberstyle then
+		if C.numberstyle then
+			unitFrame.name:SetTextColor(r, g, b)
+		else
 			unitFrame.healthBar:SetStatusBarColor(r, g, b)  
 			unitFrame.healthBar.bd:SetBackdropColor(r/3, g/3, b/3)
-			--if C.CRname then
-				--unitFrame.name:SetTextColor(r, g, b)
-			--end
-		else
-			unitFrame.name:SetTextColor(r, g, b)
+			if C.boss_mod then
+				if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+					unitFrame.name:SetTextColor(r, g, b)
+				else
+					unitFrame.name:SetTextColor(1, 1, 1)
+				end
+			end
 		end
 		unitFrame.r, unitFrame.g, unitFrame.b = r, g, b
 	end
@@ -854,7 +879,7 @@ end
 local function UpdateforBossmod(unitFrame)
 	if not C.boss_mod then return end
 	local unit = unitFrame.displayedUnit
-	if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+	if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 and not UnitIsUnit(unit, "player") then
 		
 		if C.boss_mod_hidename then --隱藏友方名字
 			unitFrame.name:Hide()
@@ -876,7 +901,6 @@ local function UpdateforBossmod(unitFrame)
 		else
 			unitFrame.healthBar:Show()
 		end		
-		--unitFrame:SetAlpha(1)
 		unitFrame.icons:SetScale(1)
 	end
 end
