@@ -26,6 +26,7 @@ local WhiteList = {
 local BlackList = {
 	--[11426]  = true, --寒冰護體(測試用魔法)
 	--[196741] = true, --連珠狂拳(測試用)	
+	[166646] = true, --御風而行
 }
 
 local Config = {
@@ -38,6 +39,8 @@ local Config = {
 	--but scale nameplate by range will get fps drop if both range scale and outline working, 
 	--so if you get fps drop, should enable CVAR or disable font flag (font flag can be change at line 9),
 	--I suggest to use this config, outline is goodlook for nameplates.
+	--暴雪預設姓名板在10碼外會自動縮放，但這個功能和姓名板字體描邊同時存在時會引起fps drop
+	--描邊提供了姓名板美觀與易讀性，所以如果碰到了這個問題，建議啟用cvar設定來解決
 	
 	auranum = 5,
 	auraiconsize = 25,
@@ -47,7 +50,7 @@ local Config = {
 	cbtext = false,  --施法條法術名稱/show castbar text(number style only)
 	cbshield = false,  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 	--threattext = true,  --">"mark when ur on threat(not yet)
-	level = false, --shoe level
+	level = false, --show level
 	
 	myfiltertype = "blacklist", --自身施放/show aura cast by player
 	otherfiltertype = "whitelist",  --他人施放/show aura cast by other
@@ -55,7 +58,7 @@ local Config = {
 	--"blacklist": show only unlist/黑名單：只顯示列表外
 	--"none": do not show anything/不顯示任何光環
 	
-	playerplate = false,  
+	playerplate = false, 
 	classresource_show = false,  
 	classresource = "player", --"player", "target"  
 	plateaura = false, 
@@ -988,6 +991,7 @@ function NamePlates_UpdateNamePlateOptions()
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
 	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
 	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
+	C_NamePlate.SetNamePlateSelfSize(baseNamePlateWidth, baseNamePlateHeight)
 
 	for i, namePlate in ipairs(C_NamePlate.GetNamePlates()) do
 		local unitFrame = namePlate.UnitFrame
@@ -1177,7 +1181,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
 
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture([[Interface\AddOns\AltzUI\media\raidicons.blp]])
+		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(raidicon)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:Hide()
 		
