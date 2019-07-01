@@ -2,14 +2,10 @@ local T, C, L, G = unpack(select(2, ...))
 
 --[[ config從beta7版本起獨立 ]]--
 local Custom_icons = {
-	--237554, -- 黃色笑臉
-	--237553, -- 紅色怒臉
-	--237552, -- 粉色笑臉	
-	--237555, -- 藍色哭臉
-	--135769, -- 藍色加號
-	--135768, -- 紅色減號
-	--132304, -- 藍色雙劍
-	--132096, -- 紅色漩渦	
+	--237554, -- 黃色笑臉/--237553, -- 紅色怒臉
+	--237552, -- 粉色笑臉/--237555, -- 藍色哭臉
+	--135769, -- 藍色加號/--135768, -- 紅色減號
+	--132304, -- 藍色雙劍/--132096, -- 紅色漩渦	
 	236595, -- 綠色箭頭
 	236612, -- 紅色箭頭
 }
@@ -162,13 +158,11 @@ local function CreateAuraIcon(parent)
 	button.bd:SetPoint("TOPLEFT",button,"TOPLEFT", -1, 1)
 	button.bd:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT", 1, -1)
 	
-	--button.text = createnumber(button, "OVERLAY", C.auraiconsize-11, G.fontflag, "CENTER")
-	button.text = createnumber(button, "OVERLAY", 11, G.fontflag, "CENTER")
-    button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
+	button.text = createnumber(button, "OVERLAY", G.aurafontsize, G.fontflag, "CENTER")
+	button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, -2)
 	button.text:SetTextColor(1, 1, 0)
 	
-	--button.count = createnumber(button, "OVERLAY", C.auraiconsize-13, G.fontflag, "RIGHT")
-	button.count = createnumber(button, "OVERLAY", 9, G.fontflag, "RIGHT")
+	button.count = createnumber(button, "OVERLAY", G.aurafontsize-2, G.fontflag, "RIGHT")
 	button.count:SetPoint("TOPRIGHT", button, "TOPRIGHT", -1, 2)
 	button.count:SetTextColor(.4, .95, 1)
 	
@@ -1037,6 +1031,13 @@ local function HideBlizzard()
 		end
 		NamePlates_UpdateNamePlateOptions()
 	end
+	
+	--去你的DBM
+	if DBM and DBM.Nameplate then
+		function DBM.Nameplate:SupportedNPMod()
+			return true
+		end
+	end
 end
 
 local function OnUnitFactionChanged(unit)
@@ -1341,6 +1342,29 @@ local function defaultcvar()
 	--SetCVar("nameplateMaxAlphaDistance", 60)	
 	--SetCVar("nameplateMaxAlpha", 1)
 	SetCVar("nameplateMinAlpha", C.MinAlpha)
+	--禁用點擊
+	C_NamePlate.SetNamePlateFriendlyClickThrough(C.FriendlyClickThrough)
+	C_NamePlate.SetNamePlateEnemyClickThrough(C.EnemyClickThrough)
+	--個人資源顯示條件
+	SetCVar("nameplatePersonalShowAlways", 0)
+	SetCVar("nameplatePersonalShowInCombat", 1)
+	SetCVar("nameplatePersonalShowWithTarget", 1)
+	SetCVar("nameplatePersonalHideDelaySeconds", 3)
+	--敵方顯示條件
+	--SetCVar("nameplateShowEnemyGuardians", 0) --守護者
+	--SetCVar("nameplateShowEnemyMinions", 0)  --僕從
+	--SetCVar("nameplateShowEnemyPets", 0)  --寵物
+	--SetCVar("nameplateShowEnemyTotems", 1) --圖騰	
+	--SetCVar("nameplateShowEnemyMinus", 1) --次要	
+	--友方顯示條件
+	SetCVar("nameplateShowFriendlyGuardians", 0) --守護者
+	SetCVar("nameplateShowFriendlyMinions", 0)  --僕從
+	SetCVar("nameplateShowFriendlyNPCs", 0) --npc
+	SetCVar("nameplateShowFriendlyPets", 0) --寵物
+	SetCVar("nameplateShowFriendlyTotems", 0) --圖騰
+	--當前目標大小
+	SetCVar("nameplateSelectedScale", C.SelectedScale)
+	
 end 
 	
 local function NamePlates_OnEvent(self, event, ...)
