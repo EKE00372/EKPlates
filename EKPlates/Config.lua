@@ -66,8 +66,8 @@ C.plateaura = false  --玩家光環/aura
 
 --[[ Aura Icons on Plates ]]--
 
-C.auranum = 5 --圖示數量
-C.auraiconsize = 22 --圖示大小
+C.auranum = 5 --圖示數量/the number of auras
+C.auraiconsize = 22 --圖示大小/aura icon size
 C.myfiltertype = "blacklist" --自身施放/show aura cast by player
 C.otherfiltertype = "whitelist"  --他人施放/show aura cast by other
 
