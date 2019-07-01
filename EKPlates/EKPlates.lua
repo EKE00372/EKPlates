@@ -557,19 +557,19 @@ if C.classresource_show then
   
 					oldMax = self.maxbar  
 					if(max ~= oldMax) then  
-						if max == 5 or max == 8 then  
-							self[6]:Hide()  
-							for i = 1, 6 do  
-								self[i]:SetWidth(102/5-2)  
-							end  
-						else  
-							for i = 1, 6 do  
-								self[i]:SetWidth(102/max-2)  
-								if i > max then  
-									self[i]:Hide()  
-								end  
-							end  
-						end  
+						if max <= 6 then
+							for i = 1, 6 do
+								self[i]:SetWidth(102/max-2)
+								if i > max then
+									self[i]:Hide()
+								end
+							end
+						else
+							self[6]:Hide()
+							for i = 1, 6 do
+								self[i]:SetWidth(102/5-2)
+							end
+						end
 						self.maxbar = max  
 					end  
 				end  
@@ -800,12 +800,16 @@ end
 
 local function UpdateCastBar(unitFrame)
 	local castBar = unitFrame.castBar
-	castBar.startCastColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.startChannelColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.finishedCastColor = CreateColor(0.6, 0.6, 0.6)
-	castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
-	castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
-	CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
+	if not castBar.colored then
+		castBar.startCastColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.startChannelColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.finishedCastColor = CreateColor(0.6, 0.6, 0.6)
+		castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
+		castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
+		CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
+		castBar.colored = true
+	end
+
 	if UnitIsUnit("player", unitFrame.displayedUnit) then return end
 	if C.boss_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
 	if C.cbshield then
@@ -892,7 +896,6 @@ local function UpdateforBossmod(unitFrame)
 		else
 			unitFrame.healthBar:Hide()
 		end
-		--unitFrame:SetAlpha(1)
 		unitFrame.castBar:UnregisterAllEvents()
 		unitFrame.icons:SetScale(C.boss_mod_iconscale)
 	else
@@ -902,6 +905,7 @@ local function UpdateforBossmod(unitFrame)
 			unitFrame.healthBar:Show()
 		end		
 		unitFrame.icons:SetScale(1)
+		unitFrame.name:Show()
 	end
 end
 
@@ -1317,23 +1321,25 @@ end
 local function defaultcvar() 
 	if C.CVAR then	
 		SetCVar("nameplateOtherTopInset", -1)
-		SetCVar("nameplateOtherBottomInset", -1)
-		SetCVar("namePlateMinScale", 1)
-		SetCVar("namePlateMaxScale", 1)
+		SetCVar("nameplateOtherBottomInset", -1)		
 		SetCVar("nameplateMaxDistance", 45)
 	else
 		SetCVar("nameplateOtherTopInset", 0.08)
 		SetCVar("nameplateOtherBottomInset", 0.1)
-		SetCVar("namePlateMinScale", 0.8)
-		SetCVar("namePlateMaxScale", 1)
 		SetCVar("nameplateMaxDistance", 60)	
 	end
+	--fix fps drop(距離縮放與描邊功能會引起掉幀)
+	SetCVar("namePlateMinScale", 1)  --default is 0.8
+	SetCVar("namePlateMaxScale", 1) 
+	--讓堆疊血條的間距小一點	
 	SetCVar("nameplateOverlapH",  0.3)
 	SetCVar("nameplateOverlapV",  0.7)
-	--SetCVar("nameplateMaxAlpha", 1)
+	--boss nameplate scale
 	SetCVar("nameplateLargerScale", 1)
+	
 	--SetCVar("nameplateMinAlphaDistance", 60)
-	--SetCVar("nameplateMaxAlphaDistance", 60)
+	--SetCVar("nameplateMaxAlphaDistance", 60)	
+	--SetCVar("nameplateMaxAlpha", 1)
 	SetCVar("nameplateMinAlpha", C.MinAlpha)
 end 
 	
