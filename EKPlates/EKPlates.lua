@@ -32,11 +32,12 @@ local Config = {
 
 	numberstyle = true, --數字樣式/infinity plates's number style
 	
-	CVAR = true,  -- do a cvar setting to turn nameplate work like WOD, can slove fps drop
-	--blizzard default setting scale nameplate to 0.8 when it's 10yards outside,
+	CVAR = true,  -- do a cvar setting to turn nameplate work like WOD, can also slove fps drop.
+	
+	--blizzard default setting will scale nameplate to 0.8 when it's 10 yards outside,
 	--but scale nameplate by range will get fps drop if both range scale and outline working, 
-	--so if you get fps drop, should enable CVAR or disable fontflag(line9),
-	--suggest to use this config, outline is goodlook for nameplates.
+	--so if you get fps drop, should enable CVAR or disable font flag (font flag can be change at line 9),
+	--I suggest to use this config, outline is goodlook for nameplates.
 	
 	auranum = 5,
 	auraiconsize = 25,
@@ -46,6 +47,7 @@ local Config = {
 	cbtext = false,  --施法條法術名稱/show castbar text(number style only)
 	cbshield = false,  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 	--threattext = true,  --">"mark when ur on threat(not yet)
+	level = false, --shoe level
 	
 	myfiltertype = "blacklist", --自身施放/show aura cast by player
 	otherfiltertype = "whitelist",  --他人施放/show aura cast by other
@@ -639,16 +641,44 @@ end
 
  
 --[[ Unit frame ]]--
-
 local function UpdateName(unitFrame)
-	local name = GetUnitName(unitFrame.displayedUnit, false)
+	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
+	local level = UnitLevel(unitFrame.unit)
+	local hexColor
+		
 	if name then
+	
+	if Config.level then
+		if UnitIsUnit(unitFrame.displayedUnit, "player") then  
+			unitFrame.name:SetText("")  
+		else  
+	
+		if level >= UnitLevel("player")+5 then
+			hexColor = "ff0000"
+		elseif level >= UnitLevel("player")+3 then
+			hexColor = "ff6600"
+		elseif level <= UnitLevel("player")-3 then
+			hexColor = "00ff00"
+		elseif level <= UnitLevel("player")-5 then
+			hexColor = "808080"
+		else
+			hexColor = "ffff00"
+		end
+		
+		if level == -1 then 
+		unitFrame.name:SetText("|cffff0000??|r "..name)
+		else
+		unitFrame.name:SetText("|cff"..hexColor..""..level.."|r "..name)
+		end
+
+		end  
+	else	
 		if UnitIsUnit(unitFrame.displayedUnit, "player") then  
 			unitFrame.name:SetText("")  
 		else  
 			unitFrame.name:SetText(name)  
-		end  
-
+		end 
+end		
 	end
 end
 
@@ -956,8 +986,8 @@ function NamePlates_UpdateNamePlateOptions()
 	local baseNamePlateWidth = 100
 	local baseNamePlateHeight = 45
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
-	C_NamePlate.SetNamePlateOtherSize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
-	C_NamePlate.SetNamePlateSelfSize(baseNamePlateWidth, baseNamePlateHeight)
+	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
+	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
 
 	for i, namePlate in ipairs(C_NamePlate.GetNamePlates()) do
 		local unitFrame = namePlate.UnitFrame
@@ -1186,7 +1216,7 @@ local function defaultcvar()
 	SetCVar("nameplateOtherBottomInset", -1)
 	SetCVar("namePlateMinScale", 1)
 	SetCVar("namePlateMaxScale", 1)
-	SetCVar("nameplateMaxDistance", 40)
+	SetCVar("nameplateMaxDistance", 45)
 	else
 	SetCVar("nameplateOtherTopInset", 0.08)
 	SetCVar("nameplateOtherBottomInset", 0.1)
