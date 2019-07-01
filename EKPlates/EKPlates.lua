@@ -2,11 +2,11 @@ local iconcastbar = "Interface\\AddOns\\EKplates\\media\\dM3"
 local raidicon = "Interface\\AddOns\\EKplates\\media\\raidicons"
 local redarrow = "Interface\\AddOns\\EKplates\\media\\NeonRedArrow"
 local numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"
-local numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf" --number font
-local norFont = STANDARD_TEXT_FONT  --name font/GameFontHighlight:GetFont()
+local numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf" --number font/名字字體
+local norFont = STANDARD_TEXT_FONT  --name font/數字字體/GameFontHighlight:GetFont()
 local ufbar = "Interface\\AddOns\\EKplates\\media\\ufbar"
-local fontsize = 16
-local fontflag = "OUTLINE"  --"OUTLINE" or none, if get FPS drop, dont use outline
+local fontsize = 16  --name font size/名字字體大小(normal font*1.75=number font)
+local fontflag = "OUTLINE"  --"OUTLINE" or none
 local blank = "Interface\\Buttons\\WHITE8x8"
 local glow = "Interface\\AddOns\\EKplates\\media\\glow"
 local myClass = select(2, UnitClass("player"))
@@ -31,6 +31,12 @@ local BlackList = {
 local Config = {
 
 	numberstyle = true, --數字樣式/infinity plates's number style
+	
+	CVAR = true,  -- do a cvar setting to turn nameplate work like WOD, can slove fps drop
+	--blizzard default setting scale nameplate to 0.8 when it's 10yards outside,
+	--but scale nameplate by range will get fps drop if both range scale and outline working, 
+	--so if you get fps drop, should enable CVAR or disable fontflag(line9),
+	--suggest to use this config, outline is goodlook for nameplates.
 	
 	auranum = 5,
 	auraiconsize = 25,
@@ -1173,7 +1179,27 @@ local function OnNamePlateRemoved(unit)
 	SetUnit(namePlate.UnitFrame, nil)
 end
 
+--加一段cvar代碼
+local function defaultcvar() 
+	if Config.CVAR then	
+	SetCVar("nameplateOtherTopInset", -1)
+	SetCVar("nameplateOtherBottomInset", -1)
+	SetCVar("namePlateMinScale", 1)
+	SetCVar("namePlateMaxScale", 1)
+	SetCVar("nameplateMaxDistance", 40)
+	else
+	SetCVar("nameplateOtherTopInset", 0.08)
+	SetCVar("nameplateOtherBottomInset", 0.1)
+	SetCVar("namePlateMinScale", 0.8)
+	SetCVar("namePlateMaxScale", 1)
+	SetCVar("nameplateMaxDistance", 60)	
+	end
+end 
+	
 local function NamePlates_OnEvent(self, event, ...) 
+	if ( event == "PLAYER_ENTERING_WORLD" ) then
+		defaultcvar()
+	end
 	if ( event == "VARIABLES_LOADED" ) then
 		HideBlizzard()
 		if Config.playerplate then  

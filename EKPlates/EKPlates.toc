@@ -1,6 +1,6 @@
 ﻿## Interface: 70000
 ## Title: |cff00ffffEK|rPlates
-## Version: 7.0.alpha3
+## Version: 7.0.alpha4
 ## Author: EK(Linodas@Illidan-US)
 ## Credits-to:Paopao, Dawn
 ## Notes: Nameplates
