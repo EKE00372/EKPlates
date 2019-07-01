@@ -1,0 +1,8 @@
+﻿## Interface: 70000
+## Title: |cff00ffffEK|rPlates
+## Version: 7.0.alpha1
+## Author: EK
+## Credits-to:Paopao, Dawn
+## Notes: Nameplates
+
+EKPlates.lua
