@@ -51,7 +51,7 @@ C.level = false						-- 顯示等級 / Show level
 
 -- highlight / 高亮
 C.HighlightTarget = true			-- 高亮目標 / Highlight target
-C.HighlightMode = "Horizontal"		-- "Vertical", "Horizontal", "Glow" 橫向箭頭、直向箭頭、光暈染色 / vertical arrow ,horizontal arrow ,or blue glow on nameplate
+C.HighlightMode = "Vertical"			-- "Vertical", "Horizontal", "Glow" 直向箭頭、橫向箭頭、光暈染色 / vertical arrow ,horizontal arrow ,or blue glow on nameplate
 C.HighlightFocus = true				-- 高亮焦點 / Highlight focus
 C.HighlightMouseover = true			-- 高亮游標指向目標(高cpu占用) / Highlight mouseover target (!!! high CPU usage !!!)
 
@@ -196,6 +196,8 @@ C.Customcoloredplates = {
 
 C.show_power = true		-- 替特定怪(自行編輯清單)啟用顯示能量值 / show power or energy
 C.ShowPower = {
+	--["訓練假人"] = true,
+	
 	-- Temple of Sethraliss
 	["阿德利斯"] = true,
 	["艾斯匹"] = true,

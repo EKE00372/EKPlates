@@ -604,8 +604,7 @@ end
 -- Name / 名字
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
-	local unit = unitFrame.displayedUnit
-	local level = UnitLevel(unit)
+	local level = UnitLevel(unitFrame.unit)
 	local hexColor
 	if not C.numberstyle and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
 	if name then
@@ -920,8 +919,7 @@ local function UpdateNamePlateEvents(unitFrame)
 			if not C.numberstyle then	-- 顯示能量條時微調名字位置
 				unitFrame.powerBar:Show()
 				unitFrame.powerBar.value:Show()
-				unitFrame.name:SetPoint("TOPLEFT", unitFrame, "TOPLEFT", 5, 6)
-				unitFrame.name:SetPoint("BOTTOMRIGHT", unitFrame, "TOPRIGHT", -5, -4)
+				unitFrame.name:SetPoint("BOTTOM", unitFrame.powerBar, "TOP", 0, 2)
 			else
 				unitFrame.powerperc:Show()
 			end
@@ -930,8 +928,7 @@ local function UpdateNamePlateEvents(unitFrame)
 			if not C.numberstyle then
 				unitFrame.powerBar:Hide()
 				unitFrame.powerBar.value:Hide()
-				unitFrame.name:SetPoint("TOPLEFT", unitFrame, "TOPLEFT", 5, 2)
-				unitFrame.name:SetPoint("BOTTOMRIGHT", unitFrame, "TOPRIGHT", -5, -8)
+				unitFrame.name:SetPoint("BOTTOM", unitFrame.healthBar, "TOP", 0, 2)
 			else
 				unitFrame.powerperc:Hide()
 			end
@@ -1302,10 +1299,11 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.healthBar.value:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.healthBar.value:SetText("Value")
 		
-		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame.healthBar, "OVERLAY", G.fontsize-2, G.fontflag, "CENTER")
-		namePlate.UnitFrame.name:SetPoint("BOTTOMLEFT", namePlate.UnitFrame.healthBar, "TOPLEFT", 5, 0)
-		namePlate.UnitFrame.name:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame.healthBar, "TOPRIGHT", -5, 0)
-		namePlate.UnitFrame.name:SetIndentedWordWrap(false)
+		namePlate.UnitFrame.name = createtext(namePlate.UnitFrame, "OVERLAY", G.fontsize-2, G.fontflag, "CENTER")
+		namePlate.UnitFrame.name:SetPoint("BOTTOM", namePlate.UnitFrame.healthBar, "TOP", 0, 0)
+		namePlate.UnitFrame.name:SetHeight(G.fontsize)
+		namePlate.UnitFrame.name:SetWidth(100)
+		namePlate.UnitFrame.name:SetWordWrap(false)
 		namePlate.UnitFrame.name:SetTextColor(1, 1, 1)
 		namePlate.UnitFrame.name:SetText("Name")
 		
@@ -1381,7 +1379,7 @@ local function OnNamePlateCreated(namePlate)
 			namePlate.UnitFrame.hltarget:SetSize(50, 50)
 			namePlate.UnitFrame.hltarget:SetTexture(G.redarrow1)
 		else
-			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+			namePlate.UnitFrame.hltarget = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
 			namePlate.UnitFrame.hltarget:SetTexture(G.hlglow)
 			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
 			namePlate.UnitFrame.hltarget:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
@@ -1391,7 +1389,7 @@ local function OnNamePlateCreated(namePlate)
 		end
 		namePlate.UnitFrame.hltarget:Hide()
 		
-		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+		namePlate.UnitFrame.hlfocus = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
 		namePlate.UnitFrame.hlfocus:SetTexture(G.hlglow)
 		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
 		namePlate.UnitFrame.hlfocus:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
@@ -1400,7 +1398,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.hlfocus:SetBlendMode("ADD")
 		namePlate.UnitFrame.hlfocus:Hide()
 		
-		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND")
+		namePlate.UnitFrame.hlmo = namePlate.UnitFrame:CreateTexture("$parent_Arrow", "BACKGROUND", nil, -1)
 		namePlate.UnitFrame.hlmo:SetTexture(G.hlglow)
 		namePlate.UnitFrame.hlmo:SetPoint("BOTTOMLEFT", namePlate.UnitFrame, "LEFT", -10, 4)
 		namePlate.UnitFrame.hlmo:SetPoint("BOTTOMRIGHT", namePlate.UnitFrame, "RIGHT", 10, 0)
@@ -1410,9 +1408,8 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.hlmo:Hide()
 		
 		namePlate.UnitFrame.icons = CreateFrame("Frame", nil, namePlate.UnitFrame)
-		namePlate.UnitFrame.icons:SetPoint("BOTTOM",namePlate.UnitFrame.name, "TOP", 0, -2)
+		namePlate.UnitFrame.icons:SetPoint("BOTTOM", namePlate.UnitFrame.name, "TOP", 0, 2)
 		namePlate.UnitFrame.icons:SetWidth(140)
-		--namePlate.UnitFrame.icons:SetWidth(namePlate.UnitFrame:GetWidth()) namePlate.UnitFrame.name:GetStringWidth()
 		namePlate.UnitFrame.icons:SetHeight(C.auraiconsize)
 		namePlate.UnitFrame.icons:SetFrameLevel(namePlate.UnitFrame:GetFrameLevel() + 2)
 		
