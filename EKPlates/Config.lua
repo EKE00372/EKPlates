@@ -45,6 +45,7 @@ C.cbtext = false  --施法條法術名稱/show castbar text(number style only)
 C.cbshield = false  --施法條不可打斷圖示/show castbar un-interrupt shield icon
 C.level = false --顯示等級/show level
 C.HorizontalArrow = true --橫向箭頭/horizontal red arrow at right
+C.HideArrow = true  --隱藏箭頭/hide arrow
 
 --[[ the Player Plate ]]--
 
@@ -56,7 +57,7 @@ C.plateaura = false
 --[[ Aura Icons on Plates ]]--
 
 C.auranum = 5 --圖示數量
-C.auraiconsize = 25 --圖示大小
+C.auraiconsize = 22 --圖示大小
 C.myfiltertype = "blacklist" --自身施放/show aura cast by player
 C.otherfiltertype = "whitelist"  --他人施放/show aura cast by other
 
@@ -65,6 +66,7 @@ C.otherfiltertype = "whitelist"  --他人施放/show aura cast by other
 -- "none": do not show anything/不顯示任何光環
 
 C.WhiteList = {
+	--[166646] = true, -- 御風而行(測試用)
 	--BUFF
 	--[209859] = true, -- 激勵(mythic+)
 	--[226510] = true, -- 膿血(mythic+)
@@ -135,14 +137,16 @@ C.boss_mod = true
 
 C.ImportantAuras = {
 	--[225506] = 61295, -- 測試用
+	--[166646] = "none", -- 測試用
+	--[57723]  = "none", -- 測試用
+	[186403]  = "none",
 	
 	--[[ TrialofValor ]]--
 	--顯示中了沫液的人
 	-- Show Volatile Foam
 	[228818] = "none", -- 暗影易變沫液
 	[228810] = "none", -- 鹽蝕易變沫液
-	[228744] = "none", -- 火焰易變沫液
-	
+	[228744] = "none", -- 火焰易變沫液	
 	--當中了沫液，顯示和沫液同色吐息debuff的人
 	-- show match breath color debuff when you gain Volatile Foam
 	[228769] = 228818, -- 暗黑吐息
@@ -150,5 +154,23 @@ C.ImportantAuras = {
 	[228758] = 228744, -- 熾炎痰液
 	
 	--[[ Nighthold ]]--
-	[206480] = "none", -- 提克迪奧斯
+	--時光異象
+	[206617] = "none", --定時炸彈
+	--植物學家
+	[218342] = "none", --寄生專注
+	--提克迪奧斯
+	[206480] = "none", --腐屍瘟疫
+	--星占師
+	[206589] = "none", --冰凍
+	[205445] = "none", --貪狼
+	[205429] = "none", --巨蟹
+	[216345] = "none", --獵戶
+	[216344] = "none", --飛龍
+	--[205445] = 205445, --貪狼
+	--[205429] = 205429, --巨蟹
+	--[216345] = 216345, --獵戶
+	--[216344] = 216344, --飛龍
+	--古爾丹
+	[221606] = "none", --薩格拉斯之焰
+	[221603] = "none", --薩格拉斯之焰	
 }
