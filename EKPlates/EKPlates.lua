@@ -1079,10 +1079,10 @@ local function HideBlizzard()
 	NamePlateDriverFrame.SetupClassNameplateBars = function() end
 	ClassNameplateManaBarFrame:Hide()
   
-	hooksecurefunc(NamePlateDriverFrame, "SetupClassNameplateBar", function()  
+	--[[hooksecurefunc(NamePlateDriverFrame, "SetupClassNameplateBar", function()  
 		NamePlateTargetResourceFrame:Hide()
 		NamePlatePlayerResourceFrame:Hide()
-	end)
+	end)]]--
 
 	local checkBox = InterfaceOptionsNamesPanelUnitNameplatesMakeLarger
 	function checkBox.setFunc(value)
