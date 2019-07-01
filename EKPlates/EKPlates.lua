@@ -17,8 +17,8 @@ local WhiteList = {
 	--BUFF
 	--DEBUFF
 	--武僧
-	[119381] = true, -- 掃葉腿
-	[115078] = true, -- 點穴
+	[119381] = true, --掃葉腿
+	[115078] = true, --點穴
 	[25046]  = true, --奧流之術
 }
 
@@ -29,19 +29,22 @@ local BlackList = {
 
 local Config = {
 
-	numberstyle = true,
+	numberstyle = true, --數字樣式/infinity plates's number style
 	
 	auranum = 5,
 	auraiconsize = 25,
-	firendlyCR = true, -- 友方職業顏色/firendly class color
-	enemyCR = true, -- 敵方職業顏色/enemy class color
-	threatcolor = true,
-	cbtext = false,  --castbar text
-	cbshield = true,  --hide castbar uninterrupt shield icon
-	threat = true,  --">"mark when ur on threat
+	friendlyCR = true, --友方職業顏色/friendly class color
+	enemyCR = true, --敵方職業顏色/enemy class color
+	threatcolor = true, --名字仇恨染色/change name color by threat(note at line 686)
+	cbtext = false,  --施法條法術名稱/show castbar text(number style only)
+	cbshield = false,  --施法條不可打斷圖示/show castbar un-interrupt shield icon
+	--threattext = true,  --">"mark when ur on threat(not yet)
 	
-	myfiltertype = "blacklist", --自身施放/cast by plater/"whitelist" 只顯示列表中，"blacklist"只顯示列表外， "none"不顯示任何光環
-	otherfiltertype = "whitelist",  --他人施放
+	myfiltertype = "blacklist", --自身施放/show aura cast by player
+	otherfiltertype = "whitelist",  --他人施放/show aura cast by other
+	--"whitelist": show only list/白名單：只顯示列表中
+	--"blacklist": show only unlist/黑名單：只顯示列表外
+	--"none": do not show anything/不顯示任何光環
 	
 	playerplate = false,  
 	classresource_show = false,  
@@ -682,35 +685,16 @@ end
 
 local function IsOnThreatList(unit)
 	local _, threatStatus = UnitDetailedThreatSituation("player", unit)
-	if threatStatus == 3 then
-		return .9, .1, .4
-	elseif threatStatus == 2 then
-		return .9, .1, .9
-	elseif threatStatus == 1 then
-		return .4, .1, .9
-	elseif threatStatus == 0 then
-		return .1, .7, .9
+	if threatStatus == 3 then  --穩定仇恨/當前坦克/securely tanking, highest threat
+		return .9, .1, .4  --紅色/red
+	elseif threatStatus == 2 then  --非當前仇恨/當前坦克/insecurely tanking, another unit have higher threat but not tanking.
+		return .9, .1, .9  --粉色/pink
+	elseif threatStatus == 1 then  --當前仇恨/非當前坦克(遠程ot)/not tanking, higher threat than tank.
+		return .4, .1, .9  --紫色/purple
+	elseif threatStatus == 0 then  --低仇恨/安全/not tanking, lower threat than tank.
+		return .1, .7, .9  --藍色/blue
 	end
 end
-
-
---[[ threat indication 借INIFITY PLATE的仇恨標記 但沒有效果...... ]]--
-
-local function UpdateThreat(unitFrame, elapsed)
-	if Config.threat then
-		local _, val = namePlate.UnitFrame.HLthreat:GetVertexColor()
-			if(val > 0.7) then
-			namePlate.UnitFrame.HLthreat:SetTextColor(1, 1, 0)
-			namePlate.UnitFrame.HLthreat:SetText(">")
-			else
-			namePlate.UnitFrame.HLthreat:SetTextColor(1, 0, 0)
-			namePlate.UnitFrame.HLthreat:SetText(">")
-			end
-		else
-		namePlate.UnitFrame.HLthreat:SetText(" ")
-	end
-end
-
 
 local function IsTapDenied(unitFrame)
 	return UnitIsTapDenied(unitFrame.unit) and not UnitPlayerControlled(unitFrame.unit)
@@ -735,7 +719,7 @@ local function UpdateHealthColor(unitFrame)
 		if not iscustomed then
 			local _, englishClass = UnitClass(unit)
 			local classColor = Ccolors[englishClass]
-			if UnitIsPlayer(unit) and classColor and Config.firendlyCR and UnitReaction(unit, 'player') >= 5 then
+			if UnitIsPlayer(unit) and classColor and Config.friendlyCR and UnitReaction(unit, 'player') >= 5 then
 				r, g, b = classColor.r, classColor.g, classColor.b
 			elseif UnitIsPlayer(unit) and classColor and Config.enemyCR and UnitReaction(unit, 'player') <= 4 then
 				r, g, b = classColor.r, classColor.g, classColor.b
@@ -772,9 +756,9 @@ local function UpdateCastBar(unitFrame)
 	CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
 	if not UnitIsUnit("player", unitFrame.displayedUnit) then
 	  if Config.cbshield then
-	  CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, false)
-	  else
 	  CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, true)
+	  else
+	  CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, false)
 	  end
 	end
 end
@@ -865,13 +849,13 @@ local function NamePlate_OnEvent(self, event, ...)
 	elseif ( event == "PLAYER_ENTERING_WORLD" ) then
 		UpdateAll(self)
 	elseif ( arg1 == self.unit or arg1 == self.displayedUnit ) then
-		if ( event == "UNIT_HEALTH" ) then
+		if ( event == "UNIT_HEALTH_FREQUENT" ) then
 			UpdateHealth(self)
 			UpdateSelectionHighlight(self)
 		elseif ( event == "UNIT_AURA" ) then
 			UpdateBuffs(self)
 			UpdateSelectionHighlight(self)
-		elseif ( event == "UNIT_THREAT_SITUATION_UPDATE" ) then
+		elseif ( event == "UNIT_THREAT_LIST_UPDATE" ) then
 			UpdateHealthColor(self)
 		elseif ( event == "UNIT_NAME_UPDATE" ) then
 			UpdateName(self)
@@ -888,9 +872,9 @@ local function UpdateNamePlateEvents(unitFrame)
 	if ( unit ~= unitFrame.displayedUnit ) then
 		displayedUnit = unitFrame.displayedUnit
 	end
-	unitFrame:RegisterUnitEvent("UNIT_HEALTH", unit, displayedUnit)
+	unitFrame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_AURA", unit, displayedUnit)
-	unitFrame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", unit, displayedUnit)
+	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
 end
 
 local function RegisterNamePlateEvents(unitFrame)
@@ -994,11 +978,11 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame.name:SetTextColor(1,1,1)
 		namePlate.UnitFrame.name:SetText("Name")
 		
-		-- threat
-		namePlate.UnitFrame.HLthreat = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
+		-- threattext
+		--[[namePlate.UnitFrame.HLthreat = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
 		namePlate.UnitFrame.HLthreat:SetFont(numberstylefont, fontsize*1.75, "OUTLINE")
 		namePlate.UnitFrame.HLthreat:SetPoint("RIGHT", namePlate.UnitFrame.healthperc, "LEFT", -2, 0)
-		namePlate.UnitFrame.HLthreat:SetShadowOffset(1, -1)
+		namePlate.UnitFrame.HLthreat:SetShadowOffset(1, -1)]]--
 		
 		namePlate.UnitFrame.castBar = CreateFrame("StatusBar", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.castBar:Hide()
@@ -1040,10 +1024,11 @@ local function OnNamePlateCreated(namePlate)
 
 		
 		namePlate.UnitFrame.castBar.Spark = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
-		namePlate.UnitFrame.castBar.Spark:SetSize(38, 57)
+		namePlate.UnitFrame.castBar.Spark:SetSize(38, 76)
 		namePlate.UnitFrame.castBar.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 		namePlate.UnitFrame.castBar.Spark:SetBlendMode("ADD")
-		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, 3)
+		namePlate.UnitFrame.castBar.Spark:SetPoint("CENTER", 0, -3)
+		namePlate.UnitFrame.castBar.Spark:SetAlpha(0) --Disable this spark
 		
 		namePlate.UnitFrame.castBar.Flash = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.castBar.Flash:SetAllPoints()
@@ -1113,7 +1098,8 @@ local function OnNamePlateCreated(namePlate)
 		createBackdrop(namePlate.UnitFrame.castBar, namePlate.UnitFrame.castBar, 1) 
 			
 		namePlate.UnitFrame.castBar.Text = createtext(namePlate.UnitFrame.castBar, "OVERLAY", fontsize-4, "OUTLINE", "CENTER")
-		namePlate.UnitFrame.castBar.Text:SetPoint("CENTER")
+		namePlate.UnitFrame.castBar.Text:SetPoint("TOPLEFT", namePlate.UnitFrame.castBar, "BOTTOMLEFT", -5, 5)
+		namePlate.UnitFrame.castBar.Text:SetPoint("TOPRIGHT", namePlate.UnitFrame.castBar, "BOTTOMRIGHT", 5, -5)
 		namePlate.UnitFrame.castBar.Text:SetText("Spell Name")
 		
 		namePlate.UnitFrame.castBar.Icon = namePlate.UnitFrame.castBar:CreateTexture(nil, "OVERLAY", 1)
