@@ -182,4 +182,8 @@ C.ShowPower = {
 	["清掃者"] = true,
 	["Scrubber"] = true,
 	["Automated Sweeper"] = true,
+	-- Arggramar
+	["泰夏拉克燼火"] = true,
+	["泰沙拉克之焰"] = true,
+	["Ember of Taeshalach"] = true,
 }
