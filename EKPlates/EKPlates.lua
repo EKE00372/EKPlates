@@ -10,11 +10,12 @@ local fontflag = "OUTLINE"  --"OUTLINE" or none
 local blank = "Interface\\Buttons\\WHITE8x8"
 local glow = "Interface\\AddOns\\EKplates\\media\\glow"
 local myClass = select(2, UnitClass("player"))
+
 --[[ Config ]]-- 
 local WhiteList = {
 	--[11426]  = true, --寒冰護體(測試用魔法)
 	--[196741] = true, --連珠狂拳(測試用)
-	--[147732] = true, --冰封攻擊(測試用)
+	--[147732] = true, --冰封攻擊(測試用)	
 	--BUFF
 	--DEBUFF
 	--武僧
@@ -58,10 +59,12 @@ local Config = {
 	--"blacklist": show only unlist/黑名單：只顯示列表外
 	--"none": do not show anything/不顯示任何光環
 	
-	playerplate = false, 
+	playerplate = false,  
 	classresource_show = false,  
 	classresource = "player", --"player", "target"  
 	plateaura = false, 
+	
+	Guarm_mod = false,  --Mythic Guarm mod/傳奇模式加爾姆提示模塊
 }
 --[[ 為特定目標自定義姓名板顏色/custom colored plates ]]--
 local Customcoloredplates = {
@@ -269,9 +272,33 @@ local function UpdateAuraIcon(button, unit, index, filter)
 	button:Show()
 end
 
-local function AuraFilter(caster, spellid)
+local function UnitDebuffID(unit, spell_id)
+	local debuff_name = GetSpellInfo(spell_id)
+	if UnitDebuff(unit, debuff_name) then
+		local id = select(11, UnitDebuff(unit, debuff_name))
+		if id == spell_id then
+			return true
+		end
+	end
+end
+
+local function AuraFilter(caster, spellid, unit)
+	if Config.Guarm_mod then
+		if spellid == 228818 or spellid == 228810 or spellid == 228744 then
+			return true
+		elseif spellid == 228769 and UnitDebuffID("player", 228818) then -- 黑色
+			return true
+		elseif spellid == 228768 and UnitDebuffID("player", 228810) then -- 蓝色
+			return true
+		elseif spellid == 228758 and UnitDebuffID("player", 228744) then -- 红色
+			return true
+		end
+	end
+	
 	if caster == "player" then
 		if Config["myfiltertype"] == "none" then
+			return false
+		elseif Config.Guarm_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
 			return false
 		elseif Config["myfiltertype"] == "whitelist" and WhiteList[spellid] then
 			return true
@@ -280,6 +307,8 @@ local function AuraFilter(caster, spellid)
 		end
 	else
 		if Config["otherfiltertype"] == "none" then
+			return false
+		elseif Config.Guarm_mod and UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
 			return false
 		elseif Config["otherfiltertype"] == "whitelist" and WhiteList[spellid] then
 			return true
@@ -292,12 +321,11 @@ local function UpdateBuffs(unitFrame)
 	if not Config.plateaura and UnitIsUnit(unitFrame.displayedUnit, "player") then return end
 	local unit = unitFrame.displayedUnit
 	local i = 1
-	
+
 	for index = 1, 15 do
-		if i <= Config.auranum then			
+		if i <= Config.auranum then
 			local bname, _, _, _, _, bduration, _, bcaster, _, _, bspellid = UnitAura(unit, index, 'HELPFUL')
-			local matchbuff = AuraFilter(bcaster, bspellid)
-				
+			local matchbuff = AuraFilter(bcaster, bspellid, unit)
 			if bname and matchbuff then
 				if not unitFrame.icons[i] then
 					unitFrame.icons[i] = CreateAuraIcon(unitFrame)
@@ -314,7 +342,7 @@ local function UpdateBuffs(unitFrame)
 	for index = 1, 20 do
 		if i <= Config.auranum then
 			local dname, _, _, _, _, dduration, _, dcaster, _, _, dspellid = UnitAura(unit, index, 'HARMFUL')
-			local matchdebuff = AuraFilter(dcaster, dspellid)
+			local matchdebuff = AuraFilter(dcaster, dspellid, unit)
 			
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
@@ -794,12 +822,12 @@ local function UpdateCastBar(unitFrame)
 	castBar.failedCastColor = CreateColor(0.5, 0.2, 0.2)
 	castBar.nonInterruptibleColor = CreateColor(0.9, 0, 1)
 	CastingBarFrame_AddWidgetForFade(castBar, castBar.BorderShield)
-	if not UnitIsUnit("player", unitFrame.displayedUnit) then
-	  if Config.cbshield then
-	  CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, true)
-	  else
-	  CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, false)
-	  end
+	if UnitIsUnit("player", unitFrame.displayedUnit) then return end
+	if Config.Guarm_mod and UnitIsPlayer(unitFrame.unit) and UnitReaction(unitFrame.unit, "player") >= 5 then return end
+	if Config.cbshield then
+		CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, true)
+	else
+		CastingBarFrame_SetUnit(castBar, unitFrame.unit, false, false)
 	end
 end
 
@@ -856,6 +884,26 @@ local function UpdateInVehicle(unitFrame)
 	end
 end
 
+local function UpdateforGuarm(unitFrame)
+	if not Config.Guarm_mod then return end
+	local unit = unitFrame.displayedUnit
+	if UnitIsPlayer(unit) and UnitReaction(unit, 'player') >= 5 then
+		if Config.numberstyle then
+			unitFrame.healthperc:Hide()
+		else
+			unitFrame.healthBar:Hide()
+		end
+		unitFrame.name:Hide()
+		unitFrame.castBar:UnregisterAllEvents()
+	else
+		if Config.numberstyle then
+			unitFrame.healthperc:Show()
+		else
+			unitFrame.healthBar:Show()
+		end
+		unitFrame.name:Show()		
+	end
+end
 
 local function UpdateAll(unitFrame)
 	UpdateInVehicle(unitFrame)
@@ -867,6 +915,7 @@ local function UpdateAll(unitFrame)
 		UpdateSelectionHighlight(unitFrame)
 		UpdateBuffs(unitFrame)
 		UpdateRaidTarget(unitFrame)
+		UpdateforGuarm(unitFrame)
 		
 		if UnitIsUnit("player", unitFrame.displayedUnit) then  
 			unitFrame.castBar:UnregisterAllEvents()  
@@ -899,6 +948,7 @@ local function NamePlate_OnEvent(self, event, ...)
 			UpdateHealthColor(self)
 		elseif ( event == "UNIT_NAME_UPDATE" ) then
 			UpdateName(self)
+			UpdateforGuarm(self)
 		elseif ( event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_PET" ) then
 			UpdateAll(self)
 		end
@@ -975,6 +1025,7 @@ local function OnUnitFactionChanged(unit)
 	if (namePlate) then
 		UpdateName(namePlate.UnitFrame)
 		UpdateHealthColor(namePlate.UnitFrame)
+		UpdateforGuarm(namePlate.UnitFrame)
 	end
 end
 
@@ -991,7 +1042,6 @@ function NamePlates_UpdateNamePlateOptions()
 	local horizontalScale = tonumber(GetCVar("NamePlateHorizontalScale"))
 	C_NamePlate.SetNamePlateFriendlySize(baseNamePlateWidth * horizontalScale, baseNamePlateHeight)
 	C_NamePlate.SetNamePlateEnemySize(baseNamePlateWidth, baseNamePlateHeight)
-	C_NamePlate.SetNamePlateSelfSize(baseNamePlateWidth, baseNamePlateHeight)
 
 	for i, namePlate in ipairs(C_NamePlate.GetNamePlates()) do
 		local unitFrame = namePlate.UnitFrame
@@ -1004,7 +1054,7 @@ local function OnNamePlateCreated(namePlate)
 	namePlate.UnitFrame = CreateFrame("Button", "$parentUnitFrame", namePlate)
 	namePlate.UnitFrame:SetAllPoints(namePlate)
 	namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
-	
+			
 	if Config.numberstyle then -- 數字樣式
 		namePlate.UnitFrame.healthperc = namePlate.UnitFrame:CreateFontString(nil, "OVERLAY")
 		namePlate.UnitFrame.healthperc:SetFont(numberstylefont, fontsize*1.75, fontflag)
@@ -1083,8 +1133,12 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-
+		if Config.Guarm_mod then
+			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame.healthperc, "BOTTOM", 0, 0)
+		else
+			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
+		end
+		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(raidicon)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
@@ -1178,8 +1232,13 @@ local function OnNamePlateCreated(namePlate)
 
 		namePlate.UnitFrame.RaidTargetFrame = CreateFrame("Frame", nil, namePlate.UnitFrame)
 		namePlate.UnitFrame.RaidTargetFrame:SetSize(30, 30)
-		namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
-
+		
+		if Config.Guarm_mod then
+			namePlate.UnitFrame.RaidTargetFrame:SetPoint("TOP", namePlate.UnitFrame, "BOTTOM", 0, 30)
+		else
+			namePlate.UnitFrame.RaidTargetFrame:SetPoint("RIGHT", namePlate.UnitFrame.name, "LEFT")
+		end
+		
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon = namePlate.UnitFrame.RaidTargetFrame:CreateTexture(nil, "OVERLAY")
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetTexture(raidicon)
 		namePlate.UnitFrame.RaidTargetFrame.RaidTargetIcon:SetAllPoints()
@@ -1216,21 +1275,22 @@ end
 --加一段cvar代碼
 local function defaultcvar() 
 	if Config.CVAR then	
-	SetCVar("nameplateOtherTopInset", -1)
-	SetCVar("nameplateOtherBottomInset", -1)
-	SetCVar("namePlateMinScale", 1)
-	SetCVar("namePlateMaxScale", 1)
-	SetCVar("nameplateMaxDistance", 45)
+		SetCVar("nameplateOtherTopInset", -1)
+		SetCVar("nameplateOtherBottomInset", -1)
+		SetCVar("namePlateMinScale", 1)
+		SetCVar("namePlateMaxScale", 1)
+		SetCVar("nameplateMaxDistance", 45)
 	else
-	SetCVar("nameplateOtherTopInset", 0.08)
-	SetCVar("nameplateOtherBottomInset", 0.1)
-	SetCVar("namePlateMinScale", 0.8)
-	SetCVar("namePlateMaxScale", 1)
-	SetCVar("nameplateMaxDistance", 60)	
+		SetCVar("nameplateOtherTopInset", 0.08)
+		SetCVar("nameplateOtherBottomInset", 0.1)
+		SetCVar("namePlateMinScale", 0.8)
+		SetCVar("namePlateMaxScale", 1)
+		SetCVar("nameplateMaxDistance", 60)	
 	end
 end 
 	
-local function NamePlates_OnEvent(self, event, ...) 
+local function NamePlates_OnEvent(self, event, ...)
+	local arg1 = ...
 	if ( event == "PLAYER_ENTERING_WORLD" ) then
 		defaultcvar()
 	end
@@ -1258,6 +1318,10 @@ local function NamePlates_OnEvent(self, event, ...)
 		NamePlates_UpdateNamePlateOptions()
 	elseif ( event == "UNIT_FACTION" ) then
 		OnUnitFactionChanged(...)
+	elseif Config.Guarm_mod and event == "UNIT_AURA" and arg1 == "player" then
+		for _, namePlate in pairs(C_NamePlate.GetNamePlates()) do
+			UpdateBuffs(namePlate.UnitFrame)
+		end
 	end
 end
 
@@ -1270,3 +1334,5 @@ NamePlatesFrame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 NamePlatesFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
 NamePlatesFrame:RegisterEvent("RAID_TARGET_UPDATE")
 NamePlatesFrame:RegisterEvent("UNIT_FACTION")
+NamePlatesFrame:RegisterEvent("UNIT_AURA")
+NamePlatesFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
