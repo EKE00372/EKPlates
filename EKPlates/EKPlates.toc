@@ -1,10 +1,10 @@
-﻿## Interface: 70300
+﻿## Interface: 80001
 ## Title: |cff00ffffEK|rPlates
-## Version: B1.8
-## Author: EK(Linodas@Illidan-US)
+## Version: R1.9
+## Author: EK (Linodas@Illidan-US)
 ## Notes: Nameplates. Credits to Paopao and Dawn.
 
-## X-Credits: Paopao, Dawn, Seweia, Rubgrsch
+## X-Credits: Paopao, Dawn, Siweia, Rubgrsch
 
 Config.lua
 EKPlates.lua

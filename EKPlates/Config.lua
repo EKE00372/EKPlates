@@ -25,7 +25,7 @@ G.myClass = select(2, UnitClass("player"))			-- DO NOT touch this!/別碰這個�
 G.numberstylefont = "Interface\\AddOns\\EKplates\\media\\Infinity Gears.ttf"	-- 數字樣式的數字字體/number style's number font
 G.numFont = "Interface\\AddOns\\EKplates\\media\\number.ttf"					-- 數字字體/number font
 G.norFont = STANDARD_TEXT_FONT													-- 名字字體/name font (or use"GameFontHighlight:GetFont()")
-G.fontsize = 14																	-- 名字字體大小/name font size
+G.fontsize = 12																-- 名字字體大小/name font size
 G.aurafontsize = 12																-- 光環字體大小/Aura font size
 G.fontflag = "OUTLINE"															-- "OUTLINE" or none/描邊
 
@@ -82,6 +82,7 @@ C.WhiteList = {
 	-- Mythic+
 	[209859]= true,		-- 激勵/Bloster
 	[226510]= true,		-- 膿血/Sanguine Ichor
+	[277242]= true,		-- 感染/Symbiote of G'huun
 	-- TOS
 	[236513]= true,		-- 骨牢護甲
 	-- antorus
@@ -98,7 +99,7 @@ C.WhiteList = {
 	
 	-- DEBUFF	
 	-- 種族
-	[25046]	= true,		-- 奧流之術/Arcane Torrent
+	[25049]	= true,		-- 戰爭踐踏/War Stomp
 	-- 法師
 	[118]	= true,		-- 變形術/Polymorph
 	-- 薩滿
@@ -156,20 +157,30 @@ C.BlackList = {
 -- [[ Custom colored plates ]] --
 
 C.Customcoloredplates = {
+	-- M+感染詞綴，白色
 	[1] = {
-		name = "暴躁蠍子",				-- 水晶蠍的大怪，白色
-		color = {r = 1, g = 1, b = 1},
+		name = "古翰幼體",
+		color = {r = 1, g = 1, b = 0.2},
 	},
 	[2] = {
-		name = "魔化炸彈",				-- M+易爆詞綴ZHTW.....黃色
+		name = "Spawn of G'huun",
 		color = {r = 1, g = 1, b = 0.2},
 	},
 	[3] = {
-		name = "邪能炸弹",				-- M+易爆詞綴ZHCN
+		name = "戈霍恩之嗣",
 		color = {r = 1, g = 1, b = 0.2},
 	},
+	-- M+易爆詞綴，白色
 	[4] = {
-		name = "Fel Explosives",		-- M+易爆詞綴ENUS
+		name = "魔化炸彈",
+		color = {r = 1, g = 1, b = 0.2},
+	},
+	[5] = {
+		name = "邪能炸弹",
+		color = {r = 1, g = 1, b = 0.2},
+	},
+	[6] = {
+		name = "Fel Explosives",
 		color = {r = 1, g = 1, b = 0.2},
 	},
 }
@@ -186,4 +197,11 @@ C.ShowPower = {
 	["泰夏拉克燼火"] = true,
 	["泰沙拉克之焰"] = true,
 	["Ember of Taeshalach"] = true,
+	-- Temple of Sethraliss
+	["阿德利斯"] = true,
+	["艾斯匹"] = true,
+	["阿德里斯"] = true,
+	["阿斯匹克斯"] = true,
+	["Adderis"] = true,
+	["Aspix"] = true,	
 }
