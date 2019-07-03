@@ -40,17 +40,17 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 
 	-- use custom font or use STANDARD_TEXT_FONT / GameFontHighlight:GetFont() to get default game font
 
-	G.percFont = MediaFolder.."Infinity Gears.ttf"			-- 數字樣式的數字字體 / Number style's number font
-	G.numFont = MediaFolder.."number.ttf"					-- 數字字體 / Number font
-	G.norFont = STANDARD_TEXT_FONT							-- 名字字體 / Name font
+	G.percFont = MediaFolder.."Infinity Gears.ttf"	-- 數字樣式的數字字型 / Number style's number font
+	G.numFont = MediaFolder.."number.ttf"			-- 條形模式的數字字型 / Bar style's number font
+	G.norFont = STANDARD_TEXT_FONT					-- 名字字型 / Name font
 
-	G.fontSize = 12						-- 名字字體大小 / Name font size
-	G.auraFontSize = 12					-- 光環字體大小 / Aura font size
-	G.fontFlag = "OUTLINE"				-- 描邊 / "OUTLINE" or none
+	G.fontSize = 12									-- 名字字型大小 / Name font size
+	G.auraFontSize = 12								-- 光環字型大小 / Aura font size
+	G.fontFlag = "OUTLINE"							-- 描邊 / "OUTLINE" or none
 
--------------
--- FOR XML --
--------------
+-----------------------------
+-- FOR XML DONT TOUCH THIS --
+-----------------------------
 
 	-- 用迂迴的方式使xml調用的字型可以被控制 / make font config-able when use in xml
 
@@ -58,6 +58,7 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 	local NormalFont = CreateFont("EKPlates_NormalFont")
 	NormalFont:CopyFontObject("GameFontHighlightSmall")
 	NormalFont:SetFont(G.norFont, G.fontSize, G.fontFlag)
+	
 	-- 數字模式血量 / number style health font
 	local NumberFont = CreateFont("EKPlates_NumberFont")
 	NumberFont:CopyFontObject("GameFontHighlightSmall")
@@ -75,6 +76,16 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 	local BarFont = CreateFont("EKPlates_BarFont")
 	BarFont:CopyFontObject("GameFontHighlightSmall")
 	BarFont:SetFont(G.norFont, G.fontSize-2, G.fontFlag)
+	
+	-- 秒數 / aura text
+	local AuraFont = CreateFont("EKPlates_AuraFont")
+	AuraFont:CopyFontObject("GameFontHighlightSmall")
+	AuraFont:SetFont(G.numFont, G.auraFontSize, G.fontFlag)
+	
+	-- 層數 / count text
+	local CountFont = CreateFont("EKPlates_CountFont")
+	CountFont:CopyFontObject("GameFontHighlightSmall")
+	CountFont:SetFont(G.numFont, G.auraFontSize-2, G.fontFlag)
 
 ---------------------
 -- General Options --
@@ -97,9 +108,9 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 	C.enemyCR = true					-- 敵方職業顏色 / Enemy class color
 	C.threatColor = true				-- 名字仇恨染色 / Change name color by threat
 
-	C.castStart = {.6, .6, .6}			-- 施法條顏色 / normal castbar color
+	C.castStart = {.6, .6, .6}			-- 一般施法條顏色 / normal castbar color
 	C.castFailed = {.5, .2, .2}			-- 施法失敗顏色 / cast failed color
-	C.castShield = {.9, 0, 1}			-- 不可打斷顏色 / non-InterruptibleColor castbar color
+	C.castShield = {.9, 0, 1}			-- 不可打斷施法條顏色 / non-InterruptibleColor castbar color
 
 	-- [[ highlight / 高亮 ]] --
 
@@ -114,7 +125,7 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\media\\"
 	-- [[ other / 其他 ]] --
 
 	C.cbShield = false					-- 施法條不可打斷圖示 / Show castbar un-interrupt shield icon
-	C.level = false						-- 顯示等級 / Show level
+	C.level = false						-- 顯示等級和菁英 / Show level and elite
 	
 	-- [[ number style additional config / 數字模式額外選項 ]] --
 	

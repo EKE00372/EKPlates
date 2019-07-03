@@ -133,22 +133,24 @@ end
 
 -- Aura filter / 過濾器
 local function AuraFilter(caster, spellid, nameplateShowAll)
-	if C.showMyAuras and multicheck(caster, "player", "pet", "vehicle") then
-		if C.BlackList[spellid] then
-			return false
-		else
-			return true
-		end
-	elseif C.showOtherAuras and not multicheck(caster, "player", "pet", "vehicle") then
-		if C.BlackList[spellid] then
-			return false
-		elseif C.WhiteList[spellid] then
-			return true
-		else
-			return nameplateShowAll
+	if multicheck(caster, "player", "pet", "vehicle") then	-- 是我施放的
+		if C.showMyAuras then								-- 顯示我的光環
+			if C.BlackList[spellid] then					-- 黑名單過濾
+				return false
+			else
+				return true
+			end
 		end
 	else
-		return false
+		if C.showOtherAuras then							-- 顯示他人施放的
+			if C.BlackList[spellid] then					-- 黑名單過濾
+				return false
+			elseif C.WhiteList[spellid] then				-- 白名單顯示
+				return true
+			else
+				return nameplateShowAll						-- 暴雪白名單
+			end
+		end
 	end
 end
 
@@ -166,7 +168,7 @@ local function UpdateBuffs(unitFrame)
 			
 			if bname and matchbuff then
 				if not unitFrame.icons[i] then					
-					unitFrame.icons[i] = unitFrame.Pools:Acquire("AuraIconTemplate")
+					unitFrame.icons[i] = unitFrame.Pools:Acquire("EKPlatesAuraIconTemplate")
 					unitFrame.icons[i]:SetSize(C.auraIconSize, C.auraIconSize)
 					unitFrame.icons[i].text:SetFont(G.numFont, G.auraFontSize, G.fontFlag)
 					unitFrame.icons[i].count:SetFont(G.numFont, G.auraFontSize-2, G.fontFlag)
@@ -187,7 +189,7 @@ local function UpdateBuffs(unitFrame)
 			
 			if dname and matchdebuff then
 				if not unitFrame.icons[i] then
-					unitFrame.icons[i] = unitFrame.Pools:Acquire("AuraIconTemplate")
+					unitFrame.icons[i] = unitFrame.Pools:Acquire("EKPlatesAuraIconTemplate")
 					unitFrame.icons[i]:SetSize(C.auraIconSize, C.auraIconSize)
 					unitFrame.icons[i].text:SetFont(G.numFont, G.auraFontSize, G.fontFlag)
 					unitFrame.icons[i].count:SetFont(G.numFont, G.auraFontSize-2, G.fontFlag)
@@ -217,7 +219,7 @@ end
 --========================================================--
 
 if C.playerPlate then
-	local PowerFrame = CreateFrame("Frame", "EKPlatePowerFrame")
+	local PowerFrame = CreateFrame("Frame", "EKPlatesPowerFrame")
 	
 	PowerFrame.powerBar = CreateFrame("StatusBar", nil, PowerFrame)
 	PowerFrame.powerBar:SetHeight(4)
@@ -334,13 +336,13 @@ if C.classResourceShow then
 		ClassPowerType = "COMBO_POINTS"
 	end
 
-	local Resourcebar = CreateFrame("Frame", "EKPlateResource", UIParent)
+	local Resourcebar = CreateFrame("Frame", "EKPlatesResource", UIParent)
 	Resourcebar:SetWidth(100)		--(10+3)*6 - 3
 	Resourcebar:SetHeight(4)
 	Resourcebar.maxbar = 6
 	
 	for i = 1, 6 do
-		Resourcebar[i] = CreateFrame("Frame", "EKPlateResource"..i, Resourcebar)
+		Resourcebar[i] = CreateFrame("Frame", "EKPlatesResource"..i, Resourcebar)
 		Resourcebar[i]:SetFrameLevel(1)
 		Resourcebar[i]:SetSize(15, 3)
 		Resourcebar[i].bd = CreateBackdrop(Resourcebar[i], Resourcebar[i], 1)
@@ -547,7 +549,9 @@ end
 local function UpdateName(unitFrame)
 	local name = GetUnitName(unitFrame.displayedUnit, false) or UNKNOWN
 	local level = UnitLevel(unitFrame.unit)
+	local class = UnitClassification(unitFrame.unit)
 	local hexColor
+	local classtext
 	
 	if not C.numberstyle and UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 then return end
 	
@@ -567,13 +571,23 @@ local function UpdateName(unitFrame)
 				else
 					hexColor = "ffff00"
 				end
+				
+				if class == "rare" then
+					classtext = "R"
+				elseif class == "rareelite" then
+					classtext = "R+"
+				elseif class == "elite" then
+					classtext = "+"
+				else
+					classtext = ""
+				end
 
 				if level == -1 then
 					unitFrame.name:SetText("|cffff0000??|r "..name)
 				elseif level == UnitLevel("player") and UnitLevel("player") == MAX_PLAYER_LEVEL then
 					unitFrame.name:SetText(name)
 				else
-					unitFrame.name:SetText("|cff"..hexColor..""..level.."|r "..name)
+					unitFrame.name:SetText("|cff"..hexColor..""..level..classtext.."|r "..name)
 				end
 			end
 		else
@@ -965,7 +979,7 @@ end
 
 -- Name-only mode / 名字模式
 local function UpdateforNamemod(unitFrame)
-	if not C.nameOnly then return end	
+	if not C.nameOnly then return end
 	local unit = unitFrame.displayedUnit
 	
 	if UnitIsPlayer(unit) and UnitReaction(unit, "player") >= 5 and not UnitIsUnit(unit, "player") then
@@ -1159,11 +1173,11 @@ local function OnNamePlateCreated(namePlate)
 	
 	if C.numberstyle then -- 数字样式
 		if C.castBar then
-			namePlate.Pools:CreatePool("Button", namePlate, "NumberStyleNameplateNormalCastBarTemplate")
-			namePlate.UnitFrame = namePlate.Pools:Acquire("NumberStyleNameplateNormalCastBarTemplate")
+			namePlate.Pools:CreatePool("Button", namePlate, "EKPlatesNumberStyleNameplateNormalCastBarTemplate")
+			namePlate.UnitFrame = namePlate.Pools:Acquire("EKPlatesNumberStyleNameplateNormalCastBarTemplate")
 		else
-			namePlate.Pools:CreatePool("Button", namePlate, "NumberStyleNameplateTemplate")
-			namePlate.UnitFrame = namePlate.Pools:Acquire("NumberStyleNameplateTemplate")
+			namePlate.Pools:CreatePool("Button", namePlate, "EKPlatesNumberStyleNameplateTemplate")
+			namePlate.UnitFrame = namePlate.Pools:Acquire("EKPlatesNumberStyleNameplateTemplate")
 			if C.cbText then
 				namePlate.UnitFrame.castBar.Text:Show()
 			else
@@ -1175,7 +1189,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
 		namePlate.UnitFrame:Show()
 		namePlate.UnitFrame.Pools = CreatePoolCollection() 
-		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "AuraIconTemplate")
+		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "EKPlatesAuraIconTemplate")
 		
 		if C.classResourceShow and C.classResourceOn == "target" then
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -8)
@@ -1183,13 +1197,13 @@ local function OnNamePlateCreated(namePlate)
 			namePlate.UnitFrame.castBar:SetPoint("TOP", namePlate.UnitFrame.name, "BOTTOM", 0, -4)
 		end
 	else -- 条形样式
-		namePlate.Pools:CreatePool("Button", namePlate, "BarStyleNameplateTemplate")
-		namePlate.UnitFrame = namePlate.Pools:Acquire("BarStyleNameplateTemplate")
+		namePlate.Pools:CreatePool("Button", namePlate, "EKPlatesBarStyleNameplateTemplate")
+		namePlate.UnitFrame = namePlate.Pools:Acquire("EKPlatesBarStyleNameplateTemplate")
 		namePlate.UnitFrame:SetAllPoints(namePlate)
 		namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
 		namePlate.UnitFrame:Show()
 		namePlate.UnitFrame.Pools = CreatePoolCollection() 
-		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "AuraIconTemplate")
+		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "EKPlatesEKPlatesAuraIconTemplate")
 		
 		namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -4)
 		namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -4)

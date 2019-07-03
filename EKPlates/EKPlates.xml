@@ -1,9 +1,12 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-
+	<!-- xml和lua不一樣，很多地方沒有lua便利 -->
+	<!-- 而且也無法引用config裡的選項，如果想更換材質最好直接覆蓋已有的 -->
+	<!-- 字型因為用了迂迴的方法，還能在config裡控制 -->
+	
 	<!-- 條形模式名條框架 -->
 	
-	<StatusBar name="HealthBarTemplate" virtual="true">
+	<StatusBar name="EKPlatesHealthBarTemplate" virtual="true">
 		<BarTexture file="Interface\AddOns\EKPlates\media\ufbar"/>
 		<Size>
 			<AbsDimension x = "110" y = "8"/>
@@ -33,8 +36,10 @@
 		<!-- 數值 -->
 		<Layers>
 			<Layer level="OVERLAY">
+				<!-- justifyH = 水平對齊 -->
 				<FontString parentKey="value" inherits="EKPlates_BarnumFont" justifyH="RIGHT">
 					<Anchors>
+						<!-- 錨點置中，和對齊合起來看就是數值文字框架置中但靠右對齊 -->
 						<Anchor point="CENTER">
 							<Offset x="0" y="0"/>
 						</Anchor>
@@ -52,7 +57,7 @@
 		<Scripts>
 			<OnLoad>
 				self:SetMinMaxValues(0, 1)
-				self.value:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -4)
+				self.value:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -4) <!-- 數值文字在血量條上的錨點和座標 -->
 				self.bd:SetFrameLevel(self:GetParent():GetFrameLevel() == 0 and 1 or self:GetParent():GetFrameLevel() - 1)
 				self.bd:SetBackdropColor(0.15, 0.15, 0.15)
 				self.bd:SetBackdropBorderColor(0, 0, 0)
@@ -62,7 +67,7 @@
 	
 	<!-- 條形模式能量條框架 -->
 	
-	<StatusBar name="PowerBarTemplate" virtual="true">
+	<StatusBar name="EKPlatesPowerBarTemplate" virtual="true">
 		<BarTexture file="Interface\AddOns\EKPlates\media\ufbar"/>
 		<Size>
 			<AbsDimension x = "110" y = "2"/>
@@ -111,7 +116,7 @@
 		<Scripts>
 			<OnLoad>
 				self:SetMinMaxValues(0, 1)
-				self.value:SetPoint("LEFT", self,  0, -1) <!-- 高度3 血量百分比下移4 3-4=-1 -->
+				self.value:SetPoint("LEFT", self,  0, -1) <!-- 高度3，血量百分比下移4，所以3 - 4 = -1 -->
 				self.bd:SetFrameLevel(self:GetParent():GetFrameLevel() == 0 and 1 or self:GetParent():GetFrameLevel() - 1)
 				self.bd:SetBackdropColor(0.15, 0.15, 0.15)
 				self.bd:SetBackdropBorderColor(0, 0, 0)
@@ -121,7 +126,7 @@
 	
 	<!-- 施法條框架 -->
 	
-	<StatusBar name="CastBarTemplate" virtual="true" hidden="true">
+	<StatusBar name="EKPlatesCastBarTemplate" virtual="true" hidden="true">
 		<KeyValues>
 			<KeyValue key="iconWhenNoninterruptible" value="false" type="boolean" />
 		</KeyValues>
@@ -134,7 +139,7 @@
 				<FontString parentKey="Text" inherits="EKPlates_BarFont" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="CENTER">
-							<Offset x="0" y="-5"/>
+							<Offset x="0" y="-5"/> <!-- 下置法術名防止文字遮擋施法進度 -->
 						</Anchor>
 					</Anchors>
 				</FontString>
@@ -146,7 +151,7 @@
 	
 	<!-- 條形施法條 -->
 	
-	<StatusBar name="NormalCastBarTemplate" virtual="true" inherits="CastBarTemplate">		
+	<StatusBar name="EKPlatesNormalCastBarTemplate" virtual="true" inherits="EKPlatesCastBarTemplate">		
 		<BarTexture file="Interface\AddOns\EKPlates\media\ufbar"/>
 		<Size>
 			<AbsDimension x = "110" y = "8"/>
@@ -240,7 +245,7 @@
 	
 	<!-- 數字模式圖示施法條 -->
 	
-	<StatusBar name="IconCastBarTemplate" virtual="true" inherits="CastBarTemplate">
+	<StatusBar name="EKPlatesIconCastBarTemplate" virtual="true" inherits="EKPlatesCastBarTemplate">
 		<BarTexture file="Interface\Buttons\WHITE8x8"/>
 		<Size>
 			<AbsDimension x = "32" y = "32"/>
@@ -338,7 +343,7 @@
 	
 	<!-- 團隊標記 -->
 	
-	<Frame name="RaidTargetTemplate" virtual="true" >
+	<Frame name="EKPlatesRaidTargetTemplate" virtual="true" >
 		<Size>
 			<AbsDimension x = "24" y = "24"/>
 		</Size>
@@ -351,7 +356,7 @@
 	
 	<!-- 光環框架 -->
 	
-	<Frame name="IconHolderTemplate" virtual="true">
+	<Frame name="EKPlatesIconHolderTemplate" virtual="true">
 		<Size>
 			<AbsDimension x = "140" y = "24"/>
 		</Size>
@@ -364,7 +369,7 @@
 	
 	<!-- 光環圖示 -->
 	
-	<Frame name="AuraIconTemplate" setAllPoints="true" virtual="true">
+	<Frame name="EKPlatesAuraIconTemplate" setAllPoints="true" virtual="true">
 		<Size>
 			<AbsDimension x = "10" y = "10"/>
 		</Size>
@@ -384,7 +389,7 @@
 					<TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
 				</Texture>
 				<!-- 秒數 -->
-				<FontString parentKey="text" inherits="EKPlates_BarnumFont" justifyH="CENTER">
+				<FontString parentKey="text" inherits="EKPlates_AuraFont" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="BOTTOM" x="0" y="-2"/>
 					</Anchors>
@@ -396,7 +401,7 @@
 					</Shadow>
 				</FontString>
 				<!-- 層數 -->
-				<FontString parentKey="count" inherits="EKPlates_BarnumFont" justifyH="RIGHT">
+				<FontString parentKey="count" inherits="EKPlates_CountFont" justifyH="RIGHT">
 					<Anchors>
 						<Anchor point="TOPRIGHT" x="-1" y="2"/>
 					</Anchors>
@@ -431,7 +436,7 @@
 
 	<!-- 數字模式，圖示施法條 -->
 	
-	<Button name = "NumberStyleNameplateTemplate" setAllPoints="true" virtual="true">
+	<Button name = "EKPlatesNumberStyleNameplateTemplate" setAllPoints="true" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<!-- 血量百分比 -->
@@ -451,7 +456,7 @@
 				<!-- 目標 -->
 				<Texture name="$parenthltarget" parentKey="hltarget" file="Interface\AddOns\EKPlates\media\NeonRedArrow" hidden="true">
 					<Size>
-						<AbsDimension x = "50" y = "40"/>
+						<AbsDimension x = "50" y = "50"/>
 					</Size>
 				</Texture>
 			</Layer>
@@ -525,10 +530,10 @@
 		
 		<Frames>
 			<!-- 施法條 -->
-			<StatusBar name="$parentCastBar" parentKey="castBar" frameStrata="HIGH" inherits="IconCastBarTemplate"/>
+			<StatusBar name="$parentCastBar" parentKey="castBar" frameStrata="HIGH" inherits="EKPlatesIconCastBarTemplate"/>
 			
 			<!-- 團隊標記 -->
-			<Frame name="$parentRaidTargetFrame" parentKey="RaidTargetFrame" inherits="RaidTargetTemplate">
+			<Frame name="$parentRaidTargetFrame" parentKey="RaidTargetFrame" inherits="EKPlatesRaidTargetTemplate">
 				<Anchors>
 					<Anchor point="RIGHT" relativeTo="$parentName" relativePoint="LEFT">
 						<Offset x="0" y="0"/>
@@ -537,7 +542,7 @@
 			</Frame>
 			
 			<!-- 光環 -->
-			<Frame name="$parentIcons" parentKey="icons" inherits="IconHolderTemplate">
+			<Frame name="$parentIcons" parentKey="icons" inherits="EKPlatesIconHolderTemplate">
 				<Anchors>
 					<Anchor point="BOTTOM" relativeTo="$parentHealthperc" relativePoint="TOP">
 						<Offset x="0" y="0"/>
@@ -555,7 +560,7 @@
 
 	<!-- 數字模式，條形施法條 -->
 	
-	<Button name = "NumberStyleNameplateNormalCastBarTemplate" setAllPoints="true" virtual="true">
+	<Button name = "EKPlatesNumberStyleNameplateNormalCastBarTemplate" setAllPoints="true" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<FontString name="$parentHealthperc" parentKey="healthperc" inherits="EKPlates_NumberFont"
@@ -574,7 +579,7 @@
 				</FontString>			
 				<Texture name="$parenthltarget" parentKey="hltarget" file="Interface\AddOns\EKPlates\media\NeonRedArrow" hidden="true">
 					<Size>
-						<AbsDimension x = "50" y = "40"/>
+						<AbsDimension x = "50" y = "50"/>
 					</Size>
 				</Texture>
 			</Layer>
@@ -646,7 +651,7 @@
 		
 		<Frames>
 			<!-- 施法條 -->
-			<StatusBar name="$parentCastBar" parentKey="castBar" frameStrata="HIGH" inherits="NormalCastBarTemplate">
+			<StatusBar name="$parentCastBar" parentKey="castBar" frameStrata="HIGH" inherits="EKPlatesNormalCastBarTemplate">
 				<Size>
 					<AbsDimension x = "90" y = "8"/>
 				</Size>	
@@ -670,7 +675,7 @@
 			</StatusBar>
 			
 			<!-- 團隊標記 -->
-			<Frame name="$parentRaidTargetFrame" parentKey="RaidTargetFrame" inherits="RaidTargetTemplate">
+			<Frame name="$parentRaidTargetFrame" parentKey="RaidTargetFrame" inherits="EKPlatesRaidTargetTemplate">
 				<Anchors>
 					<Anchor point="RIGHT" relativeTo="$parentName" relativePoint="LEFT">
 						<Offset x="0" y="0"/>
@@ -679,7 +684,7 @@
 			</Frame>
 			
 			<!-- 光環 -->
-			<Frame name="$parentIcons" parentKey="icons" inherits="IconHolderTemplate">
+			<Frame name="$parentIcons" parentKey="icons" inherits="EKPlatesIconHolderTemplate">
 				<Anchors>
 					<Anchor point="BOTTOM" relativeTo="$parentHealthperc" relativePoint="TOP">
 						<Offset x="0" y="0"/>
@@ -695,12 +700,12 @@
 	</Button>
 	
 	<!-- 條形模式 -->
-	<Button name="BarStyleNameplateTemplate" setAllPoints="true" virtual="true">
+	<Button name="EKPlatesBarStyleNameplateTemplate" setAllPoints="true" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<Texture name="$parenthltarget" parentKey="hltarget" file="Interface\AddOns\EKPlates\media\NeonRedArrow" hidden="true">
 					<Size>
-						<AbsDimension x = "50" y = "40"/>
+						<AbsDimension x = "50" y = "50"/>
 					</Size>
 				</Texture>
 			</Layer>
@@ -764,7 +769,7 @@
 		
 		<Frames>
 			<!-- 血量條 -->
-			<StatusBar name="$parentHealthBar" parentKey="healthBar" frameStrata="HIGH" inherits="HealthBarTemplate">
+			<StatusBar name="$parentHealthBar" parentKey="healthBar" frameStrata="HIGH" inherits="EKPlatesHealthBarTemplate">
 				<Anchors>
 					<Anchor point="LEFT">
 						<Offset x="0" y="0"/>
@@ -776,7 +781,7 @@
 			</StatusBar>
 			
 			<!-- 能量條 -->
-			<StatusBar name="$parentPowerBar" parentKey="powerBar" frameStrata="HIGH" inherits="PowerBarTemplate">
+			<StatusBar name="$parentPowerBar" parentKey="powerBar" frameStrata="HIGH" inherits="EKPlatesPowerBarTemplate">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentHealthBar" relativePoint="TOPLEFT">
 						<Offset x="0" y="0"/>
@@ -788,10 +793,10 @@
 			</StatusBar>
 			
 			<!-- 施法條 -->
-			<StatusBar name="$parentCastBar" parentKey="castBar" inherits="NormalCastBarTemplate"/>
+			<StatusBar name="$parentCastBar" parentKey="castBar" inherits="EKPlatesNormalCastBarTemplate"/>
 			
 			<!-- 團隊標記 -->
-			<Frame name="$parentRaidTargetFrame" parentKey="RaidTargetFrame" inherits="RaidTargetTemplate">
+			<Frame name="$parentRaidTargetFrame" parentKey="RaidTargetFrame" inherits="EKPlatesRaidTargetTemplate">
 				<Anchors>
 					<Anchor point="RIGHT" relativeTo="$parentName" relativePoint="LEFT">
 						<Offset x="0" y="0"/>
@@ -800,7 +805,7 @@
 			</Frame>
 			
 			<!-- 光環 -->
-			<Frame name="$parentIcons" parentKey="icons" inherits="IconHolderTemplate">
+			<Frame name="$parentIcons" parentKey="icons" inherits="EKPlatesIconHolderTemplate">
 				<Anchors>
 					<Anchor point="BOTTOM" relativePoint="TOP">
 						<Offset x="0" y="0"/>

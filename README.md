@@ -55,7 +55,10 @@ All rights not explicitly addressed in this license are reserved by the copyrigh
 ## 更新紀錄
 
 * R3.2b
-    * 更正條形施法條引用錯誤的字型
+    * 更正條形施法條引用錯誤的字型和變胖的箭頭
+	* 使xml可引用光環字型
+	* 替所有的框架命名為專屬名稱以避免遇料之外的衝突
+	* 修正法術白名單邏輯
 * B3.2a
     * 移除測試用id
     * 恢復config預設值
