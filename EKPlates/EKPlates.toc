@@ -1,6 +1,6 @@
 ﻿## Interface: 80200
 ## Title: |cff00ffffEK|rPlates
-## Version: R3.2b
+## Version: R3.2c
 ## Author: EK (Linodas@Illidan-US)
 ## Notes: Nameplates. Credits to Paopao and Dawn.
 

@@ -817,6 +817,7 @@
 		<Scripts>
 			<OnLoad>
 				self.name:SetIndentedWordWrap(false)
+				self.name:SetWordWrap(false)
 			</OnLoad>
 		</Scripts>
 	</Button>

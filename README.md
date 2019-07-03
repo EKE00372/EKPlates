@@ -54,6 +54,9 @@ All rights not explicitly addressed in this license are reserved by the copyrigh
 
 ## 更新紀錄
 
+* R3.2c
+    * 修正template命名錯誤
+	* 修正條形模式的名字
 * R3.2b
     * 更正條形施法條引用錯誤的字型和變胖的箭頭
 	* 使xml可引用光環字型

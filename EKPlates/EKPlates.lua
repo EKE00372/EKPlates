@@ -1203,7 +1203,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
 		namePlate.UnitFrame:Show()
 		namePlate.UnitFrame.Pools = CreatePoolCollection() 
-		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "EKPlatesEKPlatesAuraIconTemplate")
+		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "EKPlatesAuraIconTemplate")
 		
 		namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -4)
 		namePlate.UnitFrame.castBar:SetPoint("TOPRIGHT", namePlate.UnitFrame.healthBar, "BOTTOMRIGHT", 0, -4)
