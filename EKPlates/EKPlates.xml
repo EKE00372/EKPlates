@@ -13,7 +13,7 @@
 		</Size>
 		<!-- 毛絨絨背景 -->
 		<Frames>
-			<Frame parentKey="bd">
+			<Frame parentKey="bd" mixin="BackdropTemplateMixin" inherits="BackdropTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset x="-3" y="3"/>
@@ -22,15 +22,6 @@
 						<Offset x="3" y="-3"/>
 					</Anchor>
 				</Anchors>
-				
-				<Backdrop bgFile="Interface\Buttons\WHITE8x8" edgeFile="Interface\AddOns\EKPlates\media\glow">
-					<EdgeSize>
-						<AbsValue val="3"/>
-					</EdgeSize>
-					<BackgroundInsets>
-						<AbsInset left="3" right="3" top="3" bottom="3"/>
-					</BackgroundInsets>
-				</Backdrop>
 			</Frame>
 		</Frames>
 		<!-- 數值 -->
@@ -59,6 +50,7 @@
 				self:SetMinMaxValues(0, 1)
 				self.value:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -4) <!-- 數值文字在血量條上的錨點和座標 -->
 				self.bd:SetFrameLevel(self:GetParent():GetFrameLevel() == 0 and 1 or self:GetParent():GetFrameLevel() - 1)
+				self.bd:SetBackdrop(EKPLATES_BACKDROP_BD_3)
 				self.bd:SetBackdropColor(0.15, 0.15, 0.15)
 				self.bd:SetBackdropBorderColor(0, 0, 0)
 			</OnLoad>
@@ -74,7 +66,7 @@
 		</Size>
 		<!-- 毛絨絨背景 -->
 		<Frames>
-			<Frame parentKey="bd">
+			<Frame parentKey="bd" mixin="BackdropTemplateMixin" inherits="BackdropTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset x="-3" y="3"/>
@@ -83,15 +75,6 @@
 						<Offset x="3" y="-3"/>
 					</Anchor>
 				</Anchors>
-				
-				<Backdrop bgFile="Interface\Buttons\WHITE8x8" edgeFile="Interface\AddOns\EKPlates\media\glow">
-					<EdgeSize>
-						<AbsValue val="3"/>
-					</EdgeSize>
-					<BackgroundInsets>
-						<AbsInset left="3" right="3" top="3" bottom="3"/>
-					</BackgroundInsets>
-				</Backdrop>
 			</Frame>
 		</Frames>
 		<!-- 數值 -->
@@ -118,6 +101,7 @@
 				self:SetMinMaxValues(0, 1)
 				self.value:SetPoint("LEFT", self,  0, -1) <!-- 高度3，血量百分比下移4，所以3 - 4 = -1 -->
 				self.bd:SetFrameLevel(self:GetParent():GetFrameLevel() == 0 and 1 or self:GetParent():GetFrameLevel() - 1)
+				self.bd:SetBackdrop(EKPLATES_BACKDROP_BD_3)
 				self.bd:SetBackdropColor(0.15, 0.15, 0.15)
 				self.bd:SetBackdropBorderColor(0, 0, 0)
 			</OnLoad>
@@ -159,7 +143,7 @@
 		
 		<!-- 毛絨絨背景 -->
 		<Frames>
-			<Frame parentKey="border">
+			<Frame parentKey="border" mixin="BackdropTemplateMixin" inherits="BackdropTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset x="-3" y="3"/>
@@ -168,15 +152,6 @@
 						<Offset x="3" y="-3"/>
 					</Anchor>
 				</Anchors>
-				
-				<Backdrop bgFile="Interface\Buttons\WHITE8x8" edgeFile="Interface\AddOns\EKPlates\media\glow">
-					<EdgeSize>
-						<AbsValue val="3"/>
-					</EdgeSize>
-					<BackgroundInsets>
-						<AbsInset left="3" right="3" top="3" bottom="3"/>
-					</BackgroundInsets>
-				</Backdrop>
 			</Frame>
 		</Frames>
 		
@@ -226,6 +201,7 @@
 		<Scripts>
 			<OnLoad>
 				self.border:SetFrameLevel(self:GetParent():GetFrameLevel() == 0 and 1 or self:GetParent():GetFrameLevel() - 1)
+				self.border:SetBackdrop(EKPLATES_BACKDROP_BD_3)
 				self.border:SetBackdropColor(0.15, 0.15, 0.15)
 				self.border:SetBackdropBorderColor(0, 0, 0)
 				
@@ -252,7 +228,7 @@
 		</Size>
 		<!-- 邊框 -->
 		<Frames>
-			<Frame parentKey="border">
+			<Frame parentKey="border" mixin="BackdropTemplateMixin" inherits="BackdropTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset x="-1" y="1"/>
@@ -261,14 +237,6 @@
 						<Offset x="1" y="-1"/>
 					</Anchor>
 				</Anchors>
-				<Backdrop bgFile="Interface\Buttons\WHITE8x8" edgeFile="Interface\Buttons\WHITE8x8">
-					<EdgeSize>
-						<AbsValue val="1"/>
-					</EdgeSize>
-					<BackgroundInsets>
-						<AbsInset left="1" right="1" top="1" bottom="1"/>
-					</BackgroundInsets>
-				</Backdrop>
 			</Frame>
 		</Frames>
 		
@@ -323,6 +291,7 @@
 		<Scripts>
 			<OnLoad>
 				self.border:SetFrameLevel(self:GetParent():GetFrameLevel() == 0 and 1 or self:GetParent():GetFrameLevel() - 1)
+				self.border:SetBackdrop(EKPLATES_BACKDROP_BD_1)
 				self.border:SetBackdropColor(0.15, 0.15, 0.15)
 				self.border:SetBackdropBorderColor(0, 0, 0)
 				self.Spark:SetAlpha(0)
@@ -436,7 +405,7 @@
 
 	<!-- 數字模式，圖示施法條 -->
 	
-	<Button name = "EKPlatesNumberStyleNameplateTemplate" setAllPoints="true" virtual="true">
+	<Button name="EKPlatesNumberStyleNameplateTemplate" mixin="BackdropTemplateMixin" inherits="BackdropTemplate" setAllPoints="true" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<!-- 血量百分比 -->

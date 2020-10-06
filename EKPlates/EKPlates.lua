@@ -35,7 +35,7 @@ end
 
 -- Style for bar / 給各個條條兒的毛絨絨框體樣式
 local CreateBackdrop = function(parent, anchor, a)
-    local frame = CreateFrame("Frame", nil, parent)
+    local frame = CreateFrame("Frame", nil, parent, BackdropTemplateMixin and "BackdropTemplate")
 
 	local flvl = parent:GetFrameLevel()
 	if flvl - 1 >= 0 then frame:SetFrameLevel(flvl-1) end
@@ -926,7 +926,7 @@ local function UpdateNamePlateEvents(unitFrame)
 		displayedUnit = unitFrame.displayedUnit
 	end
 	
-	unitFrame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit)
+	unitFrame:RegisterUnitEvent("UNIT_HEALTH", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_AURA", unit, displayedUnit)
 	unitFrame:RegisterUnitEvent("UNIT_THREAT_LIST_UPDATE", unit, displayedUnit)
 	
@@ -1056,7 +1056,7 @@ local function NamePlate_OnEvent(self, event, ...)
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		UpdateAll(self)
 	elseif arg1 == self.unit or arg1 == self.displayedUnit then
-		if event == "UNIT_HEALTH_FREQUENT" then
+		if event == "UNIT_HEALTH" then
 			UpdateHealth(self)
 			UpdateSelectionHighlight(self)
 		elseif event == "UNIT_AURA" then
@@ -1169,7 +1169,7 @@ end
 --=============================================================--
 
 local function OnNamePlateCreated(namePlate)
-	namePlate.Pools = CreatePoolCollection() 
+	namePlate.Pools = CreateFramePoolCollection()
 	
 	if C.numberstyle then -- 数字样式
 		if C.castBar then
@@ -1188,7 +1188,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame:SetAllPoints(namePlate)
 		namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
 		namePlate.UnitFrame:Show()
-		namePlate.UnitFrame.Pools = CreatePoolCollection() 
+		namePlate.UnitFrame.Pools = CreateFramePoolCollection()
 		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "EKPlatesAuraIconTemplate")
 		
 		if C.classResourceShow and C.classResourceOn == "target" then
@@ -1202,7 +1202,7 @@ local function OnNamePlateCreated(namePlate)
 		namePlate.UnitFrame:SetAllPoints(namePlate)
 		namePlate.UnitFrame:SetFrameLevel(namePlate:GetFrameLevel())
 		namePlate.UnitFrame:Show()
-		namePlate.UnitFrame.Pools = CreatePoolCollection() 
+		namePlate.UnitFrame.Pools = CreateFramePoolCollection()
 		namePlate.UnitFrame.Pools:CreatePool("Frame", namePlate, "EKPlatesAuraIconTemplate")
 		
 		namePlate.UnitFrame.castBar:SetPoint("TOPLEFT", namePlate.UnitFrame.healthBar, "BOTTOMLEFT", 0, -4)
