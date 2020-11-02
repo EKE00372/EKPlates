@@ -1,8 +1,8 @@
 ﻿## Interface: 90001
 ## Title: |cff00ffffEK|rPlates
-## Version: R3.2c
+## Version: R3.3
 ## Author: EK (Linodas@Illidan-US)
-## Notes: (Shadowlands) Nameplates. Credits to Paopao and Dawn.
+## Notes: Nameplates. Credits to Paopao and Dawn.
 
 ## X-Credits: Paopao, Dawn, Siweia, Rubgrsch
 
