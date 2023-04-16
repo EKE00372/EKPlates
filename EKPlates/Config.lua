@@ -7,27 +7,30 @@ local addon, ns = ...
 	ns[2] = {} -- F, functions, constants, variables
 	ns[3] = {} -- G, globals (Optionnal)
 	ns[4] = {} -- T, ouf custom
-
+	
 local C, F, G, T = unpack(ns)
-
 
 	G.addon = "EKPlates_"
 	G.myClass = select(2, UnitClass("player"))
 	
 local MediaFolder = "Interface\\AddOns\\EKPlates\\Media\\"
 
+------------
+-- Global --
+------------
+
+	C.NumberStyle = false	-- number style nameplates / 數字模式的名條
+
 -------------
 -- Texture --
 -------------
 
 	G.media = {
-		blank = MediaFolder.."ufbar",		-- "Interface\\Buttons\\WHITE8x8",
-		--blank = "Interface\\Buttons\\WHITE8x8",		-- "Interface\\Buttons\\WHITE8x8",
+		blank = MediaFolder.."dM3",		-- "Interface\\Buttons\\WHITE8x8",
 		glow = MediaFolder.."glow.tga",
 		barhightlight = MediaFolder.."highlight.tga",
 		
-		--spark = MediaFolder.."spark.tga",	-- "Interface\\UnitPowerBarAlt\\Generic1Player_Pill_Flash"
-		spark = "Interface\\UnitPowerBarAlt\\Generic1Player_Pill_Flash",	-- "Interface\\UnitPowerBarAlt\\Generic1Player_Pill_Flash"
+		spark = MediaFolder.."spark.tga",	-- "Interface\\UnitPowerBarAlt\\Generic1Player_Pill_Flash"
 		border = MediaFolder.."border.tga",
 		
 		raidicon = MediaFolder.."raidicons.blp",
@@ -41,7 +44,7 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\Media\\"
 	G.NameFS = 14									-- general font size / 字型大小
 	G.FontFlag = "OUTLINE"							-- general font flag / 描邊 "OUTLINE" or none
 	
-	G.NFont = MediaFolder.."number.ttf"			-- number font for auras / 光環數字字型
+	G.NFont = MediaFolder.."myriadHW.ttf"			-- number font for auras / 光環數字字型
 	G.NumberFS = 14
 	
 	G.NPNameFS = 12									-- nameplate font size / 名條的字型
@@ -51,8 +54,6 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\Media\\"
 ------------------------
 -- Nameplate settings --
 ------------------------
-
-	C.NumberStyle = true	-- number style nameplates / 數字模式的名條
 	
 	-- Number style nameplate config
 	C.NPCastIcon = 32		-- number style nameplate cast icon size /  數字模式的施法圖示大小
@@ -60,33 +61,36 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\Media\\"
 	-- Bar style nameplate config
 	C.NPWidth = 110			-- nameplate frame width / 名條寬度
 	C.NPHeight = 8			-- nameplate frame height / 名條高度
-
+	
+	-- [[ options ]] --
+	
 	-- auras
 	C.ShowAuras = true		-- show auras / 顯示光環
 	C.Auranum = 5			-- how many aura show / 顯示光環數量
-	C.AuraSize = 20			-- aura icon size / 光環大小
+	C.AuraSize = 16			-- aura icon size / 光環大小
 
-	-- highlight
-	C.HLTarget = true		-- highlight target and focus / 高亮目標和焦點
-	C.HLMouseover = true	-- highlight mouseover / 高亮滑鼠指向
-	
 	-- colors
 	C.friendlyCR = true		-- friendly unit class color / 友方職業染色
 	C.enemyCR = true		-- enemy unit class color / 敵方職業染色
 	
-	C.CastNormal = {.6, .6, .6}			-- 一般施法條顏色 / normal castbar color
-	C.CastFailed = {.5, .2, .2}			-- 施法失敗顏色 / cast failed color
-	C.CastShield = {.9, 0, 1}			-- 不可打斷施法條顏色 / non-InterruptibleColor castbar color
+	-- highlights
+	C.HLTarget = true		-- highlight target and focus / 高亮目標和焦點
+	C.HLMouseover = true	-- highlight mouseover / 高亮滑鼠指向
+	
+	--[[ castbar ]] --
+	
+	-- colors
+	C.CastNormal = {.6, .6, .6}	-- 一般施法條顏色 / normal castbar color
+	C.CastFailed = {.5, .2, .2}	-- 施法失敗顏色 / cast failed color
+	C.CastShield = {.9, 0, 1}	-- 不可打斷施法條顏色 / non-InterruptibleColor castbar color
+
 	
 	-- [[ player plate ]] --
 	
-	C.PlayerPlate = true	-- enable player plate / 玩家名條(個人資源)
-	C.NumberstylePP = true	-- number style player plate / 數字模式的玩家名條
+	C.PlayerPlate = false	-- enable player plate / 玩家名條(個人資源)
+	C.NumberstylePP = false	-- number style player plate / 數字模式的玩家名條
 	C.PlayerBuffs = true	-- show player buff on player plate / 顯示自身增益
-	
-	C.PPWidth = 180			-- player/target/focus frame width / 主框體(血量條)寬度(玩家/目標/焦點)
-	C.PPHeight = 4			-- power bar height / 能量條高度
-	C.PPOffset = 6			-- power bar offset / 能量條向下偏移
+	C.PlayerNPWidth = 180	-- player plate width
 
 	--[[ nameplates cvar ]] --
 	
@@ -99,9 +103,10 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\Media\\"
 -- Position settings --
 -----------------------
 
-	C.Position = {	-- 各元素座標 / Elements positions
+	C.Position = {
 		PlayerPlate	= {"CENTER", 0, -200},
 	}
+
 
 -------------
 -- Credits --
@@ -132,13 +137,13 @@ local MediaFolder = "Interface\\AddOns\\EKPlates\\Media\\"
 	-- Infinity Plates by Dawn
 	-- https://www.wowinterface.com/downloads/info19881-InfinityPlates.html
 
-	-- SpecialTotemBar by HopeASD
+	-- SpecialTotemBar and oUF_TankResource by HopeASD
 	
-	-- [oUF] 1.5版 oUF系插件 通用说明 (FD) NGA玩家社区
+	-- [oUF] 1.5版 oUF系插件 通用说明 (FD)
 	-- https://nga.178.com/read.php?tid=4107042
 
 	-- [oUF][最基础扫盲][初稿完工！]以Ouf_viv5为例，不完全不专业注释
 	-- https://nga.178.com/read.php?tid=4184224
 
-	-- [未完成]oUF系列头像编写教程 NGA玩家社区
+	-- [未完成]oUF系列头像编写教程
 	-- https://bbs.nga.cn/read.php?tid=7212677

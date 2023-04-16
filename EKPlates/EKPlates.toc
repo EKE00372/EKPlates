@@ -1,17 +1,18 @@
-﻿## Interface: 90001
+## Interface: 100007
 ## Title: |cff00ffffEK|rPlates
-## Version: A4.0
+## Version: A4.1
 ## Author: EK (Linodas@Illidan-US)
-## Notes: Nameplates. Credits to Paopao and Dawn.
-
-## X-Credits: Paopao, Dawn, Siweia, Rubgrsch
-
-oUF\oUF.xml
+## Notes: ouf nameplates.
+## Credits-to: Siweia, Paopao, Dawn, HopeASD
 
 Config.lua
 FilterList.lua
 API.lua
-Core.lua
+
+Libs\oUF\oUF.xml
+
 Tags.lua
+Core.lua
 Elements.lua
+
 Nameplates.lua

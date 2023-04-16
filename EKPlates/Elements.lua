@@ -3,114 +3,53 @@ local oUF = ns.oUF
 local C, F, G, T = unpack(ns)
 
 --===================================================--
------------------    [[ Castbar ]]    -----------------
---===================================================--
-
--- [[ 方塊施法條 ]] --
-
-T.CreateIconCastbar = function(self, unit)
-	local Castbar = CreateFrame("StatusBar", nil, self)
-	Castbar:SetSize(C.NPCastIcon, C.NPCastIcon)
-	Castbar:SetFrameLevel(self:GetFrameLevel() + 2)
-	Castbar.Border = F.CreateBD(Castbar, Castbar, 1, 0, 0, 0, 1)
-	-- 圖示
-	Castbar.Icon = Castbar:CreateTexture(nil, "OVERLAY", nil, 1)
-	Castbar.Icon:SetSize(C.NPCastIcon-6, C.NPCastIcon-6)
-	Castbar.Icon:SetPoint("CENTER")
-	Castbar.Icon:SetTexCoord(.08, .92, .08, .92)
-	-- 圖示邊框
-	Castbar.IconBD = Castbar:CreateTexture(nil, "OVERLAY", nil, -1)
-	Castbar.IconBD:SetPoint("TOPLEFT", Castbar.Icon, -1, 1)
-	Castbar.IconBD:SetPoint("BOTTOMRIGHT", Castbar.Icon, 1, -1)
-	Castbar.IconBD:SetTexture(G.media.blank)
-	Castbar.IconBD:SetVertexColor(0, 0, 0)
-	
-	-- 選項
-	Castbar.timeToHold = 0.05
-	-- 註冊到ouf
-	self.Castbar = Castbar
-	self.Castbar.PostCastStart = T.PostCastStart			-- 開始施法
-	self.Castbar.PostCastStop = T.PostCastStop				-- 施法結束
-	self.Castbar.PostCastFail = T.PostCastFailed			-- 施法失敗
-	self.Castbar.PostCastInterruptible = T.PostUpdateCast	-- 打斷狀態刷新
-end
-
--- [[ 條形施法條 ]]--
-
-T.CreateStandaloneCastbar = function(self, unit)
-	local Castbar = F.CreateStatusbar(self, G.addon..unit.."_CastBar", "ARTWORK", C.NPHeight, nil, .6, .6, .6, 1)
-	Castbar:SetPoint("TOPLEFT", self.Health, "BOTTOMLEFT", 0, -4)
-	Castbar:SetPoint("TOPRIGHT", self.Health, "BOTTOMRIGHT", 0, -4)
-	Castbar:SetFrameLevel(self:GetFrameLevel() + 2)
-	Castbar.BarShadow = F.CreateSD(Castbar, Castbar, 3)
-	-- 施法條背景
-	Castbar.bg = Castbar:CreateTexture(nil, "BACKGROUND")
-	Castbar.bg:SetAllPoints()
-	Castbar.bg:SetTexture(G.media.blank)
-	Castbar.bg:SetVertexColor(.15, .15, .15)
-	-- 進度高亮
-	Castbar.Spark = Castbar:CreateTexture(nil, "OVERLAY")
-	Castbar.Spark:SetTexture(G.media.spark)
-	Castbar.Spark:SetBlendMode("ADD")
-	Castbar.Spark:SetVertexColor(1, 1, .85, .5)
-	Castbar.Spark:SetSize(C.NPHeight/2, C.NPHeight*2)
-	Castbar.Spark:SetPoint("RIGHT", Castbar:GetStatusBarTexture(), C.NPHeight/4, 0)
-	-- 圖示
-	Castbar.Icon = Castbar:CreateTexture(nil, "OVERLAY")
-	Castbar.Icon:SetSize(C.NPHeight*2 + 4, C.NPHeight*2 + 4)
-	Castbar.Icon:SetPoint("BOTTOMRIGHT", Castbar, "BOTTOMLEFT", -4, 0)
-	Castbar.Icon:SetTexCoord(.08, .92, .08, .92)
-	-- 圖示邊框
-	Castbar.IconSD = F.CreateSD(Castbar, Castbar.Icon, 3)
-	Castbar.IconBD = F.CreateBD(Castbar, Castbar.Icon, 1, .15, .15, .15, 1)
-	-- 法術名
-	Castbar.Text = F.CreateText(Castbar, "OVERLAY", G.Font, G.NPNameFS-2, G.FontFlag, "CENTER")
-	Castbar.Text:SetPoint("TOPLEFT", Castbar, "BOTTOMLEFT", -5, 5)
-	Castbar.Text:SetPoint("TOPRIGHT", Castbar, "BOTTOMRIGHT", 5, -5)
-
-	-- 選項
-	Castbar.timeToHold = 0.05
-	-- 註冊到ouf
-	self.Castbar = Castbar
-	self.Castbar.PostCastStart = T.PostCastStart
-	self.Castbar.PostCastFail = T.PostCastFailed			-- 施法失敗
-	self.Castbar.PostCastInterruptible = T.PostUpdateCast	-- 打斷狀態刷新
-end
-
---===================================================--
 ------------------    [[ Others ]]    -----------------
 --===================================================--
 
 -- [[ 職業資源 ]] --
 
 T.CreateClassPower = function(self, unit)
-	if not F.Multicheck(G.myClass, "PRIEST", "MAGE", "WARLOCK", "ROGUE", "MONK", "DRUID", "PALADIN", "DEATHKNIGHT") then return end
+	if not F.Multicheck(G.myClass, "PRIEST", "MAGE", "WARLOCK", "ROGUE", "MONK", "DRUID", "PALADIN", "DEATHKNIGHT", "EVOKER") then return end
+	--if F.Multicheck(G.myClass, "WARRIOR", "HUNTER", "SHAMAN") then return end
+	
+	local isDK = G.myClass == "DEATHKNIGHT"
+	local maxPoint = (isDK and 6) or 7
 	
 	local ClassPower = {}
 	
-	for i = 1, 6 do
+	for i = 1, maxPoint do
 		-- 創建總體條
 		ClassPower[i] = F.CreateStatusbar(self, G.addon..unit.."_ClassPowerBar"..i, "ARTWORK", nil, nil, 1, 1, 0, 1)
-		ClassPower[i].border = F.CreateSD(ClassPower[i], ClassPower[i], 3)
+		ClassPower[i].border = F.CreateSD(ClassPower[i], ClassPower[i], 4)
 		ClassPower[i]:SetFrameLevel(self:GetFrameLevel() + 2)
 		
-		ClassPower[i]:SetSize((C.PPWidth- 5*C.PPOffset)/6, C.PPHeight)
-		
-		if C.NumberStyle then
-			if i == 1 then
-				ClassPower[i]:SetPoint("TOP", self.HealthText, "BOTTOM", -(C.PPWidth - 3*C.PPOffset)/2, -C.PPOffset)
+		if self.mystyle == "NPP" or self.mystyle == "BPP" then
+			ClassPower[i]:SetSize((C.PlayerNPWidth - (maxPoint-1)*C.PPOffset)/maxPoint, C.PPHeight)
+			
+			if C.NumberStylePP then
+				if i == 1 then
+					ClassPower[i]:SetPoint("TOP", self.HealthText, "BOTTOM", -(C.PlayerNPWidth - 3*C.PPOffset)/2, -C.PPOffset)
+				else
+					ClassPower[i]:SetPoint("LEFT", ClassPower[i-1], "RIGHT", C.PPOffset, 0)
+				end
 			else
-				ClassPower[i]:SetPoint("LEFT", ClassPower[i-1], "RIGHT", C.PPOffset, 0)
+				if i == 1 then
+					ClassPower[i]:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -4)
+				else
+					ClassPower[i]:SetPoint("LEFT", ClassPower[i-1], "RIGHT", C.PPOffset, 0)
+				end
 			end
 		else
+			ClassPower[i]:SetSize((C.PWidth - 6*C.PPOffset)/maxPoint, C.PPHeight)
+			
 			if i == 1 then
-				ClassPower[i]:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT", 0, -4)
+				ClassPower[i]:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, C.PPOffset)
 			else
 				ClassPower[i]:SetPoint("LEFT", ClassPower[i-1], "RIGHT", C.PPOffset, 0)
 			end
 		end
 		
-		if G.myClass == "DEATHKNIGHT" then
+		if isDK then
 			ClassPower[i].bg = ClassPower[i]:CreateTexture(nil, "BACKGROUND")
 			ClassPower[i].bg:SetAllPoints()
 			ClassPower[i].bg:SetTexture(G.media.blank)
@@ -118,12 +57,22 @@ T.CreateClassPower = function(self, unit)
 			ClassPower[i].timer = F.CreateText(ClassPower[i], "OVERLAY", G.Font, G.NameFS, G.FontFlag, "CENTER")
 			ClassPower[i].timer:SetPoint("CENTER", 0, 0)
 		end
+		
+		--[[if G.myClass == "EVOKER" then
+			ClassPower[i].bg = ClassPower[i]:CreateTexture(nil, "BACKGROUND")
+			ClassPower[i].bg:SetAllPoints()
+			ClassPower[i].bg:SetTexture(G.media.blank)
+			ClassPower[i].bg.multiplier = .4
+			ClassPower[i].timer = F.CreateText(ClassPower[i], "OVERLAY", G.Font, G.NameFS, G.FontFlag, "CENTER")
+			ClassPower[i].timer:SetPoint("CENTER", 0, 0)
+		end]]--
 	end
 	
 	-- 註冊到ouf並整合符文顯示
-	if G.myClass == "DEATHKNIGHT" then
+	if isDK then
 		ClassPower.colorSpec = true
 		ClassPower.sortOrder = "asc"
+		--ClassPower.__max = 6
 		self.Runes = ClassPower
 		self.Runes.PostUpdate = T.PostUpdateRunes
 	else
@@ -132,8 +81,35 @@ T.CreateClassPower = function(self, unit)
 	end
 end
 
+-- [[ 額外能量 暗牧鳥德薩滿的法力 ]] --
+
+T.CreateAddPower = function(self, unit)
+	if not F.Multicheck(G.myClass, "DRUID", "SHAMAN", "PRIEST") then return end
+	
+	-- 創建一個條
+	local AddPower = F.CreateStatusbar(self, G.addon..unit.."_AddPowerBar", "ARTWORK", nil, nil, 1, 1, 0, 1)
+	AddPower:SetFrameLevel(self:GetFrameLevel() + 2)
+	AddPower:SetHeight(C.PPHeight)
+	AddPower:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 0, C.PPOffset)
+	AddPower:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", 0, C.PPOffset)
+	
+	-- 選項
+	AddPower.colorPower = true
+	-- 背景
+	AddPower.bg = AddPower:CreateTexture(nil, "BACKGROUND")
+	AddPower.bg:SetAllPoints()
+	AddPower.bg:SetTexture(G.media.blank)
+	AddPower.bg.multiplier = .3
+	-- 陰影
+	AddPower.border = F.CreateSD(AddPower, AddPower, 4)
+	-- 註冊到ouf
+	self.AdditionalPower = AddPower
+	-- 文本
+	self.AdditionalPower.value = F.CreateText(self.AdditionalPower, "OVERLAY", G.Font, G.NameFS, G.FontFlag, "LEFT")
+end
+
 -- [[ 酒池 ]] --
---[[
+
 T.CreateStagger = function(self, unit)
 	if G.myClass ~= "MONK" then return end
 	
@@ -142,35 +118,63 @@ T.CreateStagger = function(self, unit)
 	Stagger:SetHeight(C.PPHeight)
 	Stagger:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 0, C.PPOffset)
 	Stagger:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", 0, C.PPOffset)
-	
+
 	-- 背景
 	Stagger.bg = Stagger:CreateTexture(nil, "BACKGROUND")
 	Stagger.bg:SetAllPoints()
 	Stagger.bg:SetTexture(G.media.blank)
 	Stagger.bg.multiplier = .3
 	-- 陰影
-	Stagger.border = F.CreateSD(Stagger, Stagger, 3)
+	Stagger.border = F.CreateSD(Stagger, Stagger, 4)
 	
 	-- 註冊到ouf	
 	self.Stagger = Stagger
 	self.Stagger.PostUpdate = T.PostUpdateStagger
 	-- 文本
 	self.Stagger.value = F.CreateText(self.Stagger, "OVERLAY", G.Font, G.NameFS, G.FontFlag, nil)
-	self.Stagger.value:SetPoint("CENTER", self.Stagger, 0, 0)
-	self.Stagger.value:SetJustifyH("CENTER")
+	if self.mystyle == "VL" then
+		self.Stagger.value:SetPoint("BOTTOMRIGHT", self.Power, "BOTTOMLEFT", -C.PPOffset, (G.NameFS + 2)*2)
+		self.Stagger.value:SetJustifyH("RIGHT")
+	else
+		self.Stagger.value:SetPoint("CENTER", self.Stagger, 0, 0)
+		self.Stagger.value:SetJustifyH("CENTER")
+	end
 end
-]]--
+
 -- [[ 預估治療 ]] --
 
 T.CreateHealthPrediction = function(self, unit)
 	local AbsorbBar = F.CreateStatusbar(self, G.addon..unit.."_AbsorbBar", "ARTWORK", nil, nil, 0, .5, .8, .5)
 	AbsorbBar:SetFrameLevel(self:GetFrameLevel() + 2)
-	AbsorbBar:SetSize(C.NPWidth+40, C.NPHeight+4)
-	AbsorbBar:SetPoint("LEFT", self.Health:GetStatusBarTexture(), "RIGHT")
+	
+	if self.mystyle == "VL" then
+		-- 玩家直式
+		AbsorbBar:SetSize(C.PHeight, C.PWidth)
+		AbsorbBar:SetOrientation("VERTICAL")
+		AbsorbBar:SetPoint("BOTTOM", self.Health:GetStatusBarTexture(), "BOTTOM")
+	elseif self.mystyle == "BP" then
+		-- 條形名條
+		AbsorbBar:SetSize(C.NPWidth, C.NPHeight)
+		AbsorbBar:SetPoint("LEFT", self.Health:GetStatusBarTexture(), "RIGHT")
+	elseif self.mystyle == "BPP" then
+		-- 條形個人資源條
+		AbsorbBar:SetSize(C.PlayerNPWidth, C.NPHeight+4)
+		AbsorbBar:SetPoint("LEFT", self.Health:GetStatusBarTexture(), "RIGHT")
+	else
+		-- 玩家橫式
+		AbsorbBar:SetSize(C.PWidth, C.PHeight)
+		AbsorbBar:SetReverseFill(true)
+		AbsorbBar:SetPoint("TOP")
+		AbsorbBar:SetPoint("BOTTOM")
+		AbsorbBar:SetPoint("LEFT", self.Health:GetStatusBarTexture(), "RIGHT")
+	end
 
-	-- 只做了吸收盾，治療吸收盾跟其他一堆都沒
+	-- 只做了吸收盾，治療吸收盾跟其他一堆都還沒做
 	self.HealthPrediction = {
         absorbBar = AbsorbBar,
-		maxOverflow = 1,
+        -- healAbsorbBar
+		-- overAbsorb
+		-- overHealAbsorb
+        frequentUpdates = true,
     }
 end

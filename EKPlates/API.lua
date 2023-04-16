@@ -1,7 +1,5 @@
 local addon, ns = ... 
---local oUF = ns.oUF
 local C, F, G, T = unpack(ns)
-
 
 --======================================================--
 -----------------    [[ Functions ]]    ------------------
@@ -30,6 +28,36 @@ end
 --===================================================--
 -----------------    [[ Format ]]    ------------------
 --===================================================--
+
+-- [[ 數值 ]] --
+
+F.ShortValue = function(val)
+	-- 讓20k不顯示為20.0k
+	local round = function(val, idp)
+		if idp and idp > 0 then
+			local mult = 10^idp
+			return math.floor(val * mult + 0.5) / mult
+		end
+		return math.floor(val + 0.5)
+	end
+
+	if val >= 1e9 then
+		-- 億至小數點後四位
+		return ("%.4fb"):format(val / 1e9)
+	elseif val >= 1e6 then
+		-- 百萬至小數點後二位
+		return ("%.2fm"):format(val / 1e6)
+	elseif val >= 1e5 then
+		-- 十萬顯示千取整
+		return ("%.fk"):format(val / 1e3)	
+	elseif val >= 1e3 and val < 1e5 then
+		-- 不滿十萬顯示千後小數點一位
+		return round(val / 1e3, 1).."k"
+	else
+		-- 千以下
+		return ("%d"):format(val)
+	end
+end
 
 -- [[ 顏色 ]] --
 
@@ -143,7 +171,8 @@ F.CreateSD = function(parent, anchor, size)
 		edgeSize = size or 3,		-- 邊框大小
 	})
 	--sd:SetBackdropColor(0, 0, 0, 1)
-	sd:SetBackdropBorderColor(0, 0, 0, 1)
+	--sd:SetBackdropBorderColor(0, 0, 0, 1)
+	sd:SetBackdropBorderColor(.05, .05, .05, 1)
 	
 	return sd
 end

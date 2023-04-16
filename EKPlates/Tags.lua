@@ -9,8 +9,10 @@ local C, F, G, T = unpack(ns)
 -- [[ 職業 ]] --
 
 oUF.colors.class["SHAMAN"] = {0, .6, 1}
+oUF.colors.class["MAGE"] = {.48, .84, .94}
 oUF.colors.class["DEATHKNIGHT"] = {1, .23, .23}
 oUF.colors.class["DEMONHUNTER"] = {.74, .35, .95}
+oUF.colors.class["EVOKER"] = {.33, .68, .68}
 
 -- [[ 威脅 ]] --
 
@@ -35,6 +37,7 @@ oUF.colors.power["RUNIC_POWER"] = {.1, .9, .9}				-- 6 死騎 符能
 oUF.colors.power["LUNAR_POWER"] = {0, .6, 1}				-- 8 鳥德 月能
 oUF.colors.power["MAELSTROM"] = {0, .6, 1}					-- 11 薩滿旋渦值
 oUF.colors.power["INSANITY"] = {.74, .35, .95}				-- 13 暗牧 瘋狂值(共用dh職業色)
+oUF.colors.power["ARCANE_CHARGES"] = {0, .8, 1}				-- 16 秘法 充能
 -- 載具類型
 oUF.colors.power["FUEL"] = {0, .75, .7}						-- 同時用於npc無屬能量
 oUF.colors.power["AMMOSLOT"] = {.8, .6, 0}
@@ -87,6 +90,37 @@ oUF.Tags.Events["quest"] = "UNIT_CLASSIFICATION_CHANGED"
 -----------------    [[ Values ]]    -----------------
 --==================================================--
 
+-- [[ 血量 ]] --
+
+-- unitframes
+oUF.Tags.Methods["unit:hp"] = function(u)
+	local cur, max = UnitHealth(u), UnitHealthMax(u)
+	
+	if UnitIsDead(u) then
+		-- 死亡
+		return "|cff559655RIP|r"	-- or DEAD
+	elseif UnitIsGhost(u) then
+		-- 鬼魂
+		return "|cff559655GHO|r"
+	elseif not UnitIsConnected(u) then
+		-- 離線
+		return "|cff559655OFF|r"	-- or PLAYER_OFFLINE
+	elseif cur < max then
+		-- 不滿血顯示當前血量和百分比
+		if C.verticalTarget and u == "target" then
+			return F.Hex(1, 1, 0)..math.floor((cur / max * 100) + .5).."|r "..F.Hex(1, 1, 1)..F.ShortValue(cur).."|r"
+		else
+			return F.ShortValue(cur).." "..F.Hex(1, 1, 0)..math.floor((cur / max * 100) + .5).."|r"
+		end
+	elseif cur == max then
+		-- 滿血顯示血量
+		return F.ShortValue(cur)
+	else
+		return ""
+	end
+end
+oUF.Tags.Events["unit:hp"] = "UNIT_MAXHEALTH UNIT_HEALTH UNIT_CONNECTION"
+
 -- bar style nameplates
 oUF.Tags.Methods["bp:hp"] = function(u)
 	local per = oUF.Tags.Methods["perhp"](u)
@@ -111,6 +145,7 @@ oUF.Tags.Methods["np:hp"] = function(u)
 	local per = oUF.Tags.Methods["perhp"](u)
 	--local player = UnitIsPlayer(u)
 	local reaction = UnitReaction(u, "player")
+	local absorb = UnitGetTotalAbsorbs(u) or 0
 	local color
 	
 	if per < 25 then
@@ -132,7 +167,8 @@ oUF.Tags.Methods["np:hp"] = function(u)
 			return ""
 		elseif per == 100 then
 			-- 滿血不顯示血量
-			return ""
+			--return UnitAffectingCombat("player") and "100" or ""
+			return (absorb > 0 and "+") or ""
 		elseif per ~= 100 then
 			return color..per.."|r"
 		else
@@ -165,7 +201,6 @@ oUF.Tags.Methods["unit:pp"]  = function(u)
 end
 oUF.Tags.Events["unit:pp"] = "UNIT_MAXPOWER UNIT_POWER_UPDATE UNIT_DISPLAYPOWER"
 
-
 -- nameplates
 oUF.Tags.Methods["np:pp"] = function(unit)
 	-- 只監控白名單的能量
@@ -176,9 +211,9 @@ oUF.Tags.Methods["np:pp"] = function(unit)
 	local color
 	
 	if per < 25 then
-		color = F.Hex(.8, .8, 1)
+		color = F.Hex(.2, .2, 1)
 	elseif per < 30 then
-		color = F.Hex(.5, .5, 1)
+		color = F.Hex(.4, .4, 1)
 	else
 		color = F.Hex(.8, .8, 1)
 	end
@@ -188,6 +223,21 @@ oUF.Tags.Methods["np:pp"] = function(unit)
 	return per
 end
 oUF.Tags.Events["np:pp"] = "UNIT_POWER_FREQUENT UNIT_MAXPOWER"
+
+-- [[ 吸收量 ]] --
+
+-- nameplates
+oUF.Tags.Methods["np:ab"] = function(u)
+	local max = UnitHealthMax(u)
+	local absorb = UnitGetTotalAbsorbs(u) or 0
+	
+	if absorb ~= 0 then
+		return F.Hex(1, .9, .4).."+"..math.floor((absorb / max * 100) + .5)
+	else
+		return ""
+	end
+end
+oUF.Tags.Events["np:ab"] = "UNIT_ABSORB_AMOUNT_CHANGED"
 
 -- [[ 名字顏色 ]] --
 
@@ -205,7 +255,42 @@ oUF.Tags.Methods["namecolor"] = function(u, r)
 		return F.Hex(1, 1, 1)
 	end
 end
-oUF.Tags.Events["namecolor"] = "UNIT_FACTION"
+oUF.Tags.Events["namecolor"] = "UNIT_NAME_UPDATE UNIT_FACTION"
+
+-- [[ 單位的目標 ]] --
+
+oUF.Tags.Methods["np:tar"] = function(unit)
+	local targetUnit = unit.."target"
+
+	if UnitExists(targetUnit) then
+		local targetClass = select(2, UnitClass(targetUnit))
+		return F.Hex(oUF.colors.class[targetClass])..UnitName(targetUnit)
+	else
+		return ""
+	end
+end
+oUF.Tags.Events["np:tar"] = "UNIT_NAME_UPDATE UNIT_THREAT_SITUATION_UPDATE UNIT_HEALTH"
+
+
+--[[
+oUF.Tags.Methods["npcast"] = function(unit)
+	local unitTarget = unit.."target"
+	
+	if UnitExists(unitTarget) and UnitIsPlayer(unitTarget) then
+		local nameString
+		--if UnitIsUnit(unitTarget, "player") then
+			nameString = format("|cffff0000%s|r", ">"..strupper(YOU).."<")
+		--else
+			local _, class = UnitClass(unitTarget)
+			nameString = F.Hex(oUF.colors.class[class])..">>"..UnitName(unitTarget)
+		--end
+		
+		return nameString
+	end
+end
+oUF.Tags.Events["npcast"] = "UNIT_SPELLCAST_START UNIT_SPELLCAST_CHANNEL_START"
+]]--
+
 --[[
 oUF.Tags.Methods["np:name"] = function(u)
 	local name = GetUnitName(u) or UNKNOWN
